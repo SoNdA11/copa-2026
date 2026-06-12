@@ -13,8 +13,9 @@ type Match struct {
 	Stadium     string `json:"stadium"`
 	Status      string `json:"status"`
 
-	HomeTeam *Team `json:"home_team,omitempty"`
-	AwayTeam *Team `json:"away_team,omitempty"`
+	HomeTeam   *Team `json:"home_team,omitempty"`
+	AwayTeam   *Team `json:"away_team,omitempty"`
+	HasUserBet bool  `json:"-"`
 }
 
 func (m *Match) StageLabel() string {

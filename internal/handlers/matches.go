@@ -67,12 +67,16 @@ func (h *MatchHandler) List(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Erro ao carregar grupos", http.StatusInternalServerError)
 			return
 		}
+		for gi := range groups {
+			for mi := range groups[gi].Matches {
+				groups[gi].Matches[mi].HasUserBet = userBets[groups[gi].Matches[mi].ID]
+			}
+		}
 		data := PageData{
-			Title:    "Jogos",
-			User:     user,
-			Data:     groups,
-			Stage:    stage,
-			UserBets: userBets,
+			Title: "Jogos",
+			User:  user,
+			Data:  groups,
+			Stage: stage,
 		}
 		h.renderer.Render(w, "cmd/web/templates/pages/matches.html", data)
 		return
@@ -84,12 +88,15 @@ func (h *MatchHandler) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	for i := range matches {
+		matches[i].HasUserBet = userBets[matches[i].ID]
+	}
+
 	data := PageData{
-		Title:    "Jogos",
-		User:     user,
-		Data:     matches,
-		Stage:    stage,
-		UserBets: userBets,
+		Title: "Jogos",
+		User:  user,
+		Data:  matches,
+		Stage: stage,
 	}
 
 	h.renderer.Render(w, "cmd/web/templates/pages/matches.html", data)
