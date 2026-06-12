@@ -12,14 +12,5 @@ services:
         value: admin123kol
       - key: SECRET_KEY
         generateValue: true
-
-      # Render PostgreSQL - criado automaticamente no dashboard
       - key: DATABASE_URL
-        fromService:
-          name: copa-2026-db
-          type: pserv
-          property: connectionString
-
-databases:
-  - name: copa-2026-db
-    plan: free
+        sync: false
