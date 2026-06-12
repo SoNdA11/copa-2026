@@ -35,12 +35,13 @@ func (s *AuthService) Register(name, password string) (int64, error) {
 		return 0, err
 	}
 
-	result, err := s.db.Exec("INSERT INTO users (name, password_hash) VALUES ($1, $2)", name, string(hash))
+	var userID int64
+	err = s.db.QueryRow("INSERT INTO users (name, password_hash) VALUES ($1, $2) RETURNING id", name, string(hash)).Scan(&userID)
 	if err != nil {
 		return 0, err
 	}
 
-	return result.LastInsertId()
+	return userID, nil
 }
 
 func (s *AuthService) Authenticate(name, password string) (*AuthResult, error) {
