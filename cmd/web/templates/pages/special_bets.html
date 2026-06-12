@@ -11,15 +11,15 @@
     </div>
 </div>
 
-{{if bettingOpen}}
+{{if specialBettingOpen}}
 <div class="card border-l-4 border-blue-400/60 dark:border-blue-600/40 text-blue-700 dark:text-blue-300 px-4 py-3 rounded-2xl mb-6 animate-fade-in animate-fade-in-d1">
-    <p class="font-semibold">Prazo até 12/06/2026</p>
-    <p class="text-sm text-blue-600/80 dark:text-blue-400/60 mt-1">Você pode enviar ou alterar seus palpites especiais até o dia 12 de junho de 2026.</p>
+    <p class="font-semibold">Prazo até 19/06/2026</p>
+    <p class="text-sm text-blue-600/80 dark:text-blue-400/60 mt-1">Você pode enviar ou alterar seus palpites especiais até o dia 19 de junho de 2026.</p>
 </div>
 {{else}}
 <div class="card border-l-4 border-amber-400/60 dark:border-amber-600/40 text-amber-700 dark:text-amber-400 px-4 py-3 rounded-2xl mb-6 animate-fade-in animate-fade-in-d1">
     <p class="font-semibold">Prazo de palpites encerrado</p>
-    <p class="text-sm text-amber-600/80 dark:text-amber-400/60 mt-1">Os palpites especiais foram bloqueados em 12/06/2026.</p>
+    <p class="text-sm text-amber-600/80 dark:text-amber-400/60 mt-1">Os palpites especiais foram bloqueados em 19/06/2026.</p>
 </div>
 {{end}}
 
@@ -35,15 +35,12 @@
         {{$typeKey := .Key}}
         {{$existingBet := index $.Data.Bets .Key}}
 
-        {{if bettingOpen}}
+        {{if specialBettingOpen}}
         <form method="POST" action="/special/bet" class="space-y-3">
             <input type="hidden" name="bet_type" value="{{.Key}}">
 
-            {{if eq .Key "top_scorer"}}
+            {{if or (eq .Key "top_scorer") (eq .Key "best_player") (eq .Key "best_goalkeeper") (eq .Key "best_young_player")}}
             <input type="text" name="value" placeholder="Ex: Mbappé" value="{{if $existingBet}}{{$existingBet.Value}}{{end}}"
-                class="w-full bg-stone-100/70 dark:bg-stone-800/50 border border-stone-200/60 dark:border-stone-700/50 rounded-2xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:focus:ring-emerald-400/20 focus:border-emerald-400 dark:focus:border-emerald-600 text-stone-700 dark:text-stone-300 placeholder-stone-400 dark:placeholder-stone-600 text-sm transition-all">
-            {{else if eq .Key "best_player"}}
-            <input type="text" name="value" placeholder="Ex: Vinícius Jr" value="{{if $existingBet}}{{$existingBet.Value}}{{end}}"
                 class="w-full bg-stone-100/70 dark:bg-stone-800/50 border border-stone-200/60 dark:border-stone-700/50 rounded-2xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:focus:ring-emerald-400/20 focus:border-emerald-400 dark:focus:border-emerald-600 text-stone-700 dark:text-stone-300 placeholder-stone-400 dark:placeholder-stone-600 text-sm transition-all">
             {{else}}
             <select name="value" class="w-full bg-stone-100/70 dark:bg-stone-800/50 border border-stone-200/60 dark:border-stone-700/50 rounded-2xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:focus:ring-emerald-400/20 focus:border-emerald-400 dark:focus:border-emerald-600 text-stone-700 dark:text-stone-300 text-sm transition-all">

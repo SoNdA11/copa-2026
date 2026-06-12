@@ -20,6 +20,8 @@
                     <th class="px-5 py-3.5 font-semibold">Campeao</th>
                     <th class="px-5 py-3.5 font-semibold">Melhor Jogador</th>
                     <th class="px-5 py-3.5 font-semibold">Artilheiro</th>
+                    <th class="px-5 py-3.5 font-semibold">Melhor Goleiro</th>
+                    <th class="px-5 py-3.5 font-semibold">Melhor Jovem</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-stone-200/40 dark:divide-stone-800/30">
@@ -44,10 +46,22 @@
                         <span class="ml-2 text-xs font-bold text-emerald-600 dark:text-emerald-400">+{{.TopScorerPts}}</span>
                         {{end}}
                     </td>
+                    <td class="px-5 py-3.5">
+                        <span class="font-medium text-stone-600 dark:text-stone-400">{{.BestGoalkeeper}}</span>
+                        {{if gt .BestGoalkeeperPts 0}}
+                        <span class="ml-2 text-xs font-bold text-emerald-600 dark:text-emerald-400">+{{.BestGoalkeeperPts}}</span>
+                        {{end}}
+                    </td>
+                    <td class="px-5 py-3.5">
+                        <span class="font-medium text-stone-600 dark:text-stone-400">{{.BestYoung}}</span>
+                        {{if gt .BestYoungPts 0}}
+                        <span class="ml-2 text-xs font-bold text-emerald-600 dark:text-emerald-400">+{{.BestYoungPts}}</span>
+                        {{end}}
+                    </td>
                 </tr>
                 {{else}}
                 <tr>
-                    <td colspan="4" class="px-5 py-16 text-center text-stone-400 dark:text-stone-600">
+                    <td colspan="6" class="px-5 py-16 text-center text-stone-400 dark:text-stone-600">
                         Nenhum palpite cadastrado ainda
                     </td>
                 </tr>

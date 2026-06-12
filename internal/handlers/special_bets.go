@@ -47,6 +47,8 @@ func (h *SpecialBetHandler) List(w http.ResponseWriter, r *http.Request) {
 		{Key: "champion", Label: "Campeão da Copa", MaxPoints: 10, Description: "Quem vai levantar a taça?"},
 		{Key: "best_player", Label: "Melhor Jogador", MaxPoints: 5, Description: "Quem será eleito o melhor da Copa?"},
 		{Key: "top_scorer", Label: "Artilheiro", MaxPoints: 5, Description: "Quem vai fazer mais gols?"},
+		{Key: "best_goalkeeper", Label: "Melhor Goleiro", MaxPoints: 5, Description: "Quem será o melhor goleiro da Copa?"},
+		{Key: "best_young_player", Label: "Melhor Jovem", MaxPoints: 5, Description: "Quem será o melhor jogador jovem da Copa?"},
 	}
 
 	specialData := struct {
@@ -80,8 +82,8 @@ func (h *SpecialBetHandler) Place(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !services.IsBettingOpen() {
-		http.Error(w, "Prazo de palpites encerrado em 12/06/2026", http.StatusBadRequest)
+	if !services.IsSpecialBettingOpen() {
+		http.Error(w, "Prazo de palpites especiais encerrado", http.StatusBadRequest)
 		return
 	}
 
@@ -134,13 +136,17 @@ func (h *SpecialBetHandler) AllBets(w http.ResponseWriter, r *http.Request) {
 	user := GetUserFromSession(r)
 
 	type UserSpecialRow struct {
-		UserName  string
-		Champion  string
-		BestPlayer string
-		TopScorer string
-		ChampionPts  int
-		BestPlayerPts int
-		TopScorerPts int
+		UserName       string
+		Champion       string
+		BestPlayer     string
+		TopScorer      string
+		BestGoalkeeper string
+		BestYoung      string
+		ChampionPts       int
+		BestPlayerPts     int
+		TopScorerPts      int
+		BestGoalkeeperPts int
+		BestYoungPts      int
 	}
 
 	rows, err := h.db.Query(`
@@ -148,9 +154,13 @@ func (h *SpecialBetHandler) AllBets(w http.ResponseWriter, r *http.Request) {
 			COALESCE(MAX(CASE WHEN s.bet_type = 'champion' THEN s.value END), '-') as champion,
 			COALESCE(MAX(CASE WHEN s.bet_type = 'best_player' THEN s.value END), '-') as best_player,
 			COALESCE(MAX(CASE WHEN s.bet_type = 'top_scorer' THEN s.value END), '-') as top_scorer,
+			COALESCE(MAX(CASE WHEN s.bet_type = 'best_goalkeeper' THEN s.value END), '-') as best_goalkeeper,
+			COALESCE(MAX(CASE WHEN s.bet_type = 'best_young_player' THEN s.value END), '-') as best_young_player,
 			COALESCE(MAX(CASE WHEN s.bet_type = 'champion' THEN s.points END), 0) as champion_pts,
 			COALESCE(MAX(CASE WHEN s.bet_type = 'best_player' THEN s.points END), 0) as best_player_pts,
-			COALESCE(MAX(CASE WHEN s.bet_type = 'top_scorer' THEN s.points END), 0) as top_scorer_pts
+			COALESCE(MAX(CASE WHEN s.bet_type = 'top_scorer' THEN s.points END), 0) as top_scorer_pts,
+			COALESCE(MAX(CASE WHEN s.bet_type = 'best_goalkeeper' THEN s.points END), 0) as best_goalkeeper_pts,
+			COALESCE(MAX(CASE WHEN s.bet_type = 'best_young_player' THEN s.points END), 0) as best_young_pts
 		FROM users u
 		LEFT JOIN special_bets s ON s.user_id = u.id
 		WHERE u.is_admin = 0
@@ -166,8 +176,8 @@ func (h *SpecialBetHandler) AllBets(w http.ResponseWriter, r *http.Request) {
 	var specialRows []UserSpecialRow
 	for rows.Next() {
 		var r UserSpecialRow
-		if err := rows.Scan(&r.UserName, &r.Champion, &r.BestPlayer, &r.TopScorer,
-			&r.ChampionPts, &r.BestPlayerPts, &r.TopScorerPts); err != nil {
+		if err := rows.Scan(&r.UserName, &r.Champion, &r.BestPlayer, &r.TopScorer, &r.BestGoalkeeper, &r.BestYoung,
+			&r.ChampionPts, &r.BestPlayerPts, &r.TopScorerPts, &r.BestGoalkeeperPts, &r.BestYoungPts); err != nil {
 			continue
 		}
 		specialRows = append(specialRows, r)

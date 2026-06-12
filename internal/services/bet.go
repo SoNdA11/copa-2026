@@ -10,8 +10,14 @@ import (
 
 var bettingDeadline = time.Date(2026, 6, 13, 2, 59, 59, 0, time.UTC)
 
+var specialBettingDeadline = time.Date(2026, 6, 20, 2, 59, 59, 0, time.UTC)
+
 func IsBettingOpen() bool {
 	return time.Now().Before(bettingDeadline)
+}
+
+func IsSpecialBettingOpen() bool {
+	return time.Now().Before(specialBettingDeadline)
 }
 
 type BetService struct {

@@ -37,6 +37,9 @@ var funcMap = template.FuncMap{
 	"bettingOpen": func() bool {
 		return services.IsBettingOpen()
 	},
+	"specialBettingOpen": func() bool {
+		return services.IsSpecialBettingOpen()
+	},
 	"stageLabel": func(stage string) string {
 		labels := map[string]string{
 			"group": "Fase de Grupos",
