@@ -47,6 +47,20 @@ func (h *MatchHandler) List(w http.ResponseWriter, r *http.Request) {
 
 	user := GetUserFromSession(r)
 
+	userBets := make(map[int64]bool)
+	if user != nil {
+		rows, err := h.db.Query("SELECT match_id FROM bets WHERE user_id = $1", user.ID)
+		if err == nil {
+			defer rows.Close()
+			for rows.Next() {
+				var mid int64
+				if rows.Scan(&mid) == nil {
+					userBets[mid] = true
+				}
+			}
+		}
+	}
+
 	if stage == "group" {
 		groups, err := h.getGroupStandings()
 		if err != nil {
@@ -54,10 +68,11 @@ func (h *MatchHandler) List(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		data := PageData{
-			Title: "Jogos",
-			User:  user,
-			Data:  groups,
-			Stage: stage,
+			Title:    "Jogos",
+			User:     user,
+			Data:     groups,
+			Stage:    stage,
+			UserBets: userBets,
 		}
 		h.renderer.Render(w, "cmd/web/templates/pages/matches.html", data)
 		return
@@ -70,10 +85,11 @@ func (h *MatchHandler) List(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := PageData{
-		Title: "Jogos",
-		User:  user,
-		Data:  matches,
-		Stage: stage,
+		Title:    "Jogos",
+		User:     user,
+		Data:     matches,
+		Stage:    stage,
+		UserBets: userBets,
 	}
 
 	h.renderer.Render(w, "cmd/web/templates/pages/matches.html", data)

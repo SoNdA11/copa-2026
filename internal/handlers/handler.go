@@ -8,13 +8,14 @@ import (
 )
 
 type PageData struct {
-	Title string
-	User  *UserInfo
-	Error string
-	Flash string
-	Data  interface{}
-	Bet   interface{}
-	Stage string
+	Title    string
+	User     *UserInfo
+	Error    string
+	Flash    string
+	Data     interface{}
+	Bet      interface{}
+	Stage    string
+	UserBets map[int64]bool
 }
 
 var funcMap = template.FuncMap{

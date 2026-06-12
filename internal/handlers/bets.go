@@ -55,6 +55,8 @@ func (h *BetHandler) Place(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	existing, _ := h.betSvc.GetUserBet(user.ID, matchID)
+
 	if err := h.betSvc.PlaceBet(user.ID, matchID, homeScore, awayScore); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
@@ -64,10 +66,15 @@ func (h *BetHandler) Place(w http.ResponseWriter, r *http.Request) {
 	bet, _ := h.betSvc.GetUserBet(user.ID, matchID)
 	match := h.getMatchWithTeams(matchID)
 
+	flash := "Palpite salvo!"
+	if existing != nil {
+		flash = "Palpite atualizado!"
+	}
+
 	data := PageData{
 		Data:  match,
 		Bet:   bet,
-		Flash: "Palpite atualizado!",
+		Flash: flash,
 	}
 
 	tmpl, err := LoadPageTemplate(
