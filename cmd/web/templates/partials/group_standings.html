@@ -1,0 +1,43 @@
+{{define "group_standings"}}
+<div class="overflow-x-auto">
+    <table class="w-full text-sm">
+        <thead>
+            <tr class="text-stone-400 dark:text-stone-600 border-b border-stone-200/50 dark:border-stone-800/30 text-xs">
+                <th class="py-2 px-2 text-left font-semibold">#</th>
+                <th class="py-2 px-2 text-left font-semibold">Time</th>
+                <th class="py-2 px-2 text-center font-semibold">P</th>
+                <th class="py-2 px-2 text-center font-semibold">V</th>
+                <th class="py-2 px-2 text-center font-semibold">E</th>
+                <th class="py-2 px-2 text-center font-semibold">D</th>
+                <th class="py-2 px-2 text-center font-semibold">GP</th>
+                <th class="py-2 px-2 text-center font-semibold">GC</th>
+                <th class="py-2 px-2 text-center font-semibold">SG</th>
+                <th class="py-2 px-2 text-center font-black">Pts</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .}}
+            <tr class="border-b border-stone-200/30 dark:border-stone-800/20 hover:bg-emerald-50/20 dark:hover:bg-emerald-950/10 transition-colors">
+                <td class="py-2 px-2 font-bold text-stone-400 dark:text-stone-600">{{.Position}}º</td>
+                <td class="py-2 px-2">
+                    <div class="flex items-center space-x-1.5">
+                        {{if .TeamFlag}}
+                        <img src="{{.TeamFlag}}" alt="{{.TeamName}}" class="w-4 h-4 object-contain flex-shrink-0">
+                        {{end}}
+                        <span class="text-stone-700 dark:text-stone-300 font-medium">{{.TeamName}}</span>
+                    </div>
+                </td>
+                <td class="py-2 px-2 text-center text-stone-500 dark:text-stone-500">{{.Played}}</td>
+                <td class="py-2 px-2 text-center text-stone-500 dark:text-stone-500">{{.Wins}}</td>
+                <td class="py-2 px-2 text-center text-stone-500 dark:text-stone-500">{{.Draws}}</td>
+                <td class="py-2 px-2 text-center text-stone-500 dark:text-stone-500">{{.Losses}}</td>
+                <td class="py-2 px-2 text-center text-stone-500 dark:text-stone-500">{{.GoalsFor}}</td>
+                <td class="py-2 px-2 text-center text-stone-500 dark:text-stone-500">{{.GoalsAgainst}}</td>
+                <td class="py-2 px-2 text-center font-bold {{if gt .GoalDiff 0}}text-emerald-600 dark:text-emerald-400{{else if lt .GoalDiff 0}}text-red-500 dark:text-red-400{{else}}text-stone-400 dark:text-stone-600{{end}}">{{if gt .GoalDiff 0}}+{{end}}{{.GoalDiff}}</td>
+                <td class="py-2 px-2 text-center font-black text-emerald-600 dark:text-emerald-400">{{.Points}}</td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+</div>
+{{end}}

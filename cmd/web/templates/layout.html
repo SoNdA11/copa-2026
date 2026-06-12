@@ -1,0 +1,172 @@
+{{define "layout"}}
+<!DOCTYPE html>
+<html lang="pt-BR" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{if .Title}}{{.Title}} - {{end}}Bolão Copa 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    <script>
+        if (localStorage.getItem('darkMode') === 'true' || (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@350;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+
+        .card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(251, 191, 36, 0.15);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+            transition: all 0.2s ease;
+        }
+        .dark .card {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(251, 191, 36, 0.08);
+            box-shadow: none;
+        }
+
+        .card-hover:hover {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: rgba(5, 150, 105, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.06);
+        }
+        .dark .card-hover:hover {
+            background: rgba(255, 255, 255, 0.07);
+            border-color: rgba(52, 211, 153, 0.15);
+            box-shadow: 0 4px 20px rgba(52, 211, 153, 0.04);
+        }
+
+        .card-strong {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(251, 191, 36, 0.2);
+        }
+        .dark .card-strong {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(251, 191, 36, 0.1);
+        }
+
+        .btn-primary {
+            background: #059669;
+            color: white;
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover {
+            background: #047857;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(5, 150, 105, 0.2);
+        }
+        .dark .btn-primary {
+            background: #34d399;
+            color: #0c0a09;
+        }
+        .dark .btn-primary:hover {
+            background: #6ee7b7;
+            box-shadow: 0 4px 14px rgba(52, 211, 153, 0.15);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid rgba(5, 150, 105, 0.2);
+            color: #059669;
+            transition: all 0.2s ease;
+        }
+        .btn-ghost:hover {
+            background: rgba(5, 150, 105, 0.06);
+            border-color: rgba(5, 150, 105, 0.3);
+        }
+        .dark .btn-ghost {
+            border-color: rgba(52, 211, 153, 0.15);
+            color: #34d399;
+        }
+        .dark .btn-ghost:hover {
+            background: rgba(52, 211, 153, 0.06);
+            border-color: rgba(52, 211, 153, 0.25);
+        }
+
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .animate-fade-in {
+            opacity: 0;
+            transform: translateY(16px);
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+        .animate-fade-in-d1 { animation-delay: 0.08s; }
+        .animate-fade-in-d2 { animation-delay: 0.16s; }
+        .animate-fade-in-d3 { animation-delay: 0.24s; }
+        .animate-fade-in-d4 { animation-delay: 0.32s; }
+        .animate-fade-in-d5 { animation-delay: 0.4s; }
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-pulse-soft {
+            animation: pulseSoft 2s ease-in-out infinite;
+        }
+        @keyframes pulseSoft {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 0.35; }
+        }
+
+        .link {
+            color: #059669;
+            transition: color 0.15s ease;
+        }
+        .link:hover {
+            color: #047857;
+        }
+        .dark .link {
+            color: #34d399;
+        }
+        .dark .link:hover {
+            color: #6ee7b7;
+        }
+
+        ::selection { background: rgba(5, 150, 105, 0.15); }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 3px; }
+        .dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); }
+
+        @media (prefers-reduced-motion: reduce) {
+            .animate-float, .animate-fade-in, .animate-pulse-soft { animation: none; opacity: 1; transform: none; }
+        }
+    </style>
+</head>
+<body class="bg-stone-50 dark:bg-stone-950 text-stone-700 dark:text-stone-300 min-h-screen flex flex-col transition-colors duration-300">
+    {{template "nav" .}}
+
+    <main class="flex-1 max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10 w-full">
+        {{if .Error}}
+        <div class="bg-red-50/80 dark:bg-red-950/30 border border-red-200/60 dark:border-red-800/30 text-red-600 dark:text-red-400 px-4 py-3 mb-6 text-sm rounded-2xl animate-fade-in">
+            {{.Error}}
+        </div>
+        {{end}}
+
+        {{template "page_content" .}}
+    </main>
+
+    <footer class="border-t border-stone-200/50 dark:border-stone-800/30 mt-16 py-6 text-center">
+        <p class="text-stone-400 dark:text-stone-600 text-xs">Bolão Copa do Mundo 2026</p>
+    </footer>
+</body>
+</html>
+{{end}}

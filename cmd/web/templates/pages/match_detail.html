@@ -1,0 +1,102 @@
+{{define "page_content"}}
+<div class="max-w-2xl mx-auto animate-fade-in">
+    <a href="/matches" class="link text-sm font-semibold mb-4 inline-block">&larr; Voltar</a>
+
+    <div class="card rounded-2xl overflow-hidden mb-6">
+        <div class="bg-gradient-to-r from-emerald-50/50 dark:from-emerald-950/20 to-transparent px-5 py-3 border-b border-stone-200/50 dark:border-stone-800/30 text-center">
+            <span class="text-stone-400 dark:text-stone-600 text-xs font-medium">{{stageLabel .Data.Stage}}{{if .Data.GroupName}} &middot; {{.Data.GroupName}}{{end}}</span>
+            <p class="text-stone-400 dark:text-stone-600 text-xs mt-0.5">{{.Data.Stadium}}</p>
+        </div>
+        <div class="p-6">
+            <div class="flex items-center justify-center space-x-8">
+                <div class="text-center flex-1">
+                    <div class="w-16 h-16 mx-auto mb-2">
+                        {{if .Data.HomeTeam.FlagURL}}
+                        <img src="{{.Data.HomeTeam.FlagURL}}" alt="{{.Data.HomeTeam.Name}}" class="w-16 h-16 object-contain">
+                        {{else}}
+                        <div class="w-16 h-16 bg-stone-100 dark:bg-stone-800 rounded-2xl flex items-center justify-center text-sm text-stone-500 dark:text-stone-500 font-semibold mx-auto">
+                            {{slice .Data.HomeTeam.Name 0 3}}
+                        </div>
+                        {{end}}
+                    </div>
+                    <h2 class="text-base font-bold text-stone-800 dark:text-stone-200">{{.Data.HomeTeam.Name}}</h2>
+                </div>
+
+                <div class="text-center">
+                    {{if and .Data.HomeScore .Data.AwayScore}}
+                    <div class="flex items-center space-x-3 bg-emerald-50/50 dark:bg-emerald-950/30 rounded-2xl px-6 py-3">
+                        <span class="text-4xl font-black text-emerald-600 dark:text-emerald-400">{{.Data.HomeScore}}</span>
+                        <span class="text-xl text-stone-300 dark:text-stone-700 font-bold">x</span>
+                        <span class="text-4xl font-black text-emerald-600 dark:text-emerald-400">{{.Data.AwayScore}}</span>
+                    </div>
+                    {{else}}
+                    <div class="text-2xl text-stone-300 dark:text-stone-700 font-semibold">vs</div>
+                    {{end}}
+                    <div class="mt-2">
+                        {{if eq .Data.Status "live"}}
+                        <span class="inline-flex items-center space-x-1.5 bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/30 text-emerald-600 dark:text-emerald-400 font-bold text-xs px-3 py-1.5 rounded-full">
+                            <span class="w-2 h-2 bg-emerald-500 dark:bg-emerald-400 rounded-full animate-pulse-soft"></span>
+                            <span>AO VIVO</span>
+                        </span>
+                        {{else if eq .Data.Status "finished"}}
+                        <span class="text-stone-400 dark:text-stone-600 text-xs font-medium">Finalizado</span>
+                        {{else}}
+                        <span class="text-stone-400 dark:text-stone-600 text-xs font-medium">{{.Data.MatchDate}} {{.Data.MatchTime}}</span>
+                        {{end}}
+                    </div>
+                </div>
+
+                <div class="text-center flex-1">
+                    <div class="w-16 h-16 mx-auto mb-2">
+                        {{if .Data.AwayTeam.FlagURL}}
+                        <img src="{{.Data.AwayTeam.FlagURL}}" alt="{{.Data.AwayTeam.Name}}" class="w-16 h-16 object-contain">
+                        {{else}}
+                        <div class="w-16 h-16 bg-stone-100 dark:bg-stone-800 rounded-2xl flex items-center justify-center text-sm text-stone-500 dark:text-stone-500 font-semibold mx-auto">
+                            {{slice .Data.AwayTeam.Name 0 3}}
+                        </div>
+                        {{end}}
+                    </div>
+                    <h2 class="text-base font-bold text-stone-800 dark:text-stone-200">{{.Data.AwayTeam.Name}}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{if .User}}
+    <div class="card rounded-2xl p-6">
+        <h3 class="font-bold text-stone-600 dark:text-stone-400 mb-4 text-center text-sm">Seu Palpite</h3>
+        {{if eq .Data.Status "upcoming"}}
+        {{if bettingOpen}}
+        {{template "bet_form" .}}
+        {{else}}
+        <div class="text-center py-3">
+            <p class="text-amber-600 dark:text-amber-400 font-semibold text-sm">Prazo encerrado em 12/06/2026</p>
+        </div>
+        {{end}}
+        {{else}}
+        <div class="text-center">
+            {{if .Bet}}
+            <div class="flex items-center justify-center space-x-3 mb-2">
+                <span class="text-2xl font-black text-emerald-600 dark:text-emerald-400">{{.Bet.HomeScore}}</span>
+                <span class="text-lg text-stone-300 dark:text-stone-700 font-bold">x</span>
+                <span class="text-2xl font-black text-emerald-600 dark:text-emerald-400">{{.Bet.AwayScore}}</span>
+            </div>
+            {{if gt .Bet.Points 0}}
+            <span class="inline-block bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/30 text-emerald-600 dark:text-emerald-400 font-bold px-4 py-1.5 rounded-full text-sm">+{{.Bet.Points}} pts</span>
+            {{else}}
+            <span class="text-stone-400 dark:text-stone-600 text-sm font-medium">0 pontos</span>
+            {{end}}
+            {{else}}
+            <p class="text-stone-400 dark:text-stone-600">Você não palpitou nesse jogo</p>
+            {{end}}
+        </div>
+        {{end}}
+    </div>
+    {{else}}
+    <div class="card rounded-2xl p-6 text-center">
+        <p class="text-stone-500 dark:text-stone-500 mb-4">Faça login para palpitar</p>
+        <a href="/login" class="btn-primary text-white dark:text-stone-900 font-semibold px-6 py-2.5 rounded-xl text-sm inline-block">Entrar</a>
+    </div>
+    {{end}}
+</div>
+{{end}}

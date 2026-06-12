@@ -1,0 +1,7 @@
+{{define "page_content"}}
+<h1 class="text-2xl font-bold text-stone-800 dark:text-stone-100 mb-6 animate-fade-in">Ranking</h1>
+
+<div class="card rounded-2xl overflow-hidden animate-fade-in animate-fade-in-d1" hx-get="/ranking/partial" hx-trigger="every 30s" hx-target="this" hx-swap="innerHTML">
+    {{template "ranking_table" .}}
+</div>
+{{end}}

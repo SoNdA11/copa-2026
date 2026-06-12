@@ -1,0 +1,31 @@
+{{define "page_content"}}
+<div class="max-w-lg mx-auto animate-fade-in">
+    <h1 class="text-2xl font-bold text-stone-800 dark:text-stone-100 mb-6">Configurações</h1>
+
+    <div class="card rounded-2xl divide-y divide-stone-200/50 dark:divide-stone-800/30">
+        <div class="p-5">
+            <h2 class="font-bold text-stone-700 dark:text-stone-300 text-sm">Perfil</h2>
+            <p class="text-sm text-stone-500 dark:text-stone-500 mt-1">{{.User.Name}}</p>
+        </div>
+
+        <div class="p-5">
+            <h2 class="font-bold text-red-500 dark:text-red-400 mb-3 text-sm">Excluir conta</h2>
+            <p class="text-sm text-stone-500 dark:text-stone-500 mb-4">
+                Esta ação é irreversível. Todos os seus palpites, pontos e dados serão permanentemente removidos.
+            </p>
+            <form method="POST" action="/settings/delete" class="space-y-3" onsubmit="return confirm('Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita.');">
+                <div>
+                    <label class="block text-xs font-semibold text-stone-500 dark:text-stone-500 mb-1.5">
+                        Digite <span class="font-black text-red-500 dark:text-red-400">EXCLUIR</span> para confirmar
+                    </label>
+                    <input type="text" name="confirm" required placeholder="EXCLUIR"
+                        class="w-full bg-stone-100/70 dark:bg-stone-800/50 border border-stone-200/60 dark:border-stone-700/50 rounded-2xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400 dark:focus:border-red-600 text-stone-700 dark:text-stone-300 placeholder-stone-400 dark:placeholder-stone-600 text-sm transition-all">
+                </div>
+                <button type="submit" class="w-full bg-red-500/80 hover:bg-red-500 dark:bg-red-600/80 dark:hover:bg-red-500 text-white font-semibold py-3 rounded-xl transition-all text-sm">
+                    Excluir minha conta
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{{end}}

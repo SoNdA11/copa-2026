@@ -1,0 +1,64 @@
+{{define "page_content"}}
+<div class="flex items-center justify-between mb-6 animate-fade-in">
+    <h1 class="text-2xl font-bold text-stone-800 dark:text-stone-100">Jogos</h1>
+    <div class="flex space-x-2 overflow-x-auto pb-1">
+        <a href="/matches" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{if not .Stage}}card-strong text-emerald-600 dark:text-emerald-400{{else}}text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/15 border border-stone-200/50 dark:border-stone-800/30{{end}}">
+            Todas
+        </a>
+        <a href="/matches?stage=group" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{if eq .Stage "group"}}card-strong text-emerald-600 dark:text-emerald-400{{else}}text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/15 border border-stone-200/50 dark:border-stone-800/30{{end}}">
+            Grupos
+        </a>
+        <a href="/matches?stage=r32" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{if eq .Stage "r32"}}card-strong text-emerald-600 dark:text-emerald-400{{else}}text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/15 border border-stone-200/50 dark:border-stone-800/30{{end}}">
+            16 Avos
+        </a>
+        <a href="/matches?stage=r16" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{if eq .Stage "r16"}}card-strong text-emerald-600 dark:text-emerald-400{{else}}text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/15 border border-stone-200/50 dark:border-stone-800/30{{end}}">
+            Oitavas
+        </a>
+        <a href="/matches?stage=qf" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{if eq .Stage "qf"}}card-strong text-emerald-600 dark:text-emerald-400{{else}}text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/15 border border-stone-200/50 dark:border-stone-800/30{{end}}">
+            Quartas
+        </a>
+        <a href="/matches?stage=sf" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{if eq .Stage "sf"}}card-strong text-emerald-600 dark:text-emerald-400{{else}}text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/15 border border-stone-200/50 dark:border-stone-800/30{{end}}">
+            Semi
+        </a>
+        <a href="/matches?stage=final" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{if eq .Stage "final"}}card-strong text-emerald-600 dark:text-emerald-400{{else}}text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/15 border border-stone-200/50 dark:border-stone-800/30{{end}}">
+            Final
+        </a>
+    </div>
+</div>
+
+{{if eq .Stage "group"}}
+<div class="space-y-6">
+    {{range .Data}}
+    <div class="card rounded-2xl overflow-hidden animate-fade-in">
+        <div class="bg-gradient-to-r from-emerald-50/50 dark:from-emerald-950/20 to-transparent px-5 py-3 border-b border-stone-200/50 dark:border-stone-800/30">
+            <h2 class="text-sm font-bold text-emerald-700 dark:text-emerald-300">Grupo {{.Name}}</h2>
+        </div>
+        <div class="p-4">
+            {{template "group_standings" .Standings}}
+            <div class="mt-4 space-y-2.5">
+                {{range .Matches}}
+                {{template "match_row" .}}
+                {{end}}
+            </div>
+        </div>
+    </div>
+    {{else}}
+    <div class="text-center py-16 text-stone-400 dark:text-stone-600">
+        Nenhum grupo encontrado
+    </div>
+    {{end}}
+</div>
+{{else}}
+<div class="space-y-2.5">
+    {{range .Data}}
+    <div class="animate-fade-in">
+        {{template "match_row" .}}
+    </div>
+    {{else}}
+    <div class="text-center py-16 text-stone-400 dark:text-stone-600">
+        Nenhum jogo encontrado
+    </div>
+    {{end}}
+</div>
+{{end}}
+{{end}}

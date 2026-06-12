@@ -1,0 +1,72 @@
+{{define "page_content"}}
+<div class="flex items-center justify-between mb-6 animate-fade-in">
+    <h1 class="text-2xl font-bold text-stone-800 dark:text-stone-100">Palpites Especiais</h1>
+    <div class="flex space-x-2">
+        <a href="/special" class="px-4 py-2 rounded-xl text-xs font-bold transition-all card-strong text-emerald-600 dark:text-emerald-400">
+            Meus
+        </a>
+        <a href="/special/all" class="px-4 py-2 rounded-xl text-xs font-bold transition-all text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/15 border border-stone-200/50 dark:border-stone-800/30">
+            Todos
+        </a>
+    </div>
+</div>
+
+{{if bettingOpen}}
+<div class="card border-l-4 border-blue-400/60 dark:border-blue-600/40 text-blue-700 dark:text-blue-300 px-4 py-3 rounded-2xl mb-6 animate-fade-in animate-fade-in-d1">
+    <p class="font-semibold">Prazo até 12/06/2026</p>
+    <p class="text-sm text-blue-600/80 dark:text-blue-400/60 mt-1">Você pode enviar ou alterar seus palpites especiais até o dia 12 de junho de 2026.</p>
+</div>
+{{else}}
+<div class="card border-l-4 border-amber-400/60 dark:border-amber-600/40 text-amber-700 dark:text-amber-400 px-4 py-3 rounded-2xl mb-6 animate-fade-in animate-fade-in-d1">
+    <p class="font-semibold">Prazo de palpites encerrado</p>
+    <p class="text-sm text-amber-600/80 dark:text-amber-400/60 mt-1">Os palpites especiais foram bloqueados em 12/06/2026.</p>
+</div>
+{{end}}
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {{range .Data.Types}}
+    <div class="card rounded-2xl p-5 animate-fade-in">
+        <div class="mb-4">
+            <h2 class="font-bold text-stone-800 dark:text-stone-200 text-sm">{{.Label}}</h2>
+            <p class="text-xs text-stone-500 dark:text-stone-500 mt-1">{{.Description}}</p>
+            <span class="inline-block bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/30 text-emerald-600 dark:text-emerald-400 text-xs font-bold px-2 py-0.5 rounded-full mt-2">{{.MaxPoints}} pts</span>
+        </div>
+
+        {{$typeKey := .Key}}
+        {{$existingBet := index $.Data.Bets .Key}}
+
+        {{if bettingOpen}}
+        <form method="POST" action="/special/bet" class="space-y-3">
+            <input type="hidden" name="bet_type" value="{{.Key}}">
+
+            {{if eq .Key "top_scorer"}}
+            <input type="text" name="value" placeholder="Ex: Mbappé" value="{{if $existingBet}}{{$existingBet.Value}}{{end}}"
+                class="w-full bg-stone-100/70 dark:bg-stone-800/50 border border-stone-200/60 dark:border-stone-700/50 rounded-2xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:focus:ring-emerald-400/20 focus:border-emerald-400 dark:focus:border-emerald-600 text-stone-700 dark:text-stone-300 placeholder-stone-400 dark:placeholder-stone-600 text-sm transition-all">
+            {{else if eq .Key "best_player"}}
+            <input type="text" name="value" placeholder="Ex: Vinícius Jr" value="{{if $existingBet}}{{$existingBet.Value}}{{end}}"
+                class="w-full bg-stone-100/70 dark:bg-stone-800/50 border border-stone-200/60 dark:border-stone-700/50 rounded-2xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:focus:ring-emerald-400/20 focus:border-emerald-400 dark:focus:border-emerald-600 text-stone-700 dark:text-stone-300 placeholder-stone-400 dark:placeholder-stone-600 text-sm transition-all">
+            {{else}}
+            <select name="value" class="w-full bg-stone-100/70 dark:bg-stone-800/50 border border-stone-200/60 dark:border-stone-700/50 rounded-2xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:focus:ring-emerald-400/20 focus:border-emerald-400 dark:focus:border-emerald-600 text-stone-700 dark:text-stone-300 text-sm transition-all">
+                <option value="" class="bg-white dark:bg-stone-900">Selecione um time</option>
+                {{range $.Data.Teams}}
+                <option value="{{.Name}}" class="bg-white dark:bg-stone-900" {{if $existingBet}}{{if eq $existingBet.Value .Name}}selected{{end}}{{end}}>{{.Name}}</option>
+                {{end}}
+            </select>
+            {{end}}
+
+            <button type="submit" class="w-full btn-primary text-white dark:text-stone-900 font-semibold py-3 rounded-xl text-sm">
+                {{if $existingBet}}Atualizar{{else}}Enviar{{end}}
+            </button>
+        </form>
+        {{end}}
+
+        {{if $existingBet}}
+        <div class="mt-4 pt-4 border-t border-stone-200/50 dark:border-stone-800/30 text-center">
+            <span class="text-xs text-stone-400 dark:text-stone-600">Seu palpite: </span>
+            <span class="text-sm font-bold text-emerald-600 dark:text-emerald-400">{{$existingBet.Value}}</span>
+        </div>
+        {{end}}
+    </div>
+    {{end}}
+</div>
+{{end}}

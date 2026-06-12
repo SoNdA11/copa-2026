@@ -1,0 +1,66 @@
+{{define "page_content"}}
+<div class="max-w-4xl mx-auto animate-fade-in">
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-stone-800 dark:text-stone-100">Administração</h1>
+        <p class="text-stone-500 dark:text-stone-500 mt-1 text-sm">Gerenciar usuários do bolão</p>
+    </div>
+
+    {{if .Flash}}
+    <div class="bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/30 text-emerald-700 dark:text-emerald-300 px-4 py-3 mb-4 text-sm rounded-2xl animate-fade-in">
+        {{.Flash}}
+    </div>
+    {{end}}
+
+    <div class="card rounded-2xl overflow-hidden animate-fade-in animate-fade-in-d1">
+        <div class="px-5 py-3 border-b border-stone-200/50 dark:border-stone-800/30 bg-stone-100/30 dark:bg-stone-800/20">
+            <h2 class="text-sm font-semibold text-stone-700 dark:text-stone-300">Usuários</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="bg-stone-100/30 dark:bg-stone-800/20 text-left text-xs text-stone-500 dark:text-stone-500">
+                        <th class="px-5 py-3 font-semibold">Nome</th>
+                        <th class="px-5 py-3 font-semibold">Pontos</th>
+                        <th class="px-5 py-3 font-semibold">Ajuste</th>
+                        <th class="px-5 py-3 font-semibold">Total</th>
+                        <th class="px-5 py-3 text-right font-semibold">Ações</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-stone-200/40 dark:divide-stone-800/30">
+                    {{range .Data}}
+                    <tr class="hover:bg-stone-50/50 dark:hover:bg-stone-800/20 transition-colors">
+                        <td class="px-5 py-3 font-medium text-stone-700 dark:text-stone-300">{{.Name}}</td>
+                        <td class="px-5 py-3 text-stone-500 dark:text-stone-500">{{.Points}}</td>
+                        <td class="px-5 py-3">
+                            <form method="POST" action="/admin/update-points" class="flex items-center space-x-2">
+                                <input type="hidden" name="user_id" value="{{.ID}}">
+                                <input type="number" name="adjustment" value="{{.PointsAdjustment}}"
+                                    class="w-20 bg-stone-100/70 dark:bg-stone-800/50 border border-stone-200/60 dark:border-stone-700/50 rounded-xl px-2.5 py-1.5 text-center text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 dark:focus:border-emerald-600 text-stone-700 dark:text-stone-300 transition-all">
+                                <button type="submit" class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 text-xs font-semibold transition-colors">
+                                    Salvar
+                                </button>
+                            </form>
+                        </td>
+                        <td class="px-5 py-3 font-bold text-stone-800 dark:text-stone-200">{{.Total}}</td>
+                        <td class="px-5 py-3 text-right">
+                            <form method="POST" action="/admin/delete-user" onsubmit="return confirm('Excluir {{.Name}}? Esta ação não pode ser desfeita.')">
+                                <input type="hidden" name="user_id" value="{{.ID}}">
+                                <button type="submit" class="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 text-xs font-medium transition-colors">
+                                    Excluir
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {{else}}
+                    <tr>
+                        <td colspan="5" class="px-5 py-8 text-center text-stone-400 dark:text-stone-600 text-sm">
+                            Nenhum usuário encontrado
+                        </td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{{end}}

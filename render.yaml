@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: copa-2026
+    env: docker
+    repo: https://github.com/SEU_USUARIO/copa-2026
+    plan: free
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: PORT
+        value: "3000"
+      - key: ADMIN_PASSWORD
+        value: admin123kol
+      - key: SECRET_KEY
+        generateValue: true
+
+      # Render PostgreSQL - criado automaticamente no dashboard
+      - key: DATABASE_URL
+        fromService:
+          name: copa-2026-db
+          type: pserv
+          property: connectionString
+
+databases:
+  - name: copa-2026-db
+    plan: free

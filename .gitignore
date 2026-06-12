@@ -1,0 +1,22 @@
+# Binários
+/web
+*.exe
+
+# Banco de dados
+data/copa.db
+data/copa.db-shm
+data/copa.db-wal
+
+# Ambiente
+.env
+.env.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Sistema
+.DS_Store
+Thumbs.db
