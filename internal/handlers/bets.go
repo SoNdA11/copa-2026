@@ -100,7 +100,7 @@ func (h *BetHandler) getMatchWithTeams(matchID int64) *models.Match {
 		FROM matches m
 		LEFT JOIN teams ht ON ht.id = m.home_team_id
 		LEFT JOIN teams at ON at.id = m.away_team_id
-		WHERE m.id = ?
+		WHERE m.id = $1
 	`, matchID).Scan(
 		&m.ID, &m.HomeTeamID, &m.AwayTeamID, &homeScore, &awayScore,
 		&m.MatchDate, &m.MatchTime, &m.Stage, &groupName, &stadium, &m.Status,
@@ -168,7 +168,7 @@ func (h *BetHandler) MyBets(w http.ResponseWriter, r *http.Request) {
 func (h *BetHandler) getUserSpecialBets(userID int64) ([]models.SpecialBet, error) {
 	rows, err := h.db.Query(`
 		SELECT id, user_id, bet_type, value, points, created_at
-		FROM special_bets WHERE user_id = ?
+		FROM special_bets WHERE user_id = $1
 		ORDER BY bet_type
 	`, userID)
 	if err != nil {
