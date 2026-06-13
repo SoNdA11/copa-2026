@@ -14,9 +14,11 @@ type SpecialBet struct {
 }
 
 var BetTypeLabels = map[string]string{
-	"champion":    "Campeão da Copa",
-	"best_player": "Melhor Jogador",
-	"top_scorer":  "Artilheiro",
+	"champion":          "Campeão da Copa",
+	"best_player":       "Melhor Jogador",
+	"top_scorer":        "Artilheiro",
+	"best_goalkeeper":   "Melhor Goleiro",
+	"best_young_player": "Melhor Jovem",
 }
 
 func (s *SpecialBet) TypeLabel() string {
@@ -27,9 +29,11 @@ func (s *SpecialBet) TypeLabel() string {
 }
 
 var SpecialBetPoints = map[string]int{
-	"champion":    10,
-	"best_player": 5,
-	"top_scorer":  5,
+	"champion":          10,
+	"best_player":       5,
+	"top_scorer":        5,
+	"best_goalkeeper":   5,
+	"best_young_player": 5,
 }
 
 func (s *SpecialBet) MaxPoints() int {
