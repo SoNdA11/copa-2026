@@ -39,7 +39,7 @@
                 {{else if eq .Status "finished"}}
                 <span class="text-stone-400 dark:text-stone-600">Finalizado</span>
                 {{else}}
-                <span class="text-stone-400 dark:text-stone-600">{{.MatchDate}}</span>
+                <span class="text-stone-400 dark:text-stone-600">{{.MatchDate}} {{.MatchTime}}</span>
                 {{end}}
             </div>
         </div>
@@ -63,11 +63,11 @@
         <span class="text-stone-400 dark:text-stone-600">{{stageLabel .Stage}}{{if .GroupName}} &middot; {{.GroupName}}{{end}}</span>
         <div class="flex items-center space-x-2">
             {{if .HasUserBet}}
-                <span class="inline-flex items-center space-x-1 text-emerald-600 dark:text-emerald-400 font-semibold">
+                <span class="inline-flex items-center space-x-1.5 text-emerald-600 dark:text-emerald-400 font-semibold">
                     <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                     </svg>
-                    <span>Palpitado</span>
+                    <span class="bg-emerald-50/50 dark:bg-emerald-950/30 rounded-lg px-2 py-0.5 font-bold text-xs">{{.BetHomeScore}}x{{.BetAwayScore}}</span>
                 </span>
             {{end}}
             <a href="/matches/{{.ID}}" class="link font-semibold transition-all">

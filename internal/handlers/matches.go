@@ -47,15 +47,21 @@ func (h *MatchHandler) List(w http.ResponseWriter, r *http.Request) {
 
 	user := GetUserFromSession(r)
 
-	userBets := make(map[int64]bool)
+	type userBet struct {
+		MatchID      int64
+		HomeScore    int
+		AwayScore    int
+	}
+
+	userBets := make(map[int64]userBet)
 	if user != nil {
-		rows, err := h.db.Query("SELECT match_id FROM bets WHERE user_id = $1", user.ID)
+		rows, err := h.db.Query("SELECT match_id, home_score, away_score FROM bets WHERE user_id = $1", user.ID)
 		if err == nil {
 			defer rows.Close()
 			for rows.Next() {
-				var mid int64
-				if rows.Scan(&mid) == nil {
-					userBets[mid] = true
+				var ub userBet
+				if rows.Scan(&ub.MatchID, &ub.HomeScore, &ub.AwayScore) == nil {
+					userBets[ub.MatchID] = ub
 				}
 			}
 		}
@@ -69,7 +75,11 @@ func (h *MatchHandler) List(w http.ResponseWriter, r *http.Request) {
 		}
 		for gi := range groups {
 			for mi := range groups[gi].Matches {
-				groups[gi].Matches[mi].HasUserBet = userBets[groups[gi].Matches[mi].ID]
+				if ub, ok := userBets[groups[gi].Matches[mi].ID]; ok {
+					groups[gi].Matches[mi].HasUserBet = true
+					groups[gi].Matches[mi].BetHomeScore = ub.HomeScore
+					groups[gi].Matches[mi].BetAwayScore = ub.AwayScore
+				}
 			}
 		}
 		data := PageData{
@@ -89,7 +99,11 @@ func (h *MatchHandler) List(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for i := range matches {
-		matches[i].HasUserBet = userBets[matches[i].ID]
+		if ub, ok := userBets[matches[i].ID]; ok {
+			matches[i].HasUserBet = true
+			matches[i].BetHomeScore = ub.HomeScore
+			matches[i].BetAwayScore = ub.AwayScore
+		}
 	}
 
 	data := PageData{
