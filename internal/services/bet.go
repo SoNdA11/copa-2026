@@ -8,13 +8,7 @@ import (
 	"copa-2026/internal/models"
 )
 
-var bettingDeadline = time.Date(2026, 6, 13, 2, 59, 59, 0, time.UTC)
-
 var specialBettingDeadline = time.Date(2026, 6, 20, 2, 59, 59, 0, time.UTC)
-
-func IsBettingOpen() bool {
-	return time.Now().Before(bettingDeadline)
-}
 
 func IsSpecialBettingOpen() bool {
 	return time.Now().Before(specialBettingDeadline)
@@ -29,10 +23,6 @@ func NewBetService(db *sql.DB) *BetService {
 }
 
 func (s *BetService) PlaceBet(userID, matchID int64, homeScore, awayScore int) error {
-	if !IsBettingOpen() {
-		return fmt.Errorf("prazo de palpites encerrado em 12/06/2026")
-	}
-
 	var matchStatus string
 	err := s.db.QueryRow("SELECT status FROM matches WHERE id = $1", matchID).Scan(&matchStatus)
 	if err != nil {

@@ -34,9 +34,6 @@ var funcMap = template.FuncMap{
 		}
 		return *p
 	},
-	"bettingOpen": func() bool {
-		return services.IsBettingOpen()
-	},
 	"specialBettingOpen": func() bool {
 		return services.IsSpecialBettingOpen()
 	},

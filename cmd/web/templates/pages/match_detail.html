@@ -66,13 +66,7 @@
     <div class="card rounded-2xl p-6">
         <h3 class="font-bold text-stone-600 dark:text-stone-400 mb-4 text-center text-sm">Seu Palpite</h3>
         {{if eq .Data.Status "upcoming"}}
-        {{if bettingOpen}}
         {{template "bet_form" .}}
-        {{else}}
-        <div class="text-center py-3">
-            <p class="text-amber-600 dark:text-amber-400 font-semibold text-sm">Prazo de palpites encerrado</p>
-        </div>
-        {{end}}
         {{else}}
         <div class="text-center">
             {{if .Bet}}
