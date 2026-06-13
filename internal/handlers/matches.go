@@ -361,11 +361,11 @@ func (h *MatchHandler) getMatchDetail(id int64) (*models.Match, error) {
 }
 
 type MatchGroupBet struct {
-	UserName  string
-	UserID    int64
-	HomeScore int
-	AwayScore int
-	Points    int
+	UserName    string
+	UserID      int64
+	HomeScore   int
+	AwayScore   int
+	TotalPoints int
 }
 
 func (h *MatchHandler) GroupBets(w http.ResponseWriter, r *http.Request) {
@@ -377,7 +377,10 @@ func (h *MatchHandler) GroupBets(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rows, err := h.db.Query(`
-		SELECT u.name, u.id, b.home_score, b.away_score, b.points
+		SELECT u.name, u.id, b.home_score, b.away_score,
+			COALESCE((SELECT SUM(points) FROM bets WHERE user_id = u.id), 0) +
+			COALESCE((SELECT SUM(points) FROM special_bets WHERE user_id = u.id), 0) +
+			COALESCE(u.points_adjustment, 0) as total_points
 		FROM bets b
 		JOIN users u ON u.id = b.user_id
 		WHERE b.match_id = $1 AND COALESCE(u.is_admin, 0) = 0
@@ -392,7 +395,7 @@ func (h *MatchHandler) GroupBets(w http.ResponseWriter, r *http.Request) {
 	var bets []MatchGroupBet
 	for rows.Next() {
 		var b MatchGroupBet
-		if err := rows.Scan(&b.UserName, &b.UserID, &b.HomeScore, &b.AwayScore, &b.Points); err != nil {
+		if err := rows.Scan(&b.UserName, &b.UserID, &b.HomeScore, &b.AwayScore, &b.TotalPoints); err != nil {
 			continue
 		}
 		bets = append(bets, b)

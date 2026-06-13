@@ -4,7 +4,7 @@
         <svg class="w-4 h-4 text-emerald-500 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
         </svg>
-        <h3 class="font-bold text-stone-700 dark:text-stone-300 text-sm">Palpites do Grupo</h3>
+        <h3 class="font-bold text-stone-700 dark:text-stone-300 text-sm">Palpites do Grupo <span class="text-xs font-normal text-stone-400 dark:text-stone-600">(pts ranking)</span></h3>
     </div>
     <div class="divide-y divide-stone-200/40 dark:divide-stone-800/30">
         {{range .Data}}
@@ -21,10 +21,10 @@
                 <span class="bg-stone-100/50 dark:bg-stone-800/50 rounded-lg px-2.5 py-1 font-bold text-sm {{if and $.User (eq $.User.ID .UserID)}}text-emerald-600 dark:text-emerald-400{{else}}text-stone-700 dark:text-stone-300{{end}}">
                     {{.HomeScore}}x{{.AwayScore}}
                 </span>
-                {{if gt .Points 0}}
-                <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">+{{.Points}}</span>
-                {{else if eq .Points 0}}
-                <span class="text-xs font-medium text-stone-400 dark:text-stone-600">{{.Points}} pts</span>
+                {{if gt .TotalPoints 0}}
+                <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">{{.TotalPoints}} pts</span>
+                {{else}}
+                <span class="text-xs font-medium text-stone-400 dark:text-stone-600">{{.TotalPoints}} pts</span>
                 {{end}}
             </div>
         </div>
