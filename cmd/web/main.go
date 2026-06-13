@@ -41,6 +41,8 @@ func main() {
 		"cmd/web/templates/partials/bet_form.html",
 		"cmd/web/templates/partials/ranking_table.html",
 		"cmd/web/templates/partials/group_standings.html",
+		"cmd/web/templates/partials/match_bets_group.html",
+		"cmd/web/templates/partials/user_bets_partial.html",
 	); err != nil {
 		log.Fatalf("Failed to validate templates: %v", err)
 	}
@@ -108,6 +110,7 @@ func main() {
 	// Matches
 	r.Get("/matches", matchHandler.List)
 	r.Get("/matches/{id}", matchHandler.Detail)
+	r.Get("/matches/{id}/bets", matchHandler.GroupBets)
 
 	// Bets (requires auth)
 	r.Group(func(r chi.Router) {
@@ -122,6 +125,7 @@ func main() {
 
 	// User profile (public)
 	r.Get("/user/{id}/bets", profileHandler.UserBets)
+	r.Get("/user/{id}/bets/partial", profileHandler.UserBetsPartial)
 
 	// Special bets
 	r.Group(func(r chi.Router) {

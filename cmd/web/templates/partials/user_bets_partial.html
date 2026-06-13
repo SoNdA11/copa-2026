@@ -1,0 +1,59 @@
+{{define "user_bets_partial"}}
+<td colspan="3" class="px-0 py-0">
+    <div class="bg-stone-50/50 dark:bg-stone-900/50 border-b border-stone-200/30 dark:border-stone-800/20">
+        <div class="px-6 py-4 space-y-3">
+            {{if .Data.MatchBets}}
+            <div>
+                <h4 class="text-xs font-semibold text-stone-400 dark:text-stone-600 uppercase tracking-wider mb-2">Jogos</h4>
+                <div class="space-y-1.5">
+                    {{range .Data.MatchBets}}
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-stone-600 dark:text-stone-400 truncate max-w-[200px]">
+                            {{.Match.HomeTeam.Name}} vs {{.Match.AwayTeam.Name}}
+                        </span>
+                        <div class="flex items-center space-x-2 flex-shrink-0">
+                            <span class="bg-stone-100 dark:bg-stone-800 rounded-lg px-2 py-0.5 font-bold text-stone-700 dark:text-stone-300">
+                                {{.HomeScore}}x{{.AwayScore}}
+                            </span>
+                            {{if eq .Match.Status "finished"}}
+                            <span class="font-bold {{if gt .Points 0}}text-emerald-600 dark:text-emerald-400{{else}}text-stone-400 dark:text-stone-600{{end}}">
+                                +{{.Points}}
+                            </span>
+                            {{end}}
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+            {{end}}
+            {{if .Data.SpecialBets}}
+            <div>
+                <h4 class="text-xs font-semibold text-stone-400 dark:text-stone-600 uppercase tracking-wider mb-2">Especiais</h4>
+                <div class="space-y-1.5">
+                    {{range .Data.SpecialBets}}
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-stone-600 dark:text-stone-400 truncate max-w-[200px]">
+                            {{.TypeLabel}}
+                        </span>
+                        <div class="flex items-center space-x-2 flex-shrink-0">
+                            <span class="bg-stone-100 dark:bg-stone-800 rounded-lg px-2 py-0.5 font-medium text-stone-700 dark:text-stone-300">
+                                {{.Value}}
+                            </span>
+                            {{if gt .Points 0}}
+                            <span class="font-bold text-emerald-600 dark:text-emerald-400">+{{.Points}}</span>
+                            {{end}}
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+            {{end}}
+            {{if not .Data.MatchBets}}{{if not .Data.SpecialBets}}
+            <div class="text-center py-2">
+                <p class="text-stone-400 dark:text-stone-600 text-xs">Nenhum palpite ainda</p>
+            </div>
+            {{end}}{{end}}
+        </div>
+    </div>
+</td>
+{{end}}

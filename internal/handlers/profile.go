@@ -77,6 +77,56 @@ func (h *ProfileHandler) UserBets(w http.ResponseWriter, r *http.Request) {
 	h.renderer.Render(w, "cmd/web/templates/pages/user_profile.html", data)
 }
 
+func (h *ProfileHandler) UserBetsPartial(w http.ResponseWriter, r *http.Request) {
+	targetUserIDStr := chi.URLParam(r, "id")
+	targetUserID, err := strconv.ParseInt(targetUserIDStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Usuário inválido", http.StatusBadRequest)
+		return
+	}
+
+	bets, err := h.betSvc.GetUserBets(targetUserID)
+	if err != nil {
+		http.Error(w, "Erro ao carregar palpites", http.StatusInternalServerError)
+		return
+	}
+
+	specialBets, err := h.getUserSpecialBets(targetUserID)
+	if err != nil {
+		http.Error(w, "Erro ao carregar palpites especiais", http.StatusInternalServerError)
+		return
+	}
+
+	type UserBetsPartialData struct {
+		UserName    string
+		MatchBets   []models.Bet
+		SpecialBets []models.SpecialBet
+	}
+
+	var userName string
+	h.db.QueryRow("SELECT name FROM users WHERE id = $1", targetUserID).Scan(&userName)
+
+	partialData := UserBetsPartialData{
+		UserName:    userName,
+		MatchBets:   bets,
+		SpecialBets: specialBets,
+	}
+
+	user := GetUserFromSession(r)
+	data := PageData{
+		Title: "Palpites de " + userName,
+		User:  user,
+		Data:  partialData,
+	}
+
+	tmpl, err := LoadPageTemplate("cmd/web/templates/partials/user_bets_partial.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	tmpl.ExecuteTemplate(w, "user_bets_partial", data)
+}
+
 func (h *ProfileHandler) getUserSpecialBets(userID int64) ([]models.SpecialBet, error) {
 	rows, err := h.db.Query(`
 		SELECT id, user_id, bet_type, value, points, created_at

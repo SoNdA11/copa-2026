@@ -3,6 +3,7 @@
     <table class="w-full text-sm">
         <thead>
             <tr class="text-stone-400 dark:text-stone-600 border-b border-stone-200/50 dark:border-stone-800/30">
+                <th class="py-3 px-2 w-0"></th>
                 <th class="py-3 px-4 text-left font-semibold">#</th>
                 <th class="py-3 px-4 text-left font-semibold">Jogador</th>
                 <th class="py-3 px-4 text-right font-semibold">Pontos</th>
@@ -11,6 +12,15 @@
         <tbody>
             {{range .Data}}
             <tr class="border-b border-stone-200/30 dark:border-stone-800/20 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/15 transition-colors {{if and $.User (eq $.User.Name .Name)}}bg-emerald-50/40 dark:bg-emerald-950/25{{end}}">
+                <td class="py-3 px-2">
+                    <button hx-get="/user/{{.UserID}}/bets/partial" hx-target="#bets-{{.UserID}}" hx-swap="innerHTML"
+                        class="w-6 h-6 flex items-center justify-center rounded-lg text-stone-400 dark:text-stone-600 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30 transition-all text-xs font-bold"
+                        title="Ver palpites">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                    </button>
+                </td>
                 <td class="py-3 px-4">
                     {{if eq .Position 1}}
                     <span class="inline-flex items-center justify-center w-7 h-7 bg-amber-100/60 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-xl text-xs font-bold">1</span>
@@ -32,9 +42,11 @@
                 </td>
                 <td class="py-3 px-4 text-right font-bold {{if and $.User (eq $.User.Name .Name)}}text-emerald-600 dark:text-emerald-400{{else}}text-stone-700 dark:text-stone-300{{end}}">{{.Points}}</td>
             </tr>
+            <tr id="bets-{{.UserID}}">
+            </tr>
             {{else}}
             <tr>
-                <td colspan="3" class="py-12 text-center text-stone-400 dark:text-stone-600">
+                <td colspan="4" class="py-12 text-center text-stone-400 dark:text-stone-600">
                     Nenhum jogador cadastrado
                 </td>
             </tr>

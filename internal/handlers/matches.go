@@ -360,6 +360,59 @@ func (h *MatchHandler) getMatchDetail(id int64) (*models.Match, error) {
 	return m, nil
 }
 
+type MatchGroupBet struct {
+	UserName  string
+	UserID    int64
+	HomeScore int
+	AwayScore int
+	Points    int
+}
+
+func (h *MatchHandler) GroupBets(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Jogo inválido", http.StatusBadRequest)
+		return
+	}
+
+	rows, err := h.db.Query(`
+		SELECT u.name, u.id, b.home_score, b.away_score, b.points
+		FROM bets b
+		JOIN users u ON u.id = b.user_id
+		WHERE b.match_id = $1 AND COALESCE(u.is_admin, 0) = 0
+		ORDER BY u.name
+	`, id)
+	if err != nil {
+		http.Error(w, "Erro ao carregar palpites", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var bets []MatchGroupBet
+	for rows.Next() {
+		var b MatchGroupBet
+		if err := rows.Scan(&b.UserName, &b.UserID, &b.HomeScore, &b.AwayScore, &b.Points); err != nil {
+			continue
+		}
+		bets = append(bets, b)
+	}
+
+	user := GetUserFromSession(r)
+	data := PageData{
+		Title: "Palpites do Grupo",
+		User:  user,
+		Data:  bets,
+	}
+
+	tmpl, err := LoadPageTemplate("cmd/web/templates/partials/match_bets_group.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	tmpl.ExecuteTemplate(w, "match_bets_group", data)
+}
+
 func scanMatches(rows *sql.Rows) ([]models.Match, error) {
 	var matches []models.Match
 	for rows.Next() {
