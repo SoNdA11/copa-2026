@@ -71,6 +71,8 @@ func (h *BetHandler) Place(w http.ResponseWriter, r *http.Request) {
 		flash = "Palpite atualizado!"
 	}
 
+	w.Header().Set("HX-Trigger", "bet-placed")
+
 	data := PageData{
 		Data:  match,
 		Bet:   bet,
