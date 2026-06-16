@@ -121,7 +121,10 @@ func (s *SeedService) seedTeams() error {
 	}
 
 	for _, t := range teams {
-		flagURL := fmt.Sprintf("https://flagcdn.com/w80/%s.png", t.FifaCode)
+		flagURL := t.Flag
+		if flagURL == "" {
+			flagURL = fmt.Sprintf("https://flagcdn.com/w80/%s.png", t.FifaCode)
+		}
 		_, err := s.db.Exec(`
 			INSERT INTO teams (id, name, fifa_code, group_name, flag_url)
 			VALUES ($1, $2, $3, $4, $5)
