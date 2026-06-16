@@ -108,7 +108,10 @@ func main() {
 	r.Get("/logout", authHandler.Logout)
 
 	// Matches
-	r.Get("/matches", matchHandler.List)
+	r.Get("/matches", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "no-cache, must-revalidate")
+		matchHandler.List(w, r)
+	})
 	r.Get("/matches/{id}", matchHandler.Detail)
 	r.Get("/matches/{id}/bets", matchHandler.GroupBets)
 
