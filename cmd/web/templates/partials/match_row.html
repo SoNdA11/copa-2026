@@ -1,5 +1,5 @@
 {{define "match_row"}}
-<div class="card card-hover rounded-2xl p-4">
+<div class="card rounded-2xl p-4 transition-all {{if .IsToday}}border-l-4 border-emerald-400 dark:border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20{{else if .IsPast}}opacity-50 hover:opacity-75{{else}}card-hover{{end}}">
     <div class="flex items-center justify-between">
         <div class="flex items-center space-x-3 flex-1 min-w-0">
             <div class="w-8 h-8 flex-shrink-0">
@@ -60,7 +60,15 @@
         </div>
     </div>
     <div class="flex items-center justify-between mt-3 pt-3 border-t border-stone-200/50 dark:border-stone-800/30 text-xs">
-        <span class="text-stone-400 dark:text-stone-600">{{stageLabel .Stage}}{{if .GroupName}} &middot; {{.GroupName}}{{end}}</span>
+        <span class="text-stone-400 dark:text-stone-600">
+            {{if .IsToday}}
+            <span class="inline-flex items-center space-x-1 text-emerald-600 dark:text-emerald-500 font-bold mr-2">
+                <span class="w-1.5 h-1.5 bg-emerald-500 dark:bg-emerald-400 rounded-full"></span>
+                <span>Hoje</span>
+            </span>
+            {{end}}
+            {{stageLabel .Stage}}{{if .GroupName}} &middot; {{.GroupName}}{{end}}
+        </span>
         <div class="flex items-center space-x-2">
             {{if .HasUserBet}}
                 <span class="inline-flex items-center space-x-1.5 text-emerald-600 dark:text-emerald-400 font-semibold">

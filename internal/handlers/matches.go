@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"sort"
 	"strconv"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
@@ -73,13 +74,17 @@ func (h *MatchHandler) List(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Erro ao carregar grupos", http.StatusInternalServerError)
 			return
 		}
+		todayStr := time.Now().Format("2006-01-02")
 		for gi := range groups {
 			for mi := range groups[gi].Matches {
-				if ub, ok := userBets[groups[gi].Matches[mi].ID]; ok {
-					groups[gi].Matches[mi].HasUserBet = true
-					groups[gi].Matches[mi].BetHomeScore = ub.HomeScore
-					groups[gi].Matches[mi].BetAwayScore = ub.AwayScore
+				m := &groups[gi].Matches[mi]
+				if ub, ok := userBets[m.ID]; ok {
+					m.HasUserBet = true
+					m.BetHomeScore = ub.HomeScore
+					m.BetAwayScore = ub.AwayScore
 				}
+				m.IsToday = m.MatchDate == todayStr
+				m.IsPast = m.MatchDate < todayStr
 			}
 		}
 		data := PageData{
@@ -98,12 +103,16 @@ func (h *MatchHandler) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	todayStr := time.Now().Format("2006-01-02")
 	for i := range matches {
-		if ub, ok := userBets[matches[i].ID]; ok {
-			matches[i].HasUserBet = true
-			matches[i].BetHomeScore = ub.HomeScore
-			matches[i].BetAwayScore = ub.AwayScore
+		m := &matches[i]
+		if ub, ok := userBets[m.ID]; ok {
+			m.HasUserBet = true
+			m.BetHomeScore = ub.HomeScore
+			m.BetAwayScore = ub.AwayScore
 		}
+		m.IsToday = m.MatchDate == todayStr
+		m.IsPast = m.MatchDate < todayStr
 	}
 
 	data := PageData{

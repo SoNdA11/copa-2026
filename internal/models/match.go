@@ -18,6 +18,8 @@ type Match struct {
 	HasUserBet   bool `json:"-"`
 	BetHomeScore int  `json:"-"`
 	BetAwayScore int  `json:"-"`
+	IsToday      bool `json:"-"`
+	IsPast       bool `json:"-"`
 }
 
 func (m *Match) StageLabel() string {
