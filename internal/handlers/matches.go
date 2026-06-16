@@ -403,6 +403,12 @@ func (h *MatchHandler) GroupBets(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	user := GetUserFromSession(r)
+	groupID := int64(1)
+	if user != nil {
+		groupID = user.GroupID
+	}
+
 	rows, err := h.db.Query(`
 		SELECT u.name, u.id, b.home_score, b.away_score,
 			COALESCE((SELECT SUM(points) FROM bets WHERE user_id = u.id), 0) +
@@ -410,9 +416,9 @@ func (h *MatchHandler) GroupBets(w http.ResponseWriter, r *http.Request) {
 			COALESCE(u.points_adjustment, 0) as total_points
 		FROM bets b
 		JOIN users u ON u.id = b.user_id
-		WHERE b.match_id = $1 AND COALESCE(u.is_admin, 0) = 0
+		WHERE b.match_id = $1 AND COALESCE(u.is_admin, 0) = 0 AND u.group_id = $2
 		ORDER BY u.name
-	`, id)
+	`, id, groupID)
 	if err != nil {
 		http.Error(w, "Erro ao carregar palpites", http.StatusInternalServerError)
 		return
@@ -428,7 +434,6 @@ func (h *MatchHandler) GroupBets(w http.ResponseWriter, r *http.Request) {
 		bets = append(bets, b)
 	}
 
-	user := GetUserFromSession(r)
 	data := PageData{
 		Title: "Palpites do Grupo",
 		User:  user,
