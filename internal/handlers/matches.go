@@ -43,6 +43,12 @@ type GroupInfo struct {
 	Matches   []models.Match
 }
 
+type SectionedMatches struct {
+	Today    []models.Match
+	Upcoming []models.Match
+	Past     []models.Match
+}
+
 func (h *MatchHandler) List(w http.ResponseWriter, r *http.Request) {
 	stage := r.URL.Query().Get("stage")
 
@@ -113,12 +119,6 @@ func (h *MatchHandler) List(w http.ResponseWriter, r *http.Request) {
 		}
 		m.IsToday = m.MatchDate == todayStr
 		m.IsPast = m.MatchDate < todayStr
-	}
-
-	type SectionedMatches struct {
-		Today    []models.Match
-		Upcoming []models.Match
-		Past     []models.Match
 	}
 
 	var sectioned SectionedMatches
