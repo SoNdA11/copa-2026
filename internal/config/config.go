@@ -18,7 +18,7 @@ func Load() *Config {
 
 	dbURL := os.Getenv("DATABASE_URL")
 	if dbURL == "" {
-		dbURL = "postgres://localhost:5432/copa?sslmode=disable"
+		dbURL = "postgres://postgres@localhost:5432/copa?sslmode=disable"
 	}
 
 	secretKey := os.Getenv("SECRET_KEY")

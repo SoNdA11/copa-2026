@@ -115,10 +115,28 @@ func (h *MatchHandler) List(w http.ResponseWriter, r *http.Request) {
 		m.IsPast = m.MatchDate < todayStr
 	}
 
+	type SectionedMatches struct {
+		Today    []models.Match
+		Upcoming []models.Match
+		Past     []models.Match
+	}
+
+	var sectioned SectionedMatches
+	for _, m := range matches {
+		switch {
+		case m.IsToday:
+			sectioned.Today = append(sectioned.Today, m)
+		case m.IsPast:
+			sectioned.Past = append(sectioned.Past, m)
+		default:
+			sectioned.Upcoming = append(sectioned.Upcoming, m)
+		}
+	}
+
 	data := PageData{
 		Title: "Jogos",
 		User:  user,
-		Data:  matches,
+		Data:  sectioned,
 		Stage: stage,
 	}
 

@@ -49,16 +49,56 @@
     {{end}}
 </div>
 {{else}}
-<div class="space-y-2.5">
-    {{range .Data}}
-    <div class="animate-fade-in">
-        {{template "match_row" .}}
+<div class="space-y-4">
+    {{if .Data.Today}}
+    <div>
+        <div class="flex items-center space-x-2 mb-3">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse-soft"></span>
+            <h2 class="text-sm font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">Hoje</h2>
+            <span class="text-xs text-stone-400 dark:text-stone-600">({{len .Data.Today}})</span>
+        </div>
+        <div class="space-y-2.5">
+            {{range .Data.Today}}
+            <div class="animate-fade-in">{{template "match_row" .}}</div>
+            {{end}}
+        </div>
     </div>
-    {{else}}
+    {{end}}
+
+    {{if .Data.Upcoming}}
+    <div class="mt-6">
+        <h2 class="text-sm font-bold text-stone-500 dark:text-stone-500 uppercase tracking-wider mb-3">Próximos</h2>
+        <div class="space-y-2.5">
+            {{range .Data.Upcoming}}
+            <div class="animate-fade-in">{{template "match_row" .}}</div>
+            {{end}}
+        </div>
+    </div>
+    {{end}}
+
+    {{if .Data.Past}}
+    <details class="mt-6 group">
+        <summary class="cursor-pointer text-sm font-semibold text-stone-400 dark:text-stone-600 hover:text-stone-600 dark:hover:text-stone-400 transition-colors py-2 select-none">
+            <span class="inline-flex items-center space-x-1.5">
+                <svg class="w-3.5 h-3.5 transition-transform duration-200 group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+                <span>Jogos passados</span>
+            </span>
+        </summary>
+        <div class="space-y-2.5 mt-3">
+            {{range .Data.Past}}
+            <div class="animate-fade-in">{{template "match_row" .}}</div>
+            {{end}}
+        </div>
+    </details>
+    {{end}}
+
+    {{if not .Data.Today}}{{if not .Data.Upcoming}}{{if not .Data.Past}}
     <div class="text-center py-16 text-stone-400 dark:text-stone-600">
         Nenhum jogo encontrado
     </div>
-    {{end}}
+    {{end}}{{end}}{{end}}
 </div>
 {{end}}
 {{end}}
