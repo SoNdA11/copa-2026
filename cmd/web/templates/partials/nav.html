@@ -45,6 +45,8 @@
                     <div class="flex items-center space-x-2 bg-emerald-50/60 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 px-3 py-1.5 rounded-xl text-sm font-medium">
                         <span class="w-2 h-2 bg-emerald-500 dark:bg-emerald-400 rounded-full"></span>
                         <span>{{.User.Name}}</span>
+                        <span class="text-emerald-400/50 dark:text-emerald-600/50">|</span>
+                        <span class="text-emerald-500/70 dark:text-emerald-400/70 text-xs">{{.User.GroupName}}</span>
                     </div>
                     <a href="/logout" class="text-stone-400 dark:text-stone-600 hover:text-red-500 dark:hover:text-red-400 text-sm font-medium transition-colors">
                         Sair
@@ -77,6 +79,7 @@
                 <div class="flex items-center space-x-2">
                     <span class="w-2 h-2 bg-emerald-500 dark:bg-emerald-400 rounded-full"></span>
                     <span class="text-sm font-medium text-stone-700 dark:text-stone-300">{{.User.Name}}</span>
+                    <span class="text-xs text-stone-400 dark:text-stone-600">({{.User.GroupName}})</span>
                 </div>
                 <a href="/logout" class="text-xs text-stone-400 dark:text-stone-600 hover:text-red-500 dark:hover:text-red-400">Sair</a>
             </div>

@@ -49,6 +49,7 @@ func main() {
 
 	renderer := handlers.NewRenderer()
 
+	authSvc := services.NewAuthService(db)
 	betSvc := services.NewBetService(db)
 	rankingSvc := services.NewRankingService(db)
 
@@ -60,7 +61,7 @@ func main() {
 	}()
 	syncSvc.Start(5 * time.Minute)
 
-	authHandler := handlers.NewAuthHandler(services.NewAuthService(db), renderer)
+	authHandler := handlers.NewAuthHandler(authSvc, renderer)
 	matchHandler := handlers.NewMatchHandler(db, betSvc, renderer)
 	betHandler := handlers.NewBetHandler(betSvc, db, renderer)
 	rankingHandler := handlers.NewRankingHandler(rankingSvc, renderer)
@@ -69,10 +70,16 @@ func main() {
 	adminHandler := handlers.NewAdminHandler(db, renderer)
 	profileHandler := handlers.NewProfileHandler(betSvc, rankingSvc, db, renderer)
 
-	authSvc := services.NewAuthService(db)
 	if cfg.AdminPassword != "" {
-		if err := authSvc.CreateAdmin("admin", cfg.AdminPassword); err != nil {
-			log.Printf("Failed to create admin user: %v", err)
+		groups, err := authSvc.GetGroups()
+		if err != nil {
+			log.Printf("Failed to load groups for admin creation: %v", err)
+		} else {
+			for _, g := range groups {
+				if err := authSvc.CreateAdmin("admin", cfg.AdminPassword, g.ID); err != nil {
+					log.Printf("Failed to create admin user for group %s: %v", g.Name, err)
+				}
+			}
 		}
 	}
 
@@ -93,8 +100,12 @@ func main() {
 
 	r.Get("/dashboard", func(w http.ResponseWriter, r *http.Request) {
 		user := handlers.GetUserFromSession(r)
+		title := "Início"
+		if user != nil {
+			title = "Bolão " + user.GroupName
+		}
 		data := handlers.PageData{
-			Title: "Início",
+			Title: title,
 			User:  user,
 		}
 		renderer.Render(w, "cmd/web/templates/pages/dashboard.html", data)

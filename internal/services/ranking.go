@@ -14,7 +14,7 @@ func NewRankingService(db *sql.DB) *RankingService {
 	return &RankingService{db: db}
 }
 
-func (s *RankingService) GetRanking() ([]models.UserRanking, error) {
+func (s *RankingService) GetRanking(groupID int64) ([]models.UserRanking, error) {
 	rows, err := s.db.Query(`
 		SELECT u.id, u.name,
 			COALESCE(b.total_bet_points, 0) + COALESCE(s.total_special_points, 0) + COALESCE(u.points_adjustment, 0) as total_points
@@ -29,9 +29,9 @@ func (s *RankingService) GetRanking() ([]models.UserRanking, error) {
 			FROM special_bets
 			GROUP BY user_id
 		) s ON s.user_id = u.id
-		WHERE COALESCE(u.is_admin, 0) = 0
+		WHERE COALESCE(u.is_admin, 0) = 0 AND u.group_id = $1
 		ORDER BY total_points DESC
-	`)
+	`, groupID)
 	if err != nil {
 		return nil, err
 	}
@@ -52,8 +52,8 @@ func (s *RankingService) GetRanking() ([]models.UserRanking, error) {
 	return rankings, rows.Err()
 }
 
-func (s *RankingService) GetUserPosition(userID int64) (*models.UserRanking, error) {
-	rankings, err := s.GetRanking()
+func (s *RankingService) GetUserPosition(userID int64, groupID int64) (*models.UserRanking, error) {
+	rankings, err := s.GetRanking(groupID)
 	if err != nil {
 		return nil, err
 	}

@@ -4,17 +4,19 @@ import (
 	"html/template"
 	"os"
 
+	"copa-2026/internal/models"
 	"copa-2026/internal/services"
 )
 
 type PageData struct {
-	Title string
-	User  *UserInfo
-	Error string
-	Flash string
-	Data  interface{}
-	Bet   interface{}
-	Stage string
+	Title  string
+	User   *UserInfo
+	Error  string
+	Flash  string
+	Data   interface{}
+	Bet    interface{}
+	Stage  string
+	Groups []models.Group
 }
 
 var funcMap = template.FuncMap{

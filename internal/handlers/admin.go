@@ -24,15 +24,21 @@ type adminUserRow struct {
 }
 
 func (h *AdminHandler) UsersPage(w http.ResponseWriter, r *http.Request) {
+	user := GetUserFromSession(r)
+	if user == nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
 	rows, err := h.db.Query(`
 		SELECT u.id, u.name,
 			COALESCE((SELECT SUM(points) FROM bets WHERE user_id = u.id), 0) +
 			COALESCE((SELECT SUM(points) FROM special_bets WHERE user_id = u.id), 0) as points,
 			COALESCE(u.points_adjustment, 0) as adjustment
 		FROM users u
-		WHERE u.is_admin = 0
+		WHERE u.is_admin = 0 AND u.group_id = $1
 		ORDER BY u.name
-	`)
+	`, user.GroupID)
 	if err != nil {
 		http.Error(w, "Erro ao carregar usuários", http.StatusInternalServerError)
 		return
@@ -49,7 +55,6 @@ func (h *AdminHandler) UsersPage(w http.ResponseWriter, r *http.Request) {
 		users = append(users, u)
 	}
 
-	user := GetUserFromSession(r)
 	data := PageData{
 		Title: "Administração",
 		User:  user,
@@ -60,6 +65,12 @@ func (h *AdminHandler) UsersPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AdminHandler) UpdatePoints(w http.ResponseWriter, r *http.Request) {
+	user := GetUserFromSession(r)
+	if user == nil {
+		http.Error(w, "Não autorizado", http.StatusUnauthorized)
+		return
+	}
+
 	userIDStr := r.FormValue("user_id")
 	if userIDStr == "" {
 		http.Error(w, "ID do usuário não informado", http.StatusBadRequest)
@@ -83,6 +94,13 @@ func (h *AdminHandler) UpdatePoints(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var targetGroupID int64
+	err = h.db.QueryRow("SELECT group_id FROM users WHERE id = $1", userID).Scan(&targetGroupID)
+	if err != nil || targetGroupID != user.GroupID {
+		http.Error(w, "Usuário não encontrado", http.StatusNotFound)
+		return
+	}
+
 	if _, err := h.db.Exec("UPDATE users SET points_adjustment = $1 WHERE id = $2 AND is_admin = 0", adjustment, userID); err != nil {
 		http.Error(w, "Erro ao atualizar pontos", http.StatusInternalServerError)
 		return
@@ -92,6 +110,12 @@ func (h *AdminHandler) UpdatePoints(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AdminHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	user := GetUserFromSession(r)
+	if user == nil {
+		http.Error(w, "Não autorizado", http.StatusUnauthorized)
+		return
+	}
+
 	userIDStr := r.FormValue("user_id")
 	if userIDStr == "" {
 		http.Error(w, "ID do usuário não informado", http.StatusBadRequest)
@@ -101,6 +125,13 @@ func (h *AdminHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	userID, err := strconv.ParseInt(userIDStr, 10, 64)
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+
+	var targetGroupID int64
+	err = h.db.QueryRow("SELECT group_id FROM users WHERE id = $1", userID).Scan(&targetGroupID)
+	if err != nil || targetGroupID != user.GroupID {
+		http.Error(w, "Usuário não encontrado", http.StatusNotFound)
 		return
 	}
 

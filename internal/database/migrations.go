@@ -92,6 +92,24 @@ func RunMigrations(db *sql.DB) error {
 				UNIQUE(user_id, bet_type)
 			)`,
 		},
+		{
+			name: "create_groups",
+			sql: `CREATE TABLE IF NOT EXISTS groups (
+				id SERIAL PRIMARY KEY,
+				name TEXT NOT NULL UNIQUE,
+				slug TEXT NOT NULL UNIQUE
+			);
+			INSERT INTO groups (name, slug) VALUES ('Taberna', 'taberna') ON CONFLICT DO NOTHING;
+			INSERT INTO groups (name, slug) VALUES ('UERN', 'uern') ON CONFLICT DO NOTHING`,
+		},
+		{
+			name: "add_group_id_to_users",
+			sql: `ALTER TABLE users ADD COLUMN IF NOT EXISTS group_id INTEGER REFERENCES groups(id);
+			UPDATE users SET group_id = 1 WHERE group_id IS NULL;
+			ALTER TABLE users ALTER COLUMN group_id SET NOT NULL;
+			ALTER TABLE users DROP CONSTRAINT IF EXISTS users_name_key;
+			ALTER TABLE users ADD UNIQUE(name, group_id)`,
+		},
 	}
 
 	for _, m := range migrations {

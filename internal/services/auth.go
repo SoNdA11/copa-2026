@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 
+	"copa-2026/internal/models"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -16,18 +17,21 @@ func NewAuthService(db *sql.DB) *AuthService {
 }
 
 type AuthResult struct {
-	UserID  int64
-	IsAdmin bool
+	UserID    int64
+	IsAdmin   bool
+	GroupID   int64
+	GroupName string
+	GroupSlug string
 }
 
-func (s *AuthService) Register(name, password string) (int64, error) {
+func (s *AuthService) Register(name, password string, groupID int64) (int64, error) {
 	var existing int
-	err := s.db.QueryRow("SELECT COUNT(*) FROM users WHERE name = $1", name).Scan(&existing)
+	err := s.db.QueryRow("SELECT COUNT(*) FROM users WHERE name = $1 AND group_id = $2", name, groupID).Scan(&existing)
 	if err != nil {
 		return 0, err
 	}
 	if existing > 0 {
-		return 0, errors.New("nome de usuário já existe")
+		return 0, errors.New("nome de usuário já existe nesse grupo")
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -36,7 +40,7 @@ func (s *AuthService) Register(name, password string) (int64, error) {
 	}
 
 	var userID int64
-	err = s.db.QueryRow("INSERT INTO users (name, password_hash) VALUES ($1, $2) RETURNING id", name, string(hash)).Scan(&userID)
+	err = s.db.QueryRow("INSERT INTO users (name, password_hash, group_id) VALUES ($1, $2, $3) RETURNING id", name, string(hash), groupID).Scan(&userID)
 	if err != nil {
 		return 0, err
 	}
@@ -44,11 +48,18 @@ func (s *AuthService) Register(name, password string) (int64, error) {
 	return userID, nil
 }
 
-func (s *AuthService) Authenticate(name, password string) (*AuthResult, error) {
+func (s *AuthService) Authenticate(name, password string, groupID int64) (*AuthResult, error) {
 	var id int64
 	var hash string
 	var isAdmin bool
-	err := s.db.QueryRow("SELECT id, password_hash, COALESCE(is_admin, 0) FROM users WHERE name = $1", name).Scan(&id, &hash, &isAdmin)
+	var gID int64
+	var groupName, groupSlug string
+	err := s.db.QueryRow(`
+		SELECT u.id, u.password_hash, COALESCE(u.is_admin, 0), u.group_id, g.name, g.slug
+		FROM users u
+		JOIN groups g ON g.id = u.group_id
+		WHERE u.name = $1 AND u.group_id = $2
+	`, name, groupID).Scan(&id, &hash, &isAdmin, &gID, &groupName, &groupSlug)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, errors.New("usuário ou senha inválidos")
@@ -60,18 +71,18 @@ func (s *AuthService) Authenticate(name, password string) (*AuthResult, error) {
 		return nil, errors.New("usuário ou senha inválidos")
 	}
 
-	return &AuthResult{UserID: id, IsAdmin: isAdmin}, nil
+	return &AuthResult{UserID: id, IsAdmin: isAdmin, GroupID: gID, GroupName: groupName, GroupSlug: groupSlug}, nil
 }
 
-func (s *AuthService) CreateAdmin(name, password string) error {
+func (s *AuthService) CreateAdmin(name, password string, groupID int64) error {
 	var existing int
-	s.db.QueryRow("SELECT COUNT(*) FROM users WHERE name = $1", name).Scan(&existing)
+	s.db.QueryRow("SELECT COUNT(*) FROM users WHERE name = $1 AND group_id = $2", name, groupID).Scan(&existing)
 	if existing > 0 {
 		hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 		if err != nil {
 			return err
 		}
-		_, err = s.db.Exec("UPDATE users SET is_admin = 1, password_hash = $1 WHERE name = $2", string(hash), name)
+		_, err = s.db.Exec("UPDATE users SET is_admin = 1, password_hash = $1 WHERE name = $2 AND group_id = $3", string(hash), name, groupID)
 		return err
 	}
 
@@ -80,8 +91,26 @@ func (s *AuthService) CreateAdmin(name, password string) error {
 		return err
 	}
 
-	_, err = s.db.Exec("INSERT INTO users (name, password_hash, is_admin) VALUES ($1, $2, 1)", name, string(hash))
+	_, err = s.db.Exec("INSERT INTO users (name, password_hash, is_admin, group_id) VALUES ($1, $2, 1, $3)", name, string(hash), groupID)
 	return err
+}
+
+func (s *AuthService) GetGroups() ([]models.Group, error) {
+	rows, err := s.db.Query("SELECT id, name, slug FROM groups ORDER BY id")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var groups []models.Group
+	for rows.Next() {
+		var g models.Group
+		if err := rows.Scan(&g.ID, &g.Name, &g.Slug); err != nil {
+			return nil, err
+		}
+		groups = append(groups, g)
+	}
+	return groups, rows.Err()
 }
 
 func (s *AuthService) GetAllUsers() ([]struct {

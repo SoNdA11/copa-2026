@@ -3,7 +3,7 @@
 <div class="max-w-4xl mx-auto text-center py-8 animate-fade-in">
 
     <h1 class="text-4xl sm:text-5xl font-black text-stone-800 dark:text-stone-100 mb-3 tracking-tight">
-        Bolão Copa 2026
+        Bolão {{if .User}}{{.User.GroupName}}{{else}}Copa{{end}} 2026
     </h1>
     <p class="text-lg text-stone-500 dark:text-stone-500 max-w-lg mx-auto">
         Palpite nos jogos e descubra quem leva o troféu

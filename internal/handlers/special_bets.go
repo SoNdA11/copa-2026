@@ -134,6 +134,10 @@ func (h *SpecialBetHandler) getUserSpecialBets(userID int64) (map[string]*models
 
 func (h *SpecialBetHandler) AllBets(w http.ResponseWriter, r *http.Request) {
 	user := GetUserFromSession(r)
+	groupID := int64(1)
+	if user != nil {
+		groupID = user.GroupID
+	}
 
 	type UserSpecialRow struct {
 		UserName       string
@@ -163,10 +167,10 @@ func (h *SpecialBetHandler) AllBets(w http.ResponseWriter, r *http.Request) {
 			COALESCE(MAX(CASE WHEN s.bet_type = 'best_young_player' THEN s.points END), 0) as best_young_pts
 		FROM users u
 		LEFT JOIN special_bets s ON s.user_id = u.id
-		WHERE u.is_admin = 0
+		WHERE u.is_admin = 0 AND u.group_id = $1
 		GROUP BY u.id, u.name
 		ORDER BY u.name
-	`)
+	`, groupID)
 	if err != nil {
 		http.Error(w, "Erro ao carregar palpites", http.StatusInternalServerError)
 		return

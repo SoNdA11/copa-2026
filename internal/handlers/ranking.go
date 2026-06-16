@@ -16,13 +16,18 @@ func NewRankingHandler(rankingSvc *services.RankingService, renderer *Renderer) 
 }
 
 func (h *RankingHandler) List(w http.ResponseWriter, r *http.Request) {
-	rankings, err := h.rankingSvc.GetRanking()
+	user := GetUserFromSession(r)
+	groupID := int64(1)
+	if user != nil {
+		groupID = user.GroupID
+	}
+
+	rankings, err := h.rankingSvc.GetRanking(groupID)
 	if err != nil {
 		http.Error(w, "Erro ao carregar ranking", http.StatusInternalServerError)
 		return
 	}
 
-	user := GetUserFromSession(r)
 	data := PageData{
 		Title: "Ranking",
 		User:  user,
@@ -33,13 +38,18 @@ func (h *RankingHandler) List(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *RankingHandler) Partial(w http.ResponseWriter, r *http.Request) {
-	rankings, err := h.rankingSvc.GetRanking()
+	user := GetUserFromSession(r)
+	groupID := int64(1)
+	if user != nil {
+		groupID = user.GroupID
+	}
+
+	rankings, err := h.rankingSvc.GetRanking(groupID)
 	if err != nil {
 		http.Error(w, "Erro ao carregar ranking", http.StatusInternalServerError)
 		return
 	}
 
-	user := GetUserFromSession(r)
 	data := PageData{
 		Title: "Ranking",
 		User:  user,

@@ -34,8 +34,14 @@ func (h *ProfileHandler) UserBets(w http.ResponseWriter, r *http.Request) {
 
 	var userName string
 	var isAdmin bool
-	err = h.db.QueryRow("SELECT name, is_admin FROM users WHERE id = $1", targetUserID).Scan(&userName, &isAdmin)
+	var targetGroupID int64
+	err = h.db.QueryRow("SELECT name, is_admin, group_id FROM users WHERE id = $1", targetUserID).Scan(&userName, &isAdmin, &targetGroupID)
 	if err != nil {
+		http.Error(w, "Usuário não encontrado", http.StatusNotFound)
+		return
+	}
+
+	if user != nil && user.GroupID != targetGroupID {
 		http.Error(w, "Usuário não encontrado", http.StatusNotFound)
 		return
 	}
@@ -52,7 +58,7 @@ func (h *ProfileHandler) UserBets(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rankPos, _ := h.rankingSvc.GetUserPosition(targetUserID)
+	rankPos, _ := h.rankingSvc.GetUserPosition(targetUserID, targetGroupID)
 
 	type UserProfileData struct {
 		UserName    string
