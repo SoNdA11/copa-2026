@@ -20,3 +20,4 @@ data/copa.db-wal
 # Sistema
 .DS_Store
 Thumbs.db
+*.db
