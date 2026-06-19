@@ -13,6 +13,9 @@
                     <a href="/ranking" class="text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 px-3 py-2 text-sm font-medium transition-colors rounded-xl hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20">
                         Ranking
                     </a>
+                    <a href="/insights" class="text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 px-3 py-2 text-sm font-medium transition-colors rounded-xl hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20">
+                        Insights
+                    </a>
                     {{if .User}}
                     <a href="/my-bets" class="text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 px-3 py-2 text-sm font-medium transition-colors rounded-xl hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20">
                         Palpites
@@ -86,6 +89,7 @@
             {{end}}
             <a href="/matches" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 rounded-xl">Jogos</a>
             <a href="/ranking" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 rounded-xl">Ranking</a>
+            <a href="/insights" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 rounded-xl">Insights</a>
             {{if .User}}
             <a href="/my-bets" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 rounded-xl">Palpites</a>
             <a href="/special" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 rounded-xl">Especiais</a>

@@ -32,7 +32,6 @@ func main() {
 		log.Printf("Seed error: %v", err)
 	}
 
-	// validate templates load
 	if _, err := handlers.LoadPageTemplate(
 		"cmd/web/templates/layout.html",
 		"cmd/web/templates/partials/nav.html",
@@ -51,6 +50,7 @@ func main() {
 	authSvc := services.NewAuthService(db)
 	betSvc := services.NewBetService(db)
 	rankingSvc := services.NewRankingService(db)
+	statsSvc := services.NewStatsService(db)
 
 	syncSvc := services.NewSyncService(db, cfg.APIURL, betSvc)
 	go func() {
@@ -68,6 +68,7 @@ func main() {
 	settingsHandler := handlers.NewSettingsHandler(db, renderer)
 	adminHandler := handlers.NewAdminHandler(db, renderer)
 	profileHandler := handlers.NewProfileHandler(betSvc, rankingSvc, db, renderer)
+	statsHandler := handlers.NewStatsHandler(statsSvc, renderer)
 
 	if cfg.AdminPassword != "" {
 		groups, err := authSvc.GetGroups()
@@ -97,18 +98,7 @@ func main() {
 		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 	})
 
-	r.Get("/dashboard", func(w http.ResponseWriter, r *http.Request) {
-		user := handlers.GetUserFromSession(r)
-		title := "Início"
-		if user != nil {
-			title = "Bolão " + user.GroupName
-		}
-		data := handlers.PageData{
-			Title: title,
-			User:  user,
-		}
-		renderer.Render(w, "cmd/web/templates/pages/dashboard.html", data)
-	})
+	r.Get("/dashboard", statsHandler.DashboardPage)
 
 	// Auth
 	r.Get("/login", authHandler.LoginPage)
@@ -163,6 +153,19 @@ func main() {
 		r.Post("/admin/update-points", adminHandler.UpdatePoints)
 		r.Post("/admin/delete-user", adminHandler.DeleteUser)
 	})
+
+	// Stats API
+	r.Get("/api/stats/ranking-evolution", statsHandler.RankingEvolution)
+	r.Get("/api/stats/match-distribution/{id}", statsHandler.MatchDistribution)
+	r.Get("/api/stats/user-accuracy", statsHandler.UserAccuracy)
+	r.Get("/api/stats/user-points-per-day", statsHandler.UserPointsPerDay)
+	r.Get("/api/stats/score-heatmap", statsHandler.ScoreHeatmap)
+	r.Get("/api/stats/global-insights", statsHandler.GlobalInsights)
+	r.Get("/api/stats/bubble-data", statsHandler.BubbleData)
+	r.Get("/api/stats/radar-data", statsHandler.RadarData)
+
+	// Insights page
+	r.Get("/insights", statsHandler.InsightsPage)
 
 	log.Printf("Server starting on :%s", cfg.Port)
 	if err := http.ListenAndServe(":"+cfg.Port, r); err != nil {

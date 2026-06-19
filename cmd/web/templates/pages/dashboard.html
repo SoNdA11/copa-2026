@@ -1,15 +1,267 @@
 {{define "page_content"}}
 
-<div class="max-w-4xl mx-auto text-center py-8 animate-fade-in">
+{{if .User}}
+{{$data := .Data}}
+{{$insights := $data.Insights}}
 
+<div class="animate-fade-in">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-black text-stone-800 dark:text-stone-100 tracking-tight">
+                Bolão {{.User.GroupName}}
+            </h1>
+            <p class="text-stone-500 dark:text-stone-400 mt-1 text-sm">
+                Copa do Mundo 2026 &middot; Seus palpites, sua torcida
+            </p>
+        </div>
+        <div class="flex items-center space-x-3 mt-3 sm:mt-0">
+            <a href="/matches" class="btn-primary text-white dark:text-stone-900 font-semibold px-5 py-2.5 rounded-xl text-sm inline-flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>Palpitar</span>
+            </a>
+            <a href="/ranking" class="btn-ghost font-semibold px-5 py-2.5 rounded-xl text-sm">
+                Ranking
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="card-dashboard rounded-2xl p-5 animate-fade-in animate-fade-in-d1">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-stone-500 dark:text-stone-500 uppercase tracking-wider">Jogadores</span>
+                <div class="w-8 h-8 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/30 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+            </div>
+            <div class="stat-value text-stone-800 dark:text-stone-100">{{$insights.TotalUsers}}</div>
+            <p class="text-xs text-stone-500 dark:text-stone-500 mt-1">no {{.User.GroupName}}</p>
+        </div>
+
+        <div class="card-dashboard rounded-2xl p-5 animate-fade-in animate-fade-in-d2">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-stone-500 dark:text-stone-500 uppercase tracking-wider">Palpites Dados</span>
+                <div class="w-8 h-8 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/30 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+            </div>
+            <div class="stat-value text-stone-800 dark:text-stone-100">{{$insights.TotalBets}}</div>
+            <p class="text-xs text-stone-500 dark:text-stone-500 mt-1">Em {{$insights.TotalMatches}} jogos</p>
+        </div>
+
+        <div class="card-dashboard rounded-2xl p-5 animate-fade-in animate-fade-in-d3">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-stone-500 dark:text-stone-500 uppercase tracking-wider">Placar + Previsto</span>
+                <div class="w-8 h-8 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/30 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
+                </div>
+            </div>
+            <div class="stat-value text-emerald-600 dark:text-emerald-400">{{$insights.MostPredictedScore}}</div>
+            <p class="text-xs text-stone-500 dark:text-stone-500 mt-1">Mais repetido no grupo</p>
+        </div>
+
+        <div class="card-dashboard rounded-2xl p-5 animate-fade-in animate-fade-in-d4">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-stone-500 dark:text-stone-500 uppercase tracking-wider">Jogo + Palpitado</span>
+                <div class="w-8 h-8 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/30 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                </div>
+            </div>
+            <div class="stat-value text-stone-800 dark:text-stone-100 text-lg leading-tight">{{$insights.MostBetMatch}}</div>
+            <p class="text-xs text-stone-500 dark:text-stone-500 mt-1">No {{.User.GroupName}}</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div class="card-dashboard rounded-2xl p-5 animate-fade-in animate-fade-in-d3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-stone-700 dark:text-stone-300 text-sm">Evolução do Ranking</h3>
+                <a href="/ranking" class="link text-xs font-semibold">Ver ranking &rarr;</a>
+            </div>
+            <div class="chart-container" style="min-height: 280px;">
+                <canvas id="dashboardRankingChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card-dashboard rounded-2xl p-5 animate-fade-in animate-fade-in-d4">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-stone-700 dark:text-stone-300 text-sm">Comparação do Grupo</h3>
+                <span class="text-xs text-stone-500 dark:text-stone-500">Bolha = acertos exatos</span>
+            </div>
+            <div class="chart-container" style="min-height: 280px;">
+                <canvas id="dashboardBubbleChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-dashboard rounded-2xl p-5 animate-fade-in animate-fade-in-d5">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-stone-700 dark:text-stone-300 text-sm">Como funciona a pontuação</h3>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="bg-emerald-50/30 dark:bg-emerald-950/20 rounded-xl p-4 text-center">
+                <div class="text-2xl font-black text-emerald-600 dark:text-emerald-400">3</div>
+                <p class="text-xs font-semibold text-stone-700 dark:text-stone-300 mt-1">Placar Exato</p>
+                <p class="text-xs text-stone-500 dark:text-stone-500 mt-0.5">Acertou o placar certinho</p>
+            </div>
+            <div class="bg-amber-50/30 dark:bg-amber-950/20 rounded-xl p-4 text-center">
+                <div class="text-2xl font-black text-amber-600 dark:text-amber-400">1</div>
+                <p class="text-xs font-semibold text-stone-700 dark:text-stone-300 mt-1">Vencedor / Empate</p>
+                <p class="text-xs text-stone-500 dark:text-stone-500 mt-0.5">Acertou quem ganhou</p>
+            </div>
+            <div class="bg-stone-100/50 dark:bg-stone-800/30 rounded-xl p-4 text-center">
+                <div class="text-2xl font-black text-stone-400 dark:text-stone-500">0</div>
+                <p class="text-xs font-semibold text-stone-700 dark:text-stone-300 mt-1">Errou</p>
+                <p class="text-xs text-stone-500 dark:text-stone-500 mt-0.5">Não foi dessa vez</p>
+            </div>
+        </div>
+        <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="text-center">
+                <div class="text-lg font-black text-emerald-600 dark:text-emerald-400">10</div>
+                <p class="text-xs text-stone-500 dark:text-stone-500">Campeão</p>
+            </div>
+            <div class="text-center">
+                <div class="text-lg font-black text-emerald-600 dark:text-emerald-400">5</div>
+                <p class="text-xs text-stone-500 dark:text-stone-500">Melhor Jogador</p>
+            </div>
+            <div class="text-center">
+                <div class="text-lg font-black text-emerald-600 dark:text-emerald-400">5</div>
+                <p class="text-xs text-stone-500 dark:text-stone-500">Artilheiro</p>
+            </div>
+            <div class="text-center">
+                <div class="text-lg font-black text-emerald-600 dark:text-emerald-400">5</div>
+                <p class="text-xs text-stone-500 dark:text-stone-500">Goleiro / Jovem</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/api/stats/ranking-evolution')
+        .then(r => r.json())
+        .then(data => {
+            if (data.length === 0) return;
+            const ctx = document.getElementById('dashboardRankingChart').getContext('2d');
+            const isDark = document.documentElement.classList.contains('dark');
+            const textColor = isDark ? '#a8a29e' : '#78716c';
+            const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data[0].data.map(d => d.label),
+                    datasets: data.map(series => ({
+                        label: series.name,
+                        data: series.data.map(d => d.points),
+                        fill: false,
+                        tension: 0.3,
+                        pointRadius: 2,
+                        pointHoverRadius: 5,
+                        borderWidth: 2,
+                    })),
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: { color: textColor, boxWidth: 10, padding: 8, font: { size: 10 }, usePointStyle: true, },
+                        },
+                    },
+                    scales: {
+                        x: { display: true, grid: { color: gridColor }, ticks: { color: textColor, font: { size: 9 }, maxTicksLimit: 6 }, },
+                        y: { display: true, grid: { color: gridColor }, ticks: { color: textColor, font: { size: 9 } }, beginAtZero: true, },
+                    },
+                },
+        });
+    });
+
+    fetch('/api/stats/bubble-data')
+        .then(r => r.json())
+        .then(data => {
+            if (data.length === 0) return;
+            const ctx = document.getElementById('dashboardBubbleChart').getContext('2d');
+            const isDark = document.documentElement.classList.contains('dark');
+            const textColor = isDark ? '#a8a29e' : '#78716c';
+            const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
+            const colors = ['#059669','#f59e0b','#6366f1','#ef4444','#8b5cf6','#14b8a6','#f97316','#ec4899'];
+
+            new Chart(ctx, {
+                type: 'bubble',
+                data: {
+                    datasets: data.map((d, i) => ({
+                        label: d.name,
+                        data: [{ x: d.total_bets, y: d.total_points, r: d.bubble_size }],
+                        backgroundColor: colors[i % colors.length] + '80',
+                        borderColor: colors[i % colors.length],
+                        borderWidth: 2,
+                    })),
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: textColor, boxWidth: 10, padding: 8, font: { size: 10 }, usePointStyle: true, },
+                        },
+                        tooltip: {
+                            backgroundColor: isDark ? '#292524' : '#ffffff',
+                            titleColor: isDark ? '#e7e5e4' : '#44403c',
+                            bodyColor: isDark ? '#a8a29e' : '#78716c',
+                            borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
+                            borderWidth: 1,
+                            padding: 10,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    const d = context.dataset.data[0];
+                                    const name = context.dataset.label;
+                                    return name + ': ' + d.y + ' pts em ' + d.x + ' jogos';
+                                },
+                                afterLabel: function(context) {
+                                    const item = data[context.datasetIndex];
+                                    return 'Bolha: ' + item.exact_score + ' acertos exatos';
+                                },
+                            },
+                        },
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: gridColor },
+                            ticks: { color: textColor, font: { size: 9 }, precision: 0 },
+                            title: { display: true, text: 'Total de Palpites', color: textColor, font: { size: 10 } },
+                            beginAtZero: true,
+                        },
+                        y: {
+                            grid: { color: gridColor },
+                            ticks: { color: textColor, font: { size: 9 }, precision: 0 },
+                            title: { display: true, text: 'Total de Pontos', color: textColor, font: { size: 10 } },
+                            beginAtZero: true,
+                        },
+                    },
+                },
+            });
+        });
+});
+</script>
+
+{{else}}
+<div class="max-w-4xl mx-auto text-center py-16 animate-fade-in">
+    <div class="w-20 h-20 mx-auto mb-6 bg-emerald-50/50 dark:bg-emerald-950/30 rounded-3xl flex items-center justify-center">
+        <svg class="w-10 h-10 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+        </svg>
+    </div>
     <h1 class="text-4xl sm:text-5xl font-black text-stone-800 dark:text-stone-100 mb-3 tracking-tight">
-        Bolão {{if .User}}{{.User.GroupName}}{{else}}Copa{{end}} 2026
+        Bolão Copa 2026
     </h1>
-    <p class="text-lg text-stone-500 dark:text-stone-500 max-w-lg mx-auto">
+    <p class="text-lg text-stone-500 dark:text-stone-400 max-w-lg mx-auto">
         Palpite nos jogos e descubra quem leva o troféu
     </p>
 
-    {{if not .User}}
     <div class="flex justify-center space-x-4 mt-10 animate-fade-in animate-fade-in-d2">
         <a href="/register" class="btn-primary text-white dark:text-stone-900 font-bold px-8 py-3.5 rounded-xl text-sm">
             Criar conta
@@ -18,62 +270,6 @@
             Entrar
         </a>
     </div>
-    {{end}}
-</div>
-
-{{if .User}}
-<div class="max-w-2xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
-    <a href="/matches" class="card card-hover rounded-2xl p-5 animate-fade-in animate-fade-in-d1 group">
-        <div class="text-emerald-600 dark:text-emerald-400 text-2xl mb-2 font-bold transition-transform duration-300 group-hover:scale-110 inline-block">01</div>
-        <h3 class="font-bold text-stone-800 dark:text-stone-200">Jogos</h3>
-        <p class="text-sm text-stone-500 dark:text-stone-500 mt-1">Palpite nos placares</p>
-    </a>
-    <a href="/ranking" class="card card-hover rounded-2xl p-5 animate-fade-in animate-fade-in-d2 group">
-        <div class="text-emerald-600 dark:text-emerald-400 text-2xl mb-2 font-bold transition-transform duration-300 group-hover:scale-110 inline-block">02</div>
-        <h3 class="font-bold text-stone-800 dark:text-stone-200">Ranking</h3>
-        <p class="text-sm text-stone-500 dark:text-stone-500 mt-1">Classificação geral</p>
-    </a>
-    <a href="/special" class="card card-hover rounded-2xl p-5 animate-fade-in animate-fade-in-d3 group">
-        <div class="text-emerald-600 dark:text-emerald-400 text-2xl mb-2 font-bold transition-transform duration-300 group-hover:scale-110 inline-block">03</div>
-        <h3 class="font-bold text-stone-800 dark:text-stone-200">Especiais</h3>
-        <p class="text-sm text-stone-500 dark:text-stone-500 mt-1">Campeão e artilheiro</p>
-    </a>
-</div>
-
-<div class="max-w-2xl mx-auto mt-6 card rounded-2xl p-5 animate-fade-in animate-fade-in-d4">
-    <h3 class="font-bold text-stone-700 dark:text-stone-300 text-sm mb-4">Como funciona a pontuação</h3>
-
-    <h4 class="text-xs font-semibold text-stone-500 dark:text-stone-500 uppercase tracking-wider mb-2">Palpites dos Jogos</h4>
-    <div class="space-y-1.5 mb-4">
-        <div class="flex items-center justify-between text-sm">
-            <span class="text-stone-600 dark:text-stone-400">Placar exato</span>
-            <span class="font-bold text-emerald-600 dark:text-emerald-400">3 pts</span>
-        </div>
-        <div class="flex items-center justify-between text-sm">
-            <span class="text-stone-600 dark:text-stone-400">Vencedor ou empate certo</span>
-            <span class="font-bold text-emerald-600 dark:text-emerald-400">1 pt</span>
-        </div>
-        <div class="flex items-center justify-between text-sm">
-            <span class="text-stone-600 dark:text-stone-400">Errou</span>
-            <span class="font-bold text-stone-400 dark:text-stone-600">0 pts</span>
-        </div>
-    </div>
-
-    <h4 class="text-xs font-semibold text-stone-500 dark:text-stone-500 uppercase tracking-wider mb-2">Palpites Especiais</h4>
-    <div class="space-y-1.5">
-        <div class="flex items-center justify-between text-sm">
-            <span class="text-stone-600 dark:text-stone-400">Campeão</span>
-            <span class="font-bold text-emerald-600 dark:text-emerald-400">10 pts</span>
-        </div>
-        <div class="flex items-center justify-between text-sm">
-            <span class="text-stone-600 dark:text-stone-400">Melhor Jogador, Artilheiro, Goleiro, Jovem</span>
-            <span class="font-bold text-emerald-600 dark:text-emerald-400">5 pts cada</span>
-        </div>
-    </div>
-
-    <p class="text-xs text-stone-400 dark:text-stone-600 mt-4 border-t border-stone-200/40 dark:border-stone-800/30 pt-3">
-        Palpites especiais abertos até <strong>19/06</strong>. Os palpites dos jogos ficam abertos até cada partida começar.
-    </p>
 </div>
 {{end}}
 {{end}}

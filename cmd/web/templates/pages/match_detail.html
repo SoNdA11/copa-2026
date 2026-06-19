@@ -5,8 +5,8 @@
     <div class="card rounded-2xl overflow-hidden mb-6" {{if eq .Data.Status "live"}}hx-get="/matches/{{.Data.ID}}" hx-trigger="every 30s" hx-select=".match-score-block" hx-swap="outerHTML" hx-target=".match-score-block"{{end}}>
         <div class="match-score-block">
             <div class="bg-gradient-to-r from-emerald-50/50 dark:from-emerald-950/20 to-transparent px-5 py-3 border-b border-stone-200/50 dark:border-stone-800/30 text-center">
-                <span class="text-stone-400 dark:text-stone-600 text-xs font-medium">{{stageLabel .Data.Stage}}{{if .Data.GroupName}} &middot; {{.Data.GroupName}}{{end}}</span>
-                <p class="text-stone-400 dark:text-stone-600 text-xs mt-0.5">{{.Data.Stadium}}</p>
+                <span class="text-stone-500 dark:text-stone-500 text-xs font-medium">{{stageLabel .Data.Stage}}{{if .Data.GroupName}} &middot; {{.Data.GroupName}}{{end}}</span>
+                <p class="text-stone-500 dark:text-stone-500 text-xs mt-0.5">{{.Data.Stadium}}</p>
             </div>
             <div class="p-6">
                 <div class="flex items-center justify-center space-x-8">
@@ -66,7 +66,7 @@
 
     {{if .User}}
     <div class="card rounded-2xl p-6">
-        <h3 class="font-bold text-stone-600 dark:text-stone-400 mb-4 text-center text-sm">Seu Palpite</h3>
+        <h3 class="font-bold text-stone-600 dark:text-stone-300 mb-4 text-center text-sm">Seu Palpite</h3>
         {{if eq .Data.Status "upcoming"}}
         {{template "bet_form" .}}
         {{else}}
@@ -95,6 +95,15 @@
     </div>
     {{end}}
 
+    {{if .Data.HasResult}}
+    <div class="card-dashboard rounded-2xl p-5 mt-6 animate-fade-in animate-fade-in-d2">
+        <h3 class="font-bold text-stone-700 dark:text-stone-300 text-sm mb-4">Distribuição dos Palpites</h3>
+        <div class="chart-container" style="min-height: 200px;">
+            <canvas id="matchDistributionChart"></canvas>
+        </div>
+    </div>
+    {{end}}
+
     <div hx-get="/matches/{{.Data.ID}}/bets" hx-trigger="load, bet-placed from:body" hx-swap="innerHTML" class="mt-6">
         <div class="text-center py-6">
             <div class="inline-block w-5 h-5 border-2 border-emerald-400/30 border-t-emerald-400 rounded-full animate-spin"></div>
@@ -102,4 +111,71 @@
         </div>
     </div>
 </div>
+
+{{if .Data.HasResult}}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const matchId = {{.Data.ID}};
+    fetch('/api/stats/match-distribution/' + matchId)
+        .then(r => r.json())
+        .then(data => {
+            if (!data || data.length === 0) return;
+            const ctx = document.getElementById('matchDistributionChart').getContext('2d');
+            const isDark = document.documentElement.classList.contains('dark');
+            const textColor = isDark ? '#a8a29e' : '#78716c';
+            const gridColor = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)';
+
+            const colors = data.map(d => d.is_exact ? '#059669' : (isDark ? '#57534e' : '#d6d3d1'));
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(d => d.score),
+                    datasets: [{
+                        label: 'Palpites',
+                        data: data.map(d => d.count),
+                        backgroundColor: colors,
+                        borderRadius: 6,
+                        barPercentage: 0.6,
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: isDark ? '#292524' : '#ffffff',
+                            titleColor: isDark ? '#e7e5e4' : '#44403c',
+                            bodyColor: isDark ? '#a8a29e' : '#78716c',
+                            borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
+                            borderWidth: 1,
+                            padding: 10,
+                            cornerRadius: 8,
+                            callbacks: {
+                                afterLabel: function(context) {
+                                    const item = data[context.dataIndex];
+                                    return item.is_exact ? '✓ Placar exato!' : '';
+                                },
+                            },
+                        },
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: gridColor },
+                            ticks: { color: textColor, font: { size: 11, weight: 'bold' } },
+                        },
+                        y: {
+                            grid: { color: gridColor },
+                            ticks: { color: textColor, font: { size: 9 } },
+                            beginAtZero: true,
+                            precision: 0,
+                        },
+                    },
+                },
+            });
+        });
+});
+</script>
+{{end}}
 {{end}}
