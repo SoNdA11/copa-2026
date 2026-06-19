@@ -51,16 +51,52 @@ func NewSyncService(db *sql.DB, apiURL string, betSvc *BetService) *SyncService 
 	return &SyncService{db: db, apiURL: apiURL, betSvc: betSvc}
 }
 
-func (s *SyncService) Start(interval time.Duration) {
-	log.Printf("Sync service started, interval: %v", interval)
-	ticker := time.NewTicker(interval)
+func (s *SyncService) Start() {
 	go func() {
-		for range ticker.C {
+		for {
+			interval := s.determineInterval()
+			time.Sleep(interval)
 			if err := s.SyncMatches(); err != nil {
 				log.Printf("Sync error: %v", err)
 			}
 		}
 	}()
+}
+
+func (s *SyncService) determineInterval() time.Duration {
+	var liveCount int
+	s.db.QueryRow("SELECT COUNT(*) FROM matches WHERE status = 'live'").Scan(&liveCount)
+	if liveCount > 0 {
+		return 30 * time.Second
+	}
+
+	var upcomingSoon int
+	s.db.QueryRow(`
+		SELECT COUNT(*) FROM matches
+		WHERE status = 'upcoming'
+		AND (match_date || ' ' || match_time)::timestamp BETWEEN NOW() AND NOW() + INTERVAL '2 hours'
+	`).Scan(&upcomingSoon)
+	if upcomingSoon > 0 {
+		return 60 * time.Second
+	}
+
+	return 5 * time.Minute
+}
+
+func (s *SyncService) SyncMatch(matchID int64) error {
+	matches, err := s.fetchMatches()
+	if err != nil {
+		return fmt.Errorf("failed to fetch matches: %w", err)
+	}
+
+	matchIDStr := fmt.Sprintf("%d", matchID)
+	for _, apiMatch := range matches {
+		if apiMatch.ID == matchIDStr {
+			return s.updateMatch(apiMatch)
+		}
+	}
+
+	return nil
 }
 
 func (s *SyncService) SyncMatches() error {

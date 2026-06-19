@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -59,10 +58,10 @@ func main() {
 			log.Printf("API sync error: %v", err)
 		}
 	}()
-	syncSvc.Start(5 * time.Minute)
+	syncSvc.Start()
 
 	authHandler := handlers.NewAuthHandler(authSvc, renderer)
-	matchHandler := handlers.NewMatchHandler(db, betSvc, renderer)
+	matchHandler := handlers.NewMatchHandler(db, betSvc, syncSvc, renderer)
 	betHandler := handlers.NewBetHandler(betSvc, db, renderer)
 	rankingHandler := handlers.NewRankingHandler(rankingSvc, renderer)
 	specialBetHandler := handlers.NewSpecialBetHandler(db, renderer)

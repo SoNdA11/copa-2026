@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"database/sql"
+	"log"
 	"net/http"
 	"sort"
 	"strconv"
@@ -16,11 +17,12 @@ import (
 type MatchHandler struct {
 	db       *sql.DB
 	betSvc   *services.BetService
+	syncSvc  *services.SyncService
 	renderer *Renderer
 }
 
-func NewMatchHandler(db *sql.DB, betSvc *services.BetService, renderer *Renderer) *MatchHandler {
-	return &MatchHandler{db: db, betSvc: betSvc, renderer: renderer}
+func NewMatchHandler(db *sql.DB, betSvc *services.BetService, syncSvc *services.SyncService, renderer *Renderer) *MatchHandler {
+	return &MatchHandler{db: db, betSvc: betSvc, syncSvc: syncSvc, renderer: renderer}
 }
 
 type GroupStanding struct {
@@ -285,6 +287,12 @@ func (h *MatchHandler) Detail(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Jogo inválido", http.StatusBadRequest)
 		return
 	}
+
+	go func() {
+		if err := h.syncSvc.SyncMatch(id); err != nil {
+			log.Printf("On-demand sync error for match %d: %v", id, err)
+		}
+	}()
 
 	match, err := h.getMatchDetail(id)
 	if err != nil {
