@@ -165,7 +165,7 @@ func (s *SyncService) updateMatch(apiMatch APIMatch) error {
 		return err
 	}
 
-	if status == "finished" || status == "live" {
+	if status == "finished" {
 		homeScoreInt := parseInt(apiMatch.HomeScore)
 		awayScoreInt := parseInt(apiMatch.AwayScore)
 

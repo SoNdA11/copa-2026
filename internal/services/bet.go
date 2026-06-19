@@ -136,7 +136,7 @@ func (s *BetService) RecalculateMatchBets(matchID int64) error {
 	if err != nil {
 		return err
 	}
-	if !match.HasResult() {
+	if !match.HasResult() || match.Status != "finished" {
 		return nil
 	}
 
