@@ -1,5 +1,5 @@
 {{define "bet_form"}}
-<form hx-post="/matches/{{.Data.ID}}/bet" hx-target="this" hx-swap="outerHTML" class="space-y-4">
+<form hx-post="/matches/{{.Data.ID}}/bet" hx-target="this" hx-swap="outerHTML" class="space-y-4" data-pinguim data-match-id="{{.Data.ID}}">
     {{if .Flash}}
     <div class="bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/30 text-emerald-700 dark:text-emerald-300 px-4 py-3 rounded-2xl text-sm text-center font-medium animate-fade-in">
         {{.Flash}}

@@ -221,6 +221,153 @@
         @media (prefers-reduced-motion: reduce) {
             .animate-float, .animate-fade-in, .animate-pulse-soft, .animate-scale-in, .skeleton { animation: none; opacity: 1; transform: none; }
         }
+
+        /* ── Pinguim Binário ── */
+        #pinguim-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        #pinguim-overlay.active { opacity: 1; }
+
+        #pinguim-glitch-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 9998;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(2px);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        #pinguim-glitch-bg.active { opacity: 1; }
+
+        .pinguim-char {
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            line-height: 1.1;
+            font-weight: 700;
+            transition: all 0.15s;
+            display: inline-block;
+            width: 18px;
+            text-align: center;
+        }
+        .pinguim-row { display: flex; justify-content: center; }
+        .pinguim-body {
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(8px);
+            border: 2px solid rgba(5, 150, 105, 0.4);
+            border-radius: 24px;
+            padding: 20px 24px;
+            transform: scale(0) rotate(-10deg);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 0 60px rgba(5, 150, 105, 0.15);
+        }
+        .dark .pinguim-body {
+            background: rgba(0,0,0,0.85);
+            border-color: rgba(52, 211, 153, 0.4);
+            box-shadow: 0 0 60px rgba(52, 211, 153, 0.1);
+        }
+        #pinguim-overlay.active .pinguim-body {
+            transform: scale(1) rotate(0deg);
+        }
+
+        .pinguim-char.p0 { color: #34d399; text-shadow: 0 0 6px rgba(52,211,153,0.3); }
+        .pinguim-char.p1 { color: #059669; text-shadow: 0 0 4px rgba(5,150,105,0.2); }
+        .dark .pinguim-char.p0 { color: #6ee7b7; text-shadow: 0 0 8px rgba(110,231,183,0.25); }
+        .dark .pinguim-char.p1 { color: #34d399; text-shadow: 0 0 6px rgba(52,211,153,0.2); }
+
+        .pinguim-smile {
+            position: absolute;
+            top: 68px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            color: #fbbf24;
+            text-shadow: 0 0 8px rgba(251,191,36,0.4);
+            opacity: 0;
+            transition: opacity 0.3s;
+            letter-spacing: 2px;
+        }
+        .pinguim-smile.show { opacity: 1; }
+        .dark .pinguim-smile { text-shadow: 0 0 8px rgba(251,191,36,0.3); }
+
+        .pinguim-bubble {
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(5, 150, 105, 0.9);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+            opacity: 0;
+            transition: all 0.3s;
+            pointer-events: none;
+            font-family: 'Inter', sans-serif;
+        }
+        .pinguim-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid rgba(5, 150, 105, 0.9);
+        }
+        .pinguim-bubble.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-4px);
+        }
+        .dark .pinguim-bubble {
+            background: rgba(52, 211, 153, 0.85);
+            color: #0c0a09;
+        }
+        .dark .pinguim-bubble::after {
+            border-top-color: rgba(52, 211, 153, 0.85);
+        }
+
+        .pinguim-stolen-number {
+            position: fixed;
+            font-family: 'Courier New', monospace;
+            font-weight: 800;
+            font-size: 28px;
+            color: #059669;
+            text-shadow: 0 0 12px rgba(5,150,105,0.3);
+            pointer-events: none;
+            z-index: 10000;
+            opacity: 0;
+            transition: none;
+        }
+        .dark .pinguim-stolen-number {
+            color: #34d399;
+            text-shadow: 0 0 12px rgba(52,211,153,0.2);
+        }
+
+        @keyframes glitchSelect {
+            0% { transform: translate(0); filter: brightness(1); }
+            20% { transform: translate(-2px, 1px); filter: brightness(1.2); }
+            40% { transform: translate(2px, -1px); filter: brightness(0.8); }
+            60% { transform: translate(-1px, -2px); filter: brightness(1.1); }
+            80% { transform: translate(1px, 2px); filter: brightness(0.9); }
+            100% { transform: translate(0); filter: brightness(1); }
+        }
+        .pinguim-glitching {
+            animation: glitchSelect 0.08s infinite;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
     </style>
 </head>
 <body class="bg-stone-50 dark:bg-stone-950 text-stone-700 dark:text-stone-300 min-h-screen flex flex-col transition-colors duration-300">
@@ -239,6 +386,214 @@
     <footer class="border-t border-stone-200/50 dark:border-stone-800/30 mt-16 py-6 text-center">
         <p class="text-stone-400 dark:text-stone-600 text-xs">Bolão Copa do Mundo 2026</p>
     </footer>
+
+    {{/* Pinguim Binário — container oculto */}}
+    <div id="pinguim-glitch-bg"></div>
+    <div id="pinguim-overlay">
+        <div class="pinguim-body" id="pinguim-body">
+            <div id="pinguim-grid"></div>
+            <div class="pinguim-smile" id="pinguim-smile">^_^</div>
+            <div class="pinguim-bubble" id="pinguim-bubble">obrigado pelos bits!</div>
+        </div>
+    </div>
+
+<script>
+(function() {
+    var pinguimSubmitting = false;
+
+    var PINGUIM_GRID = [
+        '    00000     ',
+        '   0111110    ',
+        '   0101010    ',
+        '   0111110    ',
+        '  01100110   ',
+        ' 0111111110  ',
+        ' 0100000010  ',
+        ' 0100110010  ',
+        ' 0111111110  ',
+        '  01111110   ',
+        '   011110    ',
+        '    101      ',
+    ];
+    var SMILE_ROW = 3;
+    var SMILE_NEUTRAL = '0111110';
+    var SMILE_HAPPY = '0100010';
+
+    var gridEl = document.getElementById('pinguim-grid');
+    var bodyEl = document.getElementById('pinguim-body');
+    var overlayEl = document.getElementById('pinguim-overlay');
+    var bgEl = document.getElementById('pinguim-glitch-bg');
+    var smileEl = document.getElementById('pinguim-smile');
+    var bubbleEl = document.getElementById('pinguim-bubble');
+
+    function renderPenguin() {
+        gridEl.innerHTML = '';
+        PINGUIM_GRID.forEach(function(row) {
+            var rowDiv = document.createElement('div');
+            rowDiv.className = 'pinguim-row';
+            for (var i = 0; i < row.length; i++) {
+                var ch = row[i];
+                var span = document.createElement('span');
+                span.className = 'pinguim-char p' + (ch === '0' ? '0' : '1');
+                span.textContent = ch === ' ' ? '\u00A0' : ch;
+                rowDiv.appendChild(span);
+            }
+            gridEl.appendChild(rowDiv);
+        });
+    }
+
+    function setPenguinSmile(happy) {
+        var rows = gridEl.querySelectorAll('.pinguim-row');
+        if (rows.length <= SMILE_ROW) return;
+        var smileRow = rows[SMILE_ROW];
+        var chars = smileRow.querySelectorAll('.pinguim-char');
+        var pattern = happy ? SMILE_HAPPY : SMILE_NEUTRAL;
+        for (var i = 0; i < pattern.length && i < chars.length; i++) {
+            var ch = pattern[i];
+            if (ch !== ' ' && ch !== undefined) {
+                chars[i].textContent = ch;
+                chars[i].className = 'pinguim-char p' + (ch === '0' ? '0' : '1');
+            }
+        }
+    }
+
+    function randomBinary(len) {
+        var s = '';
+        for (var i = 0; i < len; i++) s += Math.random() < 0.5 ? '0' : '1';
+        return s;
+    }
+
+    function spawnStolenNumber(value, startX, startY, endX, endY, delay, callback) {
+        var el = document.createElement('div');
+        el.className = 'pinguim-stolen-number';
+        el.textContent = value;
+        el.style.left = startX + 'px';
+        el.style.top = startY + 'px';
+        el.style.opacity = '1';
+        document.body.appendChild(el);
+
+        setTimeout(function() {
+            var startTime = Date.now();
+            var duration = 500;
+            function animate() {
+                var elapsed = Date.now() - startTime;
+                var progress = Math.min(elapsed / duration, 1);
+                var ease = progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+                var x = startX + (endX - startX) * ease;
+                var y = startY + (endY - startY) * ease;
+                var scale = 1 - ease * 0.7;
+                var opacity = 1 - ease * 0.8;
+                el.style.left = x + 'px';
+                el.style.top = y + 'px';
+                el.style.transform = 'translate(-50%, -50%) scale(' + scale + ') rotate(' + (ease * 360) + 'deg)';
+                el.style.opacity = opacity;
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    el.remove();
+                    if (callback) callback();
+                }
+            }
+            requestAnimationFrame(animate);
+        }, delay);
+    }
+
+    function flashBinary(select, delay) {
+        if (!select) return;
+        var isDark = document.documentElement.classList.contains('dark');
+        var overlay = document.createElement('div');
+        overlay.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:Courier New,monospace;font-weight:800;font-size:20px;pointer-events:none;z-index:10;background:rgba(255,255,255,0.25);border-radius:16px;backdrop-filter:blur(1px);color:' + (isDark ? '#34d399' : '#059669') + ';';
+        overlay.textContent = randomBinary(5);
+        select.style.position = 'relative';
+        select.parentNode.appendChild(overlay);
+
+        var flashes = 0;
+        var interval = setInterval(function() {
+            flashes++;
+            if (flashes >= 5) {
+                clearInterval(interval);
+                overlay.textContent = select.options[select.selectedIndex].text;
+                setTimeout(function() {
+                    overlay.style.transition = 'all 0.4s';
+                    overlay.style.opacity = '0';
+                    overlay.style.transform = 'scale(0.3) rotate(20deg)';
+                    setTimeout(function() { overlay.remove(); }, 400);
+                }, 200);
+                return;
+            }
+            overlay.textContent = randomBinary(5);
+        }, 80);
+    }
+
+    function getCenter(el) {
+        if (!el) return {x: 0, y: 0};
+        var rect = el.getBoundingClientRect();
+        return {x: rect.left + rect.width / 2, y: rect.top + rect.height / 2};
+    }
+
+    document.addEventListener('submit', function(e) {
+        var form = e.target;
+        if (!form || !form.hasAttribute('data-pinguim')) return;
+        if (pinguimSubmitting) { pinguimSubmitting = false; return; }
+
+        var matchId = form.getAttribute('data-match-id');
+        if (!matchId) return;
+
+        e.preventDefault();
+
+        var homeSelect = form.querySelector('[name=home_score]');
+        var awaySelect = form.querySelector('[name=away_score]');
+        var homeVal = homeSelect ? homeSelect.value : '0';
+        var awayVal = awaySelect ? awaySelect.value : '0';
+
+        var btn = form.querySelector('[type=submit]');
+        if (btn) btn.disabled = true;
+
+        flashBinary(homeSelect);
+        flashBinary(awaySelect);
+
+        setTimeout(function() {
+            renderPenguin();
+            bgEl.classList.add('active');
+            overlayEl.classList.add('active');
+
+            setTimeout(function() {
+                var homeCenter = getCenter(homeSelect);
+                var awayCenter = getCenter(awaySelect);
+
+                var bodyRect = bodyEl.getBoundingClientRect();
+                var bellyX = bodyRect.left + bodyRect.width / 2;
+                var bellyY = bodyRect.top + bodyRect.height / 2 + 20;
+
+                var stolen = 0;
+                function onStolen() {
+                    stolen++;
+                    if (stolen >= 2) {
+                        setPenguinSmile(true);
+                        smileEl.classList.add('show');
+                        bubbleEl.classList.add('show');
+
+                        setTimeout(function() {
+                            bgEl.classList.remove('active');
+                            overlayEl.classList.remove('active');
+                            smileEl.classList.remove('show');
+                            bubbleEl.classList.remove('show');
+                            setPenguinSmile(false);
+                            if (btn) btn.disabled = false;
+
+                            pinguimSubmitting = true;
+                            form.requestSubmit();
+                        }, 1300);
+                    }
+                }
+
+                spawnStolenNumber(homeVal, homeCenter.x, homeCenter.y, bellyX, bellyY, 0, onStolen);
+                spawnStolenNumber(awayVal, awayCenter.x, awayCenter.y, bellyX, bellyY, 100, onStolen);
+            }, 500);
+        }, 400);
+    });
+})();
+</script>
 </body>
 </html>
 {{end}}
