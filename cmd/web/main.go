@@ -57,6 +57,8 @@ func main() {
 		if err := syncSvc.SyncAllData(); err != nil {
 			log.Printf("API sync error: %v", err)
 		}
+		// Recalcula pontos de todos os jogos finalizados (fix retroativo)
+		betSvc.RecalculateAllFinishedMatches()
 	}()
 	syncSvc.Start()
 

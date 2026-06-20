@@ -170,16 +170,11 @@ func (s *SyncService) updateMatch(apiMatch APIMatch) error {
 		awayScoreInt := parseInt(apiMatch.AwayScore)
 
 		if homeScoreInt != nil && awayScoreInt != nil {
-			oldHome := nullIntToPtr(currentHomeScore)
-			oldAway := nullIntToPtr(currentAwayScore)
-
-			if oldHome == nil || oldAway == nil || *oldHome != *homeScoreInt || *oldAway != *awayScoreInt {
-				mID := int64(0)
-				fmt.Sscanf(matchID, "%d", &mID)
-				if mID > 0 {
-					if err := s.betSvc.RecalculateMatchBets(mID); err != nil {
-						log.Printf("Error recalculating bets for match %s: %v", matchID, err)
-					}
+			mID := int64(0)
+			fmt.Sscanf(matchID, "%d", &mID)
+			if mID > 0 {
+				if err := s.betSvc.RecalculateMatchBets(mID); err != nil {
+					log.Printf("Error recalculating bets for match %s: %v", matchID, err)
 				}
 			}
 		}

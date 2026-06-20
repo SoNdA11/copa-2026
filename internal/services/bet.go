@@ -3,6 +3,7 @@ package services
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"time"
 
 	"copa-2026/internal/models"
@@ -154,6 +155,25 @@ func (s *BetService) RecalculateMatchBets(matchID int64) error {
 	}
 
 	return nil
+}
+
+func (s *BetService) RecalculateAllFinishedMatches() {
+	rows, err := s.db.Query("SELECT id FROM matches WHERE status = 'finished' AND home_score IS NOT NULL AND away_score IS NOT NULL")
+	if err != nil {
+		log.Printf("Error querying finished matches for recalculation: %v", err)
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var id int64
+		if err := rows.Scan(&id); err != nil {
+			continue
+		}
+		if err := s.RecalculateMatchBets(id); err != nil {
+			log.Printf("Error recalculating match %d: %v", id, err)
+		}
+	}
 }
 
 func (s *BetService) GetMatchByID(matchID int64) (*models.Match, error) {

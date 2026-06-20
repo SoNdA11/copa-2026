@@ -82,7 +82,8 @@ func (h *MatchHandler) List(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Erro ao carregar grupos", http.StatusInternalServerError)
 			return
 		}
-		todayStr := time.Now().Format("2006-01-02")
+		loc, _ := time.LoadLocation("America/Sao_Paulo")
+		todayStr := time.Now().In(loc).Format("2006-01-02")
 		for gi := range groups {
 			for mi := range groups[gi].Matches {
 				m := &groups[gi].Matches[mi]
@@ -111,7 +112,8 @@ func (h *MatchHandler) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	todayStr := time.Now().Format("2006-01-02")
+	loc, _ := time.LoadLocation("America/Sao_Paulo")
+	todayStr := time.Now().In(loc).Format("2006-01-02")
 	for i := range matches {
 		m := &matches[i]
 		if ub, ok := userBets[m.ID]; ok {
