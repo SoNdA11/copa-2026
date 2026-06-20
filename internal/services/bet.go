@@ -9,7 +9,7 @@ import (
 	"copa-2026/internal/models"
 )
 
-var specialBettingDeadline = time.Date(2026, 6, 20, 2, 59, 59, 0, time.UTC)
+var specialBettingDeadline = time.Date(2026, 6, 23, 2, 59, 59, 0, time.UTC)
 
 func IsSpecialBettingOpen() bool {
 	return time.Now().Before(specialBettingDeadline)
