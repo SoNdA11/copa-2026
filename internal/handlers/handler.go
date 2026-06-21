@@ -3,6 +3,7 @@ package handlers
 import (
 	"html/template"
 	"os"
+	"time"
 
 	"copa-2026/internal/models"
 	"copa-2026/internal/services"
@@ -38,6 +39,27 @@ var funcMap = template.FuncMap{
 	},
 	"specialBettingOpen": func() bool {
 		return services.IsSpecialBettingOpen()
+	},
+	"toBRT": func(t time.Time) string {
+		loc, _ := time.LoadLocation("America/Sao_Paulo")
+		return t.In(loc).Format("02/01/2006 15:04")
+	},
+	"toBRTStr": func(s string) string {
+		if s == "" {
+			return s
+		}
+		loc, _ := time.LoadLocation("America/Sao_Paulo")
+		for _, layout := range []string{
+			"2006-01-02 15:04:05",
+			"2006-01-02T15:04:05Z",
+			"2006-01-02T15:04:05-07:00",
+			time.RFC3339,
+		} {
+			if t, err := time.ParseInLocation(layout, s, time.UTC); err == nil {
+				return t.In(loc).Format("02/01/2006 15:04")
+			}
+		}
+		return s
 	},
 	"stageLabel": func(stage string) string {
 		labels := map[string]string{

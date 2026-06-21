@@ -32,8 +32,8 @@
                     <tr class="hover:bg-stone-50/50 dark:hover:bg-stone-800/20 transition-colors">
                         <td class="px-5 py-3 font-medium text-stone-700 dark:text-stone-300">{{.User.Name}}</td>
                         <td class="px-5 py-3 font-bold text-stone-700 dark:text-stone-300">{{.HomeScore}}x{{.AwayScore}}</td>
-                        <td class="px-5 py-3 text-stone-500 dark:text-stone-500 text-xs">{{.CreatedAt}}</td>
-                        <td class="px-5 py-3 text-stone-500 dark:text-stone-500 text-xs">{{.UpdatedAt}}</td>
+                        <td class="px-5 py-3 text-stone-500 dark:text-stone-500 text-xs">{{toBRT .CreatedAt}}</td>
+                        <td class="px-5 py-3 text-stone-500 dark:text-stone-500 text-xs">{{if .UpdatedAt}}{{toBRT .UpdatedAt}}{{else}}-{{end}}</td>
                         <td class="px-5 py-3">
                             {{if gt .Points 0}}
                             <span class="text-emerald-600 dark:text-emerald-400 font-bold">+{{.Points}}</span>
@@ -81,7 +81,7 @@
                             {{end}}
                         </td>
                         <td class="px-5 py-3 font-bold text-stone-700 dark:text-stone-300">{{.NewHome}}x{{.NewAway}}</td>
-                        <td class="px-5 py-3 text-stone-500 dark:text-stone-500 text-xs">{{.ChangedAt}}</td>
+                        <td class="px-5 py-3 text-stone-500 dark:text-stone-500 text-xs">{{toBRTStr .ChangedAt}}</td>
                     </tr>
                     {{else}}
                     <tr>
