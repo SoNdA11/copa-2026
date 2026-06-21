@@ -27,6 +27,9 @@
                     <a href="/admin" class="text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 px-3 py-2 text-sm font-medium transition-colors rounded-xl hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20">
                         Admin
                     </a>
+                    <a href="/admin/matches" class="text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 px-3 py-2 text-sm font-medium transition-colors rounded-xl hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20">
+                        Jogos
+                    </a>
                     {{end}}
                     {{end}}
                 </div>
@@ -95,6 +98,7 @@
             <a href="/special" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 rounded-xl">Especiais</a>
             {{if .User.IsAdmin}}
             <a href="/admin" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 rounded-xl">Admin</a>
+            <a href="/admin/matches" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 rounded-xl">Jogos (Admin)</a>
             {{end}}
             <a href="/settings" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 rounded-xl">Configurações</a>
             {{else}}

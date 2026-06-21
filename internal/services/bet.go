@@ -24,13 +24,29 @@ func NewBetService(db *sql.DB) *BetService {
 }
 
 func (s *BetService) PlaceBet(userID, matchID int64, homeScore, awayScore int) error {
-	var matchStatus string
-	err := s.db.QueryRow("SELECT status FROM matches WHERE id = $1", matchID).Scan(&matchStatus)
+	var matchStatus, matchDate, matchTime string
+	err := s.db.QueryRow("SELECT status, match_date, match_time FROM matches WHERE id = $1", matchID).Scan(&matchStatus, &matchDate, &matchTime)
 	if err != nil {
 		return fmt.Errorf("jogo não encontrado")
 	}
 	if matchStatus != "upcoming" {
 		return fmt.Errorf("jogo já iniciou ou terminou")
+	}
+
+	loc, _ := time.LoadLocation("America/Sao_Paulo")
+	now := time.Now().In(loc)
+	scheduled, err := time.ParseInLocation("2006-01-02 15:04", matchDate+" "+matchTime, loc)
+	if err == nil && now.After(scheduled) {
+		return fmt.Errorf("o horário do jogo já passou")
+	}
+
+	var existingID int
+	var existingHome, existingAway int
+	err = s.db.QueryRow(`
+		SELECT id, home_score, away_score FROM bets WHERE user_id = $1 AND match_id = $2
+	`, userID, matchID).Scan(&existingID, &existingHome, &existingAway)
+	if err != nil && err != sql.ErrNoRows {
+		return err
 	}
 
 	_, err = s.db.Exec(`
@@ -41,7 +57,18 @@ func (s *BetService) PlaceBet(userID, matchID int64, homeScore, awayScore int) e
 			away_score = EXCLUDED.away_score,
 			updated_at = CURRENT_TIMESTAMP
 	`, userID, matchID, homeScore, awayScore)
-	return err
+	if err != nil {
+		return err
+	}
+
+	if existingID > 0 && (existingHome != homeScore || existingAway != awayScore) {
+		s.db.Exec(`
+			INSERT INTO bet_history (bet_id, user_id, match_id, old_home_score, old_away_score, new_home_score, new_away_score)
+			VALUES ($1, $2, $3, $4, $5, $6, $7)
+		`, existingID, userID, matchID, existingHome, existingAway, homeScore, awayScore)
+	}
+
+	return nil
 }
 
 func (s *BetService) GetUserBet(userID, matchID int64) (*models.Bet, error) {
@@ -84,11 +111,13 @@ func (s *BetService) GetUserBets(userID int64) ([]models.Bet, error) {
 func (s *BetService) GetAllBetsForMatch(matchID int64) ([]models.Bet, error) {
 	rows, err := s.db.Query(`
 		SELECT b.id, b.user_id, b.match_id, b.home_score, b.away_score, b.points, b.created_at, b.updated_at,
-			m.id, m.home_team_id, m.away_team_id, m.home_score, m.away_score, m.match_date, m.match_time, m.stage, m.group_name, m.stadium, m.status
+			m.id, m.home_team_id, m.away_team_id, m.home_score, m.away_score, m.match_date, m.match_time, m.stage, m.group_name, m.stadium, m.status,
+			u.id, u.name
 		FROM bets b
 		JOIN matches m ON m.id = b.match_id
+		JOIN users u ON u.id = b.user_id
 		WHERE b.match_id = $1
-		ORDER BY b.id
+		ORDER BY u.name
 	`, matchID)
 	if err != nil {
 		return nil, err
@@ -103,10 +132,12 @@ func (s *BetService) GetAllBetsForMatch(matchID int64) ([]models.Bet, error) {
 		var stadium, groupName sql.NullString
 
 		b.Match = &models.Match{}
+		b.User = &models.User{}
 
 		err := rows.Scan(&b.ID, &b.UserID, &b.MatchID, &b.HomeScore, &b.AwayScore, &b.Points, &b.CreatedAt, &updatedAt,
 			&b.Match.ID, &b.Match.HomeTeamID, &b.Match.AwayTeamID, &homeScore, &awayScore,
-			&b.Match.MatchDate, &b.Match.MatchTime, &b.Match.Stage, &groupName, &stadium, &b.Match.Status)
+			&b.Match.MatchDate, &b.Match.MatchTime, &b.Match.Stage, &groupName, &stadium, &b.Match.Status,
+			&b.User.ID, &b.User.Name)
 		if err != nil {
 			return nil, err
 		}
@@ -178,12 +209,22 @@ func (s *BetService) RecalculateAllFinishedMatches() {
 
 func (s *BetService) GetMatchByID(matchID int64) (*models.Match, error) {
 	m := &models.Match{}
+	m.HomeTeam = &models.Team{}
+	m.AwayTeam = &models.Team{}
 	var homeScore, awayScore sql.NullInt64
 	var stadium, groupName sql.NullString
 	err := s.db.QueryRow(`
-		SELECT id, home_team_id, away_team_id, home_score, away_score, match_date, match_time, stage, group_name, stadium, status
-		FROM matches WHERE id = $1
-	`, matchID).Scan(&m.ID, &m.HomeTeamID, &m.AwayTeamID, &homeScore, &awayScore, &m.MatchDate, &m.MatchTime, &m.Stage, &groupName, &stadium, &m.Status)
+		SELECT m.id, m.home_team_id, m.away_team_id,
+			m.home_score, m.away_score, m.match_date, m.match_time, m.stage, m.group_name, m.stadium, m.status,
+			COALESCE(ht.id, 0), COALESCE(ht.name, ''), COALESCE(ht.fifa_code, ''), COALESCE(ht.group_name, ''), COALESCE(ht.flag_url, ''),
+			COALESCE(at.id, 0), COALESCE(at.name, ''), COALESCE(at.fifa_code, ''), COALESCE(at.group_name, ''), COALESCE(at.flag_url, '')
+		FROM matches m
+		LEFT JOIN teams ht ON ht.id = m.home_team_id
+		LEFT JOIN teams at ON at.id = m.away_team_id
+		WHERE m.id = $1
+	`, matchID).Scan(&m.ID, &m.HomeTeamID, &m.AwayTeamID, &homeScore, &awayScore, &m.MatchDate, &m.MatchTime, &m.Stage, &groupName, &stadium, &m.Status,
+		&m.HomeTeam.ID, &m.HomeTeam.Name, &m.HomeTeam.FifaCode, &m.HomeTeam.GroupName, &m.HomeTeam.FlagURL,
+		&m.AwayTeam.ID, &m.AwayTeam.Name, &m.AwayTeam.FifaCode, &m.AwayTeam.GroupName, &m.AwayTeam.FlagURL)
 	if err != nil {
 		return nil, err
 	}
@@ -202,6 +243,56 @@ func (s *BetService) GetMatchByID(matchID int64) (*models.Match, error) {
 		m.GroupName = groupName.String
 	}
 	return m, nil
+}
+
+type BetHistoryEntry struct {
+	BetID       int64
+	UserID      int64
+	UserName    string
+	MatchID     int64
+	OldHome     *int
+	OldAway     *int
+	NewHome     int
+	NewAway     int
+	ChangedAt   string
+}
+
+func (s *BetService) GetBetHistory(matchID int64) ([]BetHistoryEntry, error) {
+	rows, err := s.db.Query(`
+		SELECT bh.bet_id, bh.user_id, u.name, bh.match_id,
+			bh.old_home_score, bh.old_away_score, bh.new_home_score, bh.new_away_score, bh.changed_at
+		FROM bet_history bh
+		JOIN users u ON u.id = bh.user_id
+		WHERE bh.match_id = $1
+		ORDER BY bh.changed_at
+	`, matchID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var entries []BetHistoryEntry
+	for rows.Next() {
+		var e BetHistoryEntry
+		var oldHome, oldAway sql.NullInt64
+		var changedAt sql.NullString
+		if err := rows.Scan(&e.BetID, &e.UserID, &e.UserName, &e.MatchID, &oldHome, &oldAway, &e.NewHome, &e.NewAway, &changedAt); err != nil {
+			return nil, err
+		}
+		if oldHome.Valid {
+			v := int(oldHome.Int64)
+			e.OldHome = &v
+		}
+		if oldAway.Valid {
+			v := int(oldAway.Int64)
+			e.OldAway = &v
+		}
+		if changedAt.Valid {
+			e.ChangedAt = changedAt.String
+		}
+		entries = append(entries, e)
+	}
+	return entries, rows.Err()
 }
 
 func scanBets(rows *sql.Rows) ([]models.Bet, error) {

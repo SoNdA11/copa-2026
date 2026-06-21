@@ -2,17 +2,22 @@ package handlers
 
 import (
 	"database/sql"
+	"log"
 	"net/http"
 	"strconv"
+
+	"copa-2026/internal/models"
+	"copa-2026/internal/services"
 )
 
 type AdminHandler struct {
 	db       *sql.DB
+	betSvc   *services.BetService
 	renderer *Renderer
 }
 
-func NewAdminHandler(db *sql.DB, renderer *Renderer) *AdminHandler {
-	return &AdminHandler{db: db, renderer: renderer}
+func NewAdminHandler(db *sql.DB, betSvc *services.BetService, renderer *Renderer) *AdminHandler {
+	return &AdminHandler{db: db, betSvc: betSvc, renderer: renderer}
 }
 
 type adminUserRow struct {
@@ -21,6 +26,24 @@ type adminUserRow struct {
 	Points           int
 	PointsAdjustment int
 	Total            int
+}
+
+type adminMatchRow struct {
+	ID         int64
+	HomeTeam   string
+	AwayTeam   string
+	HomeScore  *int
+	AwayScore  *int
+	MatchDate  string
+	MatchTime  string
+	Stage      string
+	GroupName  string
+	Status     string
+}
+
+type adminMatchPageData struct {
+	Matches []adminMatchRow
+	Flash   string
 }
 
 func (h *AdminHandler) UsersPage(w http.ResponseWriter, r *http.Request) {
@@ -163,4 +186,191 @@ func (h *AdminHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/admin?flash=usuario+excluido", http.StatusSeeOther)
+}
+
+type adminMatchData struct {
+	Matches []adminMatchRow
+	Flash   string
+}
+
+func (h *AdminHandler) MatchesPage(w http.ResponseWriter, r *http.Request) {
+	user := GetUserFromSession(r)
+	if user == nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	stage := r.URL.Query().Get("stage")
+	query := `
+		SELECT m.id, COALESCE(ht.name, 'TBD'), COALESCE(at.name, 'TBD'),
+			m.home_score, m.away_score, m.match_date, m.match_time, m.stage, m.group_name, m.status
+		FROM matches m
+		LEFT JOIN teams ht ON ht.id = m.home_team_id
+		LEFT JOIN teams at ON at.id = m.away_team_id
+	`
+	if stage != "" && stage != "all" {
+		query += " WHERE m.stage = $1"
+		query += " ORDER BY m.match_date, m.match_time"
+	} else {
+		query += " ORDER BY m.match_date, m.match_time"
+	}
+
+	var rows *sql.Rows
+	var err error
+	if stage != "" && stage != "all" {
+		rows, err = h.db.Query(query, stage)
+	} else {
+		rows, err = h.db.Query(query)
+	}
+	if err != nil {
+		http.Error(w, "Erro ao carregar jogos", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var matches []adminMatchRow
+	for rows.Next() {
+		var m adminMatchRow
+		var homeScore, awayScore sql.NullInt64
+		var groupName sql.NullString
+		if err := rows.Scan(&m.ID, &m.HomeTeam, &m.AwayTeam, &homeScore, &awayScore, &m.MatchDate, &m.MatchTime, &m.Stage, &groupName, &m.Status); err != nil {
+			continue
+		}
+		if homeScore.Valid {
+			v := int(homeScore.Int64)
+			m.HomeScore = &v
+		}
+		if awayScore.Valid {
+			v := int(awayScore.Int64)
+			m.AwayScore = &v
+		}
+		if groupName.Valid {
+			m.GroupName = groupName.String
+		}
+		matches = append(matches, m)
+	}
+
+	data := PageData{
+		Title: "Admin - Jogos",
+		User:  user,
+		Data: adminMatchData{
+			Matches: matches,
+			Flash:   r.URL.Query().Get("flash"),
+		},
+	}
+	h.renderer.Render(w, "cmd/web/templates/pages/admin_matches.html", data)
+}
+
+func (h *AdminHandler) UpdateMatch(w http.ResponseWriter, r *http.Request) {
+	user := GetUserFromSession(r)
+	if user == nil {
+		http.Error(w, "Não autorizado", http.StatusUnauthorized)
+		return
+	}
+
+	if r.Method != "POST" {
+		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Erro no formulário", http.StatusBadRequest)
+		return
+	}
+
+	matchIDStr := r.FormValue("match_id")
+	matchID, err := strconv.ParseInt(matchIDStr, 10, 64)
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+
+	status := r.FormValue("status")
+	homeScoreStr := r.FormValue("home_score")
+	awayScoreStr := r.FormValue("away_score")
+
+	var homeScore, awayScore interface{}
+	homeScore = nil
+	awayScore = nil
+
+	if status == "finished" {
+		hs, err := strconv.Atoi(homeScoreStr)
+		if err != nil {
+			http.Error(w, "Placar inválido", http.StatusBadRequest)
+			return
+		}
+		as, err := strconv.Atoi(awayScoreStr)
+		if err != nil {
+			http.Error(w, "Placar inválido", http.StatusBadRequest)
+			return
+		}
+		homeScore = hs
+		awayScore = as
+	}
+
+	_, err = h.db.Exec(`
+		UPDATE matches SET status = $1, home_score = $2, away_score = $3 WHERE id = $4
+	`, status, homeScore, awayScore, matchID)
+	if err != nil {
+		http.Error(w, "Erro ao atualizar jogo", http.StatusInternalServerError)
+		return
+	}
+
+	if status == "finished" {
+		if err := h.betSvc.RecalculateMatchBets(matchID); err != nil {
+			log.Printf("Error recalculating bets for match %d: %v", matchID, err)
+		}
+	}
+
+	http.Redirect(w, r, "/admin/matches?flash=jogo+atualizado", http.StatusSeeOther)
+}
+
+func (h *AdminHandler) MatchBetsPage(w http.ResponseWriter, r *http.Request) {
+	user := GetUserFromSession(r)
+	if user == nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	matchIDStr := r.URL.Query().Get("match_id")
+	matchID, err := strconv.ParseInt(matchIDStr, 10, 64)
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+
+	match, err := h.betSvc.GetMatchByID(matchID)
+	if err != nil {
+		http.Error(w, "Jogo não encontrado", http.StatusNotFound)
+		return
+	}
+
+	bets, err := h.betSvc.GetAllBetsForMatch(matchID)
+	if err != nil {
+		http.Error(w, "Erro ao carregar palpites", http.StatusInternalServerError)
+		return
+	}
+
+	history, err := h.betSvc.GetBetHistory(matchID)
+	if err != nil {
+		log.Printf("Error loading bet history for match %d: %v", matchID, err)
+	}
+
+	type matchBetsPageData struct {
+		Match   *models.Match
+		Bets    []models.Bet
+		History []services.BetHistoryEntry
+	}
+
+	data := PageData{
+		Title: "Palpites - " + strconv.FormatInt(matchID, 10),
+		User:  user,
+		Data: matchBetsPageData{
+			Match:   match,
+			Bets:    bets,
+			History: history,
+		},
+	}
+
+	h.renderer.Render(w, "cmd/web/templates/pages/admin_match_bets.html", data)
 }

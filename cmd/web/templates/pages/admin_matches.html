@@ -1,0 +1,111 @@
+{{define "page_content"}}
+<div class="max-w-6xl mx-auto animate-fade-in">
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-stone-800 dark:text-stone-100">Admin - Jogos</h1>
+        <p class="text-stone-500 dark:text-stone-500 mt-1 text-sm">Gerenciar status e placar das partidas</p>
+    </div>
+
+    {{if .Data.Flash}}
+    <div class="bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/30 text-emerald-700 dark:text-emerald-300 px-4 py-3 mb-4 text-sm rounded-2xl animate-fade-in">
+        {{.Data.Flash}}
+    </div>
+    {{end}}
+
+    <div class="card rounded-2xl overflow-hidden animate-fade-in animate-fade-in-d1">
+        <div class="px-5 py-3 border-b border-stone-200/50 dark:border-stone-800/30 bg-stone-100/30 dark:bg-stone-800/20 flex items-center justify-between">
+            <h2 class="text-sm font-semibold text-stone-700 dark:text-stone-300">Partidas</h2>
+            <div class="flex items-center space-x-2">
+                <a href="/admin/matches" class="text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 px-2 py-1 rounded-xl hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 transition-colors {{if not .Stage}}font-bold{{end}}">Todas</a>
+                <a href="/admin/matches?stage=group" class="text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 px-2 py-1 rounded-xl hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 transition-colors {{if eq .Stage "group"}}font-bold{{end}}">Grupos</a>
+                <a href="/admin/matches?stage=final" class="text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 px-2 py-1 rounded-xl hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 transition-colors {{if eq .Stage "final"}}font-bold{{end}}">Final</a>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="bg-stone-100/30 dark:bg-stone-800/20 text-left text-xs text-stone-500 dark:text-stone-500">
+                        <th class="px-3 py-3 font-semibold">ID</th>
+                        <th class="px-3 py-3 font-semibold">Jogo</th>
+                        <th class="px-3 py-3 font-semibold">Data</th>
+                        <th class="px-3 py-3 font-semibold">Status</th>
+                        <th class="px-3 py-3 font-semibold">Placar</th>
+                        <th class="px-3 py-3 text-right font-semibold">Ações</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-stone-200/40 dark:divide-stone-800/30">
+                    {{range .Data.Matches}}
+                    <tr class="hover:bg-stone-50/50 dark:hover:bg-stone-800/20 transition-colors">
+                        <td class="px-3 py-3 text-stone-400 dark:text-stone-600 text-xs font-mono">{{.ID}}</td>
+                        <td class="px-3 py-3 font-medium text-stone-700 dark:text-stone-300 whitespace-nowrap">
+                            {{.HomeTeam}} vs {{.AwayTeam}}
+                            {{if .GroupName}}<span class="text-xs text-stone-400 dark:text-stone-600">({{.GroupName}})</span>{{end}}
+                        </td>
+                        <td class="px-3 py-3 text-stone-500 dark:text-stone-500 text-xs whitespace-nowrap">{{.MatchDate}} {{.MatchTime}}</td>
+                        <td class="px-3 py-3">
+                            {{if eq .Status "live"}}
+                            <span class="inline-flex items-center space-x-1 text-emerald-600 dark:text-emerald-400 font-bold text-xs">
+                                <span class="w-1.5 h-1.5 bg-emerald-500 dark:bg-emerald-400 rounded-full animate-pulse-soft"></span>
+                                <span>AO VIVO</span>
+                            </span>
+                            {{else if eq .Status "finished"}}
+                            <span class="text-stone-400 dark:text-stone-600 text-xs font-medium">Finalizado</span>
+                            {{else}}
+                            <span class="text-stone-400 dark:text-stone-600 text-xs font-medium">Previsto</span>
+                            {{end}}
+                        </td>
+                        <td class="px-3 py-3">
+                            {{if .HomeScore}}
+                            <span class="font-bold text-stone-700 dark:text-stone-300">{{.HomeScore}}</span>
+                            <span class="text-stone-300 dark:text-stone-700">x</span>
+                            <span class="font-bold text-stone-700 dark:text-stone-300">{{.AwayScore}}</span>
+                            {{else}}
+                            <span class="text-stone-400 dark:text-stone-600 text-xs">-</span>
+                            {{end}}
+                        </td>
+                        <td class="px-3 py-3 text-right flex items-center justify-end space-x-2">
+                            <a href="/admin/match-bets?match_id={{.ID}}" class="text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 text-xs font-medium transition-colors">
+                                Palpites
+                            </a>
+                            <button onclick="document.getElementById('match-form-{{.ID}}').classList.toggle('hidden')" class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 text-xs font-semibold transition-colors">
+                                Editar
+                            </button>
+                        </td>
+                    </tr>
+                    <tr id="match-form-{{.ID}}" class="hidden">
+                        <td colspan="6" class="px-3 py-3 bg-stone-50/50 dark:bg-stone-800/20">
+                            <form method="POST" action="/admin/update-match" class="flex items-center space-x-3 flex-wrap gap-y-2">
+                                <input type="hidden" name="match_id" value="{{.ID}}">
+                                <select name="status" class="bg-stone-100/70 dark:bg-stone-800/50 border border-stone-200/60 dark:border-stone-700/50 rounded-xl px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 dark:focus:border-emerald-600 text-stone-700 dark:text-stone-300">
+                                    <option value="upcoming" {{if eq .Status "upcoming"}}selected{{end}}>Previsto</option>
+                                    <option value="live" {{if eq .Status "live"}}selected{{end}}>Ao Vivo</option>
+                                    <option value="finished" {{if eq .Status "finished"}}selected{{end}}>Finalizado</option>
+                                </select>
+                                <input type="number" name="home_score" placeholder="Casa" min="0" max="20"
+                                    class="w-16 bg-stone-100/70 dark:bg-stone-800/50 border border-stone-200/60 dark:border-stone-700/50 rounded-xl px-2.5 py-1.5 text-center text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 dark:focus:border-emerald-600 text-stone-700 dark:text-stone-300"
+                                    value="{{if .HomeScore}}{{.HomeScore}}{{end}}">
+                                <span class="text-stone-400 dark:text-stone-600 text-xs">x</span>
+                                <input type="number" name="away_score" placeholder="Fora" min="0" max="20"
+                                    class="w-16 bg-stone-100/70 dark:bg-stone-800/50 border border-stone-200/60 dark:border-stone-700/50 rounded-xl px-2.5 py-1.5 text-center text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 dark:focus:border-emerald-600 text-stone-700 dark:text-stone-300"
+                                    value="{{if .AwayScore}}{{.AwayScore}}{{end}}">
+                                <button type="submit" class="bg-emerald-500 hover:bg-emerald-600 text-white dark:text-stone-900 font-semibold px-3 py-1.5 rounded-xl text-xs transition-colors">
+                                    Salvar
+                                </button>
+                                <button type="button" onclick="document.getElementById('match-form-{{.ID}}').classList.add('hidden')" class="text-stone-400 dark:text-stone-600 hover:text-stone-600 dark:hover:text-stone-400 text-xs font-medium transition-colors">
+                                    Cancelar
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {{else}}
+                    <tr>
+                        <td colspan="6" class="px-5 py-8 text-center text-stone-400 dark:text-stone-600 text-sm">
+                            Nenhuma partida encontrada
+                        </td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{{end}}

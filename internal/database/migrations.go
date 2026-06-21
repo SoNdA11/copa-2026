@@ -110,6 +110,23 @@ func RunMigrations(db *sql.DB) error {
 			ALTER TABLE users DROP CONSTRAINT IF EXISTS users_name_key;
 			ALTER TABLE users ADD UNIQUE(name, group_id)`,
 		},
+		{
+			name: "create_bet_history",
+			sql: `CREATE TABLE IF NOT EXISTS bet_history (
+				id SERIAL PRIMARY KEY,
+				bet_id INTEGER NOT NULL,
+				user_id INTEGER NOT NULL,
+				match_id INTEGER NOT NULL,
+				old_home_score INTEGER,
+				old_away_score INTEGER,
+				new_home_score INTEGER NOT NULL,
+				new_away_score INTEGER NOT NULL,
+				changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+				FOREIGN KEY (bet_id) REFERENCES bets(id),
+				FOREIGN KEY (user_id) REFERENCES users(id),
+				FOREIGN KEY (match_id) REFERENCES matches(id)
+			)`,
+		},
 	}
 
 	for _, m := range migrations {
