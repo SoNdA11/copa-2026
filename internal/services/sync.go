@@ -137,9 +137,14 @@ func (s *SyncService) fetchMatches() ([]APIMatch, error) {
 func (s *SyncService) updateMatch(apiMatch APIMatch) error {
 	matchID := apiMatch.ID
 
+	var currentStatus string
 	var currentHomeScore, currentAwayScore sql.NullInt64
-	err := s.db.QueryRow("SELECT home_score, away_score FROM matches WHERE id = $1", matchID).Scan(&currentHomeScore, &currentAwayScore)
+	err := s.db.QueryRow("SELECT status, home_score, away_score FROM matches WHERE id = $1", matchID).Scan(&currentStatus, &currentHomeScore, &currentAwayScore)
 	if err != nil {
+		return nil
+	}
+
+	if currentStatus == "finished" && apiMatch.Finished != "TRUE" && apiMatch.TimeElapsed != "finished" {
 		return nil
 	}
 
