@@ -78,10 +78,28 @@
                     <span class="bg-emerald-50/50 dark:bg-emerald-950/30 rounded-lg px-2 py-0.5 font-bold text-xs">{{.BetHomeScore}}x{{.BetAwayScore}}</span>
                 </span>
             {{end}}
-            <a href="/matches/{{.ID}}" class="link font-semibold transition-all">
-                {{if eq .Status "upcoming"}}Palpitar &rarr;{{else}}Detalhes &rarr;{{end}}
+            {{if eq .Status "upcoming"}}
+            <a href="/matches/{{.ID}}" class="link font-semibold transition-all"
+                hx-get="/matches/{{.ID}}/inline-bet"
+                hx-target="closest .card"
+                hx-swap="outerHTML"
+                hx-trigger="click"
+                hx-prevent-default="true">
+                {{if .HasUserBet}}Editar &rarr;{{else}}Palpitar &rarr;{{end}}
             </a>
+            <span class="text-stone-300 dark:text-stone-700">|</span>
+            <span class="text-stone-400 dark:text-stone-600 hover:text-emerald-600 dark:hover:text-emerald-400 font-semibold transition-all cursor-pointer"
+                onclick="toggleGroupBets({{.ID}}, this)">Ver palpites &darr;</span>
+            {{else}}
+            <a href="/matches/{{.ID}}" class="link font-semibold transition-all">
+                Detalhes &rarr;
+            </a>
+            {{end}}
         </div>
+    </div>
+    <div id="group-bets-{{.ID}}" class="hidden mt-3 pt-3 border-t border-stone-200/50 dark:border-stone-800/30">
+        <div id="group-bets-table-{{.ID}}"></div>
+        <div id="group-bets-distribution-{{.ID}}"></div>
     </div>
 </div>
 {{end}}

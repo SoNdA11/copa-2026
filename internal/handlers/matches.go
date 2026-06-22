@@ -51,6 +51,75 @@ type SectionedMatches struct {
 	Past     []models.Match
 }
 
+func (h *MatchHandler) InlineBetForm(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Jogo inválido", http.StatusBadRequest)
+		return
+	}
+
+	cancel := r.URL.Query().Get("cancel") == "true"
+
+	match, err := h.getMatchDetail(id)
+	if err != nil {
+		http.Error(w, "Jogo não encontrado", http.StatusNotFound)
+		return
+	}
+
+	user := GetUserFromSession(r)
+
+	loc, _ := time.LoadLocation("America/Sao_Paulo")
+	todayStr := time.Now().In(loc).Format("2006-01-02")
+	match.IsToday = match.MatchDate == todayStr
+	match.IsPast = match.MatchDate < todayStr
+
+	if cancel || match.Status != "upcoming" || user == nil {
+		if user != nil {
+			bet, _ := h.betSvc.GetUserBet(user.ID, id)
+			if bet != nil {
+				match.HasUserBet = true
+				match.BetHomeScore = bet.HomeScore
+				match.BetAwayScore = bet.AwayScore
+			}
+		}
+		tmpl, err := LoadPageTemplate("cmd/web/templates/partials/match_row.html")
+		if err != nil {
+			http.Error(w, "Erro ao renderizar", http.StatusInternalServerError)
+			return
+		}
+		if err := tmpl.ExecuteTemplate(w, "match_row", match); err != nil {
+			http.Error(w, "Erro ao renderizar", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	bet, _ := h.betSvc.GetUserBet(user.ID, id)
+	if bet != nil {
+		match.HasUserBet = true
+		match.BetHomeScore = bet.HomeScore
+		match.BetAwayScore = bet.AwayScore
+	}
+
+	data := PageData{
+		Data: match,
+		Bet:  bet,
+		User: user,
+	}
+
+	tmpl, err := LoadPageTemplate(
+		"cmd/web/templates/partials/inline_bet.html",
+		"cmd/web/templates/partials/match_row.html",
+	)
+	if err != nil {
+		http.Error(w, "Erro ao renderizar", http.StatusInternalServerError)
+		return
+	}
+	if err := tmpl.ExecuteTemplate(w, "inline_bet", data); err != nil {
+		http.Error(w, "Erro ao renderizar", http.StatusInternalServerError)
+	}
+}
+
 func (h *MatchHandler) List(w http.ResponseWriter, r *http.Request) {
 	stage := r.URL.Query().Get("stage")
 

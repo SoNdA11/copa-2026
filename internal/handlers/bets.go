@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
@@ -66,12 +67,34 @@ func (h *BetHandler) Place(w http.ResponseWriter, r *http.Request) {
 	bet, _ := h.betSvc.GetUserBet(user.ID, matchID)
 	match := h.getMatchWithTeams(matchID)
 
+	w.Header().Set("HX-Trigger", "bet-placed")
+
+	inline := r.URL.Query().Get("inline") == "true"
+
+	if inline {
+		match.HasUserBet = true
+		match.BetHomeScore = bet.HomeScore
+		match.BetAwayScore = bet.AwayScore
+		loc, _ := time.LoadLocation("America/Sao_Paulo")
+		todayStr := time.Now().In(loc).Format("2006-01-02")
+		match.IsToday = match.MatchDate == todayStr
+		match.IsPast = match.MatchDate < todayStr
+
+		tmpl, err := LoadPageTemplate("cmd/web/templates/partials/match_row.html")
+		if err != nil {
+			http.Error(w, "Erro ao renderizar", http.StatusInternalServerError)
+			return
+		}
+		if err := tmpl.ExecuteTemplate(w, "match_row", match); err != nil {
+			http.Error(w, "Erro ao renderizar", http.StatusInternalServerError)
+		}
+		return
+	}
+
 	flash := "Palpite salvo!"
 	if existing != nil {
 		flash = "Palpite atualizado!"
 	}
-
-	w.Header().Set("HX-Trigger", "bet-placed")
 
 	data := PageData{
 		Data:  match,

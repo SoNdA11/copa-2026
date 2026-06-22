@@ -37,6 +37,7 @@ func main() {
 		"cmd/web/templates/partials/nav.html",
 		"cmd/web/templates/partials/match_row.html",
 		"cmd/web/templates/partials/bet_form.html",
+		"cmd/web/templates/partials/inline_bet.html",
 		"cmd/web/templates/partials/ranking_table.html",
 		"cmd/web/templates/partials/group_standings.html",
 		"cmd/web/templates/partials/match_bets_group.html",
@@ -116,6 +117,7 @@ func main() {
 	})
 	r.Get("/matches/{id}", matchHandler.Detail)
 	r.Get("/matches/{id}/bets", matchHandler.GroupBets)
+	r.Get("/matches/{id}/inline-bet", matchHandler.InlineBetForm)
 
 	// Bets (requires auth)
 	r.Group(func(r chi.Router) {
