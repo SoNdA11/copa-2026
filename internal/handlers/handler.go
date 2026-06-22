@@ -31,6 +31,17 @@ var funcMap = template.FuncMap{
 		}
 		return s
 	},
+	"first3": func(data interface{}) []models.UserRanking {
+		users, ok := data.([]models.UserRanking)
+		if !ok {
+			return []models.UserRanking{{}, {}, {}}
+		}
+		result := make([]models.UserRanking, 3)
+		for i := 0; i < 3 && i < len(users); i++ {
+			result[i] = users[i]
+		}
+		return result
+	},
 	"deref": func(p *int) int {
 		if p == nil {
 			return -1

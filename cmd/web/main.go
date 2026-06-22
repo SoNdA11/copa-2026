@@ -147,6 +147,13 @@ func main() {
 		r.Use(handlers.RequireAuth)
 		r.Get("/settings", settingsHandler.Page)
 		r.Post("/settings/delete", settingsHandler.DeleteAccount)
+		r.Post("/settings/avatar", settingsHandler.UploadAvatar)
+		r.Post("/settings/avatar/remove", settingsHandler.RemoveAvatar)
+	})
+
+	// Static files (avatars)
+	r.Get("/static/*", func(w http.ResponseWriter, r *http.Request) {
+		http.StripPrefix("/static/", http.FileServer(http.Dir("data"))).ServeHTTP(w, r)
 	})
 
 	// Admin

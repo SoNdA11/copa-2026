@@ -22,6 +22,7 @@ type AuthResult struct {
 	GroupID   int64
 	GroupName string
 	GroupSlug string
+	AvatarURL string
 }
 
 func (s *AuthService) Register(name, password string, groupID int64) (int64, error) {
@@ -53,13 +54,13 @@ func (s *AuthService) Authenticate(name, password string, groupID int64) (*AuthR
 	var hash string
 	var isAdmin bool
 	var gID int64
-	var groupName, groupSlug string
+	var groupName, groupSlug, avatarURL string
 	err := s.db.QueryRow(`
-		SELECT u.id, u.password_hash, COALESCE(u.is_admin, 0), u.group_id, g.name, g.slug
+		SELECT u.id, u.password_hash, COALESCE(u.is_admin, 0), u.group_id, g.name, g.slug, COALESCE(u.avatar_url, '')
 		FROM users u
 		JOIN groups g ON g.id = u.group_id
 		WHERE u.name = $1 AND u.group_id = $2
-	`, name, groupID).Scan(&id, &hash, &isAdmin, &gID, &groupName, &groupSlug)
+	`, name, groupID).Scan(&id, &hash, &isAdmin, &gID, &groupName, &groupSlug, &avatarURL)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, errors.New("usuário ou senha inválidos")
@@ -71,7 +72,7 @@ func (s *AuthService) Authenticate(name, password string, groupID int64) (*AuthR
 		return nil, errors.New("usuário ou senha inválidos")
 	}
 
-	return &AuthResult{UserID: id, IsAdmin: isAdmin, GroupID: gID, GroupName: groupName, GroupSlug: groupSlug}, nil
+	return &AuthResult{UserID: id, IsAdmin: isAdmin, GroupID: gID, GroupName: groupName, GroupSlug: groupSlug, AvatarURL: avatarURL}, nil
 }
 
 func (s *AuthService) CreateAdmin(name, password string, groupID int64) error {

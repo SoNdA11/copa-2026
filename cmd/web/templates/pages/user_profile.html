@@ -6,13 +6,22 @@
 
     <div class="card rounded-2xl p-5 mb-6 animate-fade-in animate-fade-in-d1">
         <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-lg font-bold text-zinc-800 dark:text-zinc-200">{{$data.UserName}}</h1>
-                {{if $data.Rank}}
-                <p class="text-sm text-zinc-500 dark:text-zinc-500 mt-1">
-                    #{{$data.Rank.Position}} &middot; {{$data.Rank.Points}} pts
-                </p>
-                {{end}}
+            <div class="flex items-center space-x-4">
+                <div class="w-14 h-14 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center overflow-hidden flex-shrink-0">
+                    {{if $data.AvatarURL}}
+                    <img src="{{$data.AvatarURL}}" alt="{{$data.UserName}}" class="w-full h-full object-cover">
+                    {{else}}
+                    <span class="text-xl font-bold text-zinc-400 dark:text-zinc-600">{{slice $data.UserName 0 1}}</span>
+                    {{end}}
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-zinc-800 dark:text-zinc-200">{{$data.UserName}}</h1>
+                    {{if $data.Rank}}
+                    <p class="text-sm text-zinc-500 dark:text-zinc-500 mt-1">
+                        #{{$data.Rank.Position}} &middot; {{$data.Rank.Points}} pts
+                    </p>
+                    {{end}}
+                </div>
             </div>
         </div>
     </div>

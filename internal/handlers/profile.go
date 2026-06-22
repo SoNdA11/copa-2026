@@ -35,7 +35,8 @@ func (h *ProfileHandler) UserBets(w http.ResponseWriter, r *http.Request) {
 	var userName string
 	var isAdmin bool
 	var targetGroupID int64
-	err = h.db.QueryRow("SELECT name, is_admin, group_id FROM users WHERE id = $1", targetUserID).Scan(&userName, &isAdmin, &targetGroupID)
+	var avatarURL string
+	err = h.db.QueryRow("SELECT name, is_admin, group_id, COALESCE(avatar_url, '') FROM users WHERE id = $1", targetUserID).Scan(&userName, &isAdmin, &targetGroupID, &avatarURL)
 	if err != nil {
 		http.Error(w, "Usuário não encontrado", http.StatusNotFound)
 		return
@@ -65,6 +66,7 @@ func (h *ProfileHandler) UserBets(w http.ResponseWriter, r *http.Request) {
 		Rank        *models.UserRanking
 		MatchBets   []models.Bet
 		SpecialBets []models.SpecialBet
+		AvatarURL   string
 	}
 
 	profileData := UserProfileData{
@@ -72,6 +74,7 @@ func (h *ProfileHandler) UserBets(w http.ResponseWriter, r *http.Request) {
 		Rank:        rankPos,
 		MatchBets:   bets,
 		SpecialBets: specialBets,
+		AvatarURL:   avatarURL,
 	}
 
 	data := PageData{

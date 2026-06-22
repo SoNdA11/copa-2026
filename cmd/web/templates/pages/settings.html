@@ -2,10 +2,47 @@
 <div class="max-w-lg mx-auto animate-fade-in">
     <h1 class="text-2xl font-bold text-zinc-800 dark:text-zinc-100 mb-6">Configurações</h1>
 
+    {{if .Error}}
+    <div class="bg-red-50/50 dark:bg-red-950/20 border border-red-200/60 dark:border-red-800/30 text-red-600 dark:text-red-400 text-sm rounded-2xl px-4 py-3 mb-4">
+        {{.Error}}
+    </div>
+    {{end}}
+
     <div class="card rounded-2xl divide-y divide-zinc-200/50 dark:divide-zinc-800/30">
         <div class="p-5">
             <h2 class="font-bold text-zinc-700 dark:text-zinc-300 text-sm">Perfil</h2>
             <p class="text-sm text-zinc-500 dark:text-zinc-500 mt-1">{{.User.Name}}</p>
+            <p class="text-xs text-zinc-400 dark:text-zinc-600">{{.User.GroupName}}</p>
+        </div>
+
+        <div class="p-5">
+            <h2 class="font-bold text-zinc-700 dark:text-zinc-300 text-sm mb-3">Foto de perfil</h2>
+            <div class="flex items-center space-x-4">
+                <div class="w-16 h-16 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center overflow-hidden flex-shrink-0">
+                    {{if .User.AvatarURL}}
+                    <img src="{{.User.AvatarURL}}" alt="{{.User.Name}}" class="w-full h-full object-cover">
+                    {{else}}
+                    <span class="text-xl font-bold text-zinc-400 dark:text-zinc-600">{{slice .User.Name 0 1}}</span>
+                    {{end}}
+                </div>
+                <div class="flex-1">
+                    <form method="POST" action="/settings/avatar" enctype="multipart/form-data" class="space-y-2">
+                        <input type="file" name="avatar" accept="image/jpeg,image/png,image/gif"
+                            class="block w-full text-sm text-zinc-500 dark:text-zinc-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-green-50 file:text-green-700 dark:file:bg-green-950/30 dark:file:text-green-400 hover:file:bg-green-100 dark:hover:file:bg-green-900/40 cursor-pointer">
+                        <p class="text-[11px] text-zinc-400 dark:text-zinc-600">JPEG, PNG ou GIF · máx 10MB · cortada automaticamente para círculo</p>
+                        <div class="flex space-x-2">
+                            <button type="submit" class="btn-primary text-xs font-semibold px-4 py-1.5 rounded-xl">
+                                Salvar foto
+                            </button>
+                            {{if .User.AvatarURL}}
+                            <button type="submit" formaction="/settings/avatar/remove" class="text-xs text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-500 font-semibold px-3 py-1.5 rounded-xl hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors">
+                                Remover
+                            </button>
+                            {{end}}
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
 
         <div class="p-5">

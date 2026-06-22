@@ -111,6 +111,10 @@ func RunMigrations(db *sql.DB) error {
 			ALTER TABLE users ADD UNIQUE(name, group_id)`,
 		},
 		{
+			name: "add_avatar_url_to_users",
+			sql:  `ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT DEFAULT ''`,
+		},
+		{
 			name: "create_bet_history",
 			sql: `CREATE TABLE IF NOT EXISTS bet_history (
 				id SERIAL PRIMARY KEY,

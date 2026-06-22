@@ -22,6 +22,7 @@ type UserInfo struct {
 	GroupID   int64
 	GroupName string
 	GroupSlug string
+	AvatarURL string
 }
 
 func GetUserFromSession(r *http.Request) *UserInfo {
@@ -41,9 +42,11 @@ func GetUserFromSession(r *http.Request) *UserInfo {
 	isAdmin, _ := session.Values["is_admin"].(bool)
 	groupName, _ := session.Values["group_name"].(string)
 	groupSlug, _ := session.Values["group_slug"].(string)
+	avatarURL, _ := session.Values["avatar_url"].(string)
 	return &UserInfo{
 		ID: userID, Name: userName, IsAdmin: isAdmin,
 		GroupID: groupID, GroupName: groupName, GroupSlug: groupSlug,
+		AvatarURL: avatarURL,
 	}
 }
 
@@ -123,6 +126,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	session.Values["group_id"] = result.GroupID
 	session.Values["group_name"] = result.GroupName
 	session.Values["group_slug"] = result.GroupSlug
+	session.Values["avatar_url"] = result.AvatarURL
 	session.Options = &sessions.Options{
 		Path:     "/",
 		MaxAge:   86400 * 30,
@@ -191,6 +195,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	session.Values["group_id"] = groupID
 	session.Values["group_name"] = groupName
 	session.Values["group_slug"] = groupSlug
+	session.Values["avatar_url"] = ""
 	session.Options = &sessions.Options{
 		Path:     "/",
 		MaxAge:   86400 * 30,
@@ -212,6 +217,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	session.Values["group_id"] = nil
 	session.Values["group_name"] = nil
 	session.Values["group_slug"] = nil
+	session.Values["avatar_url"] = nil
 	session.Options.MaxAge = -1
 	session.Save(r, w)
 	http.Redirect(w, r, "/login", http.StatusSeeOther)

@@ -1,4 +1,73 @@
 {{define "ranking_table"}}
+{{$users := .Data}}
+{{$first3 := first3 $users}}
+
+{{if (index $first3 0).UserID}}
+<div class="p-6">
+    <div class="flex items-end justify-center space-x-4 mb-8">
+        {{if (index $first3 1).UserID}}
+        <div class="flex flex-col items-center w-28 animate-fade-in animate-fade-in-d1">
+            <div class="w-16 h-16 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center overflow-hidden mb-2 ring-2 ring-zinc-300 dark:ring-zinc-600 shadow-lg">
+                {{if (index $first3 1).AvatarURL}}
+                <img src="{{(index $first3 1).AvatarURL}}" alt="{{(index $first3 1).Name}}" class="w-full h-full object-cover">
+                {{else}}
+                <span class="text-lg font-bold text-zinc-400 dark:text-zinc-600">{{slice (index $first3 1).Name 0 1}}</span>
+                {{end}}
+            </div>
+            <div class="text-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 bg-zinc-200 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400 rounded-full text-xs font-bold mb-1">2</span>
+            </div>
+            <a href="/user/{{(index $first3 1).UserID}}/bets" class="text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400 transition-colors text-center truncate max-w-full block">
+                {{(index $first3 1).Name}}
+            </a>
+            <span class="text-xs text-zinc-400 dark:text-zinc-600 font-medium">{{(index $first3 1).Points}} pts</span>
+        </div>
+        {{end}}
+
+        <div class="flex flex-col items-center w-32 -mt-4 animate-fade-in animate-fade-in-d0">
+            <div class="relative">
+                <svg class="w-8 h-8 text-amber-400 dark:text-amber-300 mb-0.5 mx-auto" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+                <div class="w-20 h-20 rounded-full bg-gradient-to-br from-amber-100 to-amber-50 dark:from-amber-900/40 dark:to-amber-800/20 flex items-center justify-center overflow-hidden ring-2 ring-amber-300 dark:ring-amber-500 shadow-xl shadow-amber-200/30 dark:shadow-amber-900/30">
+                    {{if (index $first3 0).AvatarURL}}
+                    <img src="{{(index $first3 0).AvatarURL}}" alt="{{(index $first3 0).Name}}" class="w-full h-full object-cover">
+                    {{else}}
+                    <span class="text-2xl font-bold text-amber-400 dark:text-amber-300">{{slice (index $first3 0).Name 0 1}}</span>
+                    {{end}}
+                </div>
+            </div>
+            <div class="text-center mt-2">
+                <span class="inline-flex items-center justify-center w-8 h-8 bg-amber-400/80 dark:bg-amber-500/80 text-white rounded-full text-sm font-bold shadow-md">1</span>
+            </div>
+            <a href="/user/{{(index $first3 0).UserID}}/bets" class="text-sm font-bold text-zinc-800 dark:text-zinc-200 hover:text-green-600 dark:hover:text-green-400 transition-colors text-center truncate max-w-full block mt-1">
+                {{(index $first3 0).Name}}
+            </a>
+            <span class="text-sm font-bold text-amber-500 dark:text-amber-400">{{(index $first3 0).Points}} pts</span>
+        </div>
+
+        {{if (index $first3 2).UserID}}
+        <div class="flex flex-col items-center w-28 animate-fade-in animate-fade-in-d2">
+            <div class="w-16 h-16 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center overflow-hidden mb-2 ring-2 ring-orange-200 dark:ring-orange-900/50 shadow-lg">
+                {{if (index $first3 2).AvatarURL}}
+                <img src="{{(index $first3 2).AvatarURL}}" alt="{{(index $first3 2).Name}}" class="w-full h-full object-cover">
+                {{else}}
+                <span class="text-lg font-bold text-zinc-400 dark:text-zinc-600">{{slice (index $first3 2).Name 0 1}}</span>
+                {{end}}
+            </div>
+            <div class="text-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 bg-orange-100 dark:bg-orange-900/40 text-orange-500 dark:text-orange-400 rounded-full text-xs font-bold mb-1">3</span>
+            </div>
+            <a href="/user/{{(index $first3 2).UserID}}/bets" class="text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400 transition-colors text-center truncate max-w-full block">
+                {{(index $first3 2).Name}}
+            </a>
+            <span class="text-xs text-zinc-400 dark:text-zinc-600 font-medium">{{(index $first3 2).Points}} pts</span>
+        </div>
+        {{end}}
+    </div>
+</div>
+{{end}}
+
 <div class="overflow-x-auto">
     <table class="w-full text-sm">
         <thead>
@@ -21,13 +90,14 @@
             </tr>
         </thead>
         <tbody>
-            {{range .Data}}
-            <tr class="border-b border-zinc-200/30 dark:border-zinc-800/20 hover:bg-green-50/30 dark:hover:bg-green-950/15 transition-colors {{if and $.User (eq $.User.Name .Name)}}bg-green-50/40 dark:bg-green-950/25{{end}}">
+            {{range $i, $u := .Data}}
+            {{$isTop3 := or (eq $u.Position 1) (eq $u.Position 2) (eq $u.Position 3)}}
+            <tr class="border-b border-zinc-200/30 dark:border-zinc-800/20 hover:bg-green-50/30 dark:hover:bg-green-950/15 transition-colors {{if and $.User (eq $.User.Name $u.Name)}}bg-green-50/40 dark:bg-green-950/25{{end}} {{if eq $u.Position 1}}border-l-2 border-l-amber-400 dark:border-l-amber-500{{end}} {{if eq $u.Position 2}}border-l-2 border-l-zinc-300 dark:border-l-zinc-600{{end}} {{if eq $u.Position 3}}border-l-2 border-l-orange-300 dark:border-l-orange-700{{end}}">
                 <td class="py-3 px-2">
                     <button onclick="
-                        var t = document.getElementById('bets-{{.UserID}}');
+                        var t = document.getElementById('bets-{{$u.UserID}}');
                         if (t.innerHTML == '') {
-                            htmx.ajax('GET', '/user/{{.UserID}}/bets/partial', {target: '#bets-{{.UserID}}', swap: 'innerHTML'});
+                            htmx.ajax('GET', '/user/{{$u.UserID}}/bets/partial', {target: '#bets-{{$u.UserID}}', swap: 'innerHTML'});
                             this.innerHTML = '&minus;';
                         } else {
                             t.innerHTML = '';
@@ -38,27 +108,36 @@
                         title="Ver palpites">+</button>
                 </td>
                 <td class="py-3 px-4">
-                    {{if eq .Position 1}}
-                    <span class="inline-flex items-center justify-center w-7 h-7 bg-orange-100/60 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-xl text-xs font-bold">1</span>
-                    {{else if eq .Position 2}}
-                    <span class="inline-flex items-center justify-center w-7 h-7 bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-500 rounded-xl text-xs font-bold">2</span>
-                    {{else if eq .Position 3}}
-                    <span class="inline-flex items-center justify-center w-7 h-7 bg-orange-100/30 dark:bg-orange-900/20 text-orange-500 dark:text-orange-500 rounded-xl text-xs font-bold">3</span>
+                    {{if eq $u.Position 1}}
+                    <span class="inline-flex items-center justify-center w-7 h-7 bg-amber-100/60 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-xl text-xs font-bold">🥇</span>
+                    {{else if eq $u.Position 2}}
+                    <span class="inline-flex items-center justify-center w-7 h-7 bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-500 rounded-xl text-xs font-bold">🥈</span>
+                    {{else if eq $u.Position 3}}
+                    <span class="inline-flex items-center justify-center w-7 h-7 bg-orange-100/30 dark:bg-orange-900/20 text-orange-500 dark:text-orange-500 rounded-xl text-xs font-bold">🥉</span>
                     {{else}}
-                    <span class="text-zinc-400 dark:text-zinc-600 font-medium ml-2">{{.Position}}</span>
+                    <span class="text-zinc-400 dark:text-zinc-600 font-medium ml-2">{{$u.Position}}</span>
                     {{end}}
                 </td>
                 <td class="py-3 px-4">
-                    <a href="/user/{{.UserID}}/bets" class="hover:text-green-600 dark:hover:text-green-400 transition-colors {{if and $.User (eq $.User.Name .Name)}}text-green-600 dark:text-green-400 font-bold{{else}}text-zinc-700 dark:text-zinc-300 font-medium{{end}}">
-                        {{.Name}}
-                    </a>
-                    {{if and $.User (eq $.User.Name .Name)}}
-                    <span class="text-zinc-400 dark:text-zinc-600 text-xs ml-1">(você)</span>
-                    {{end}}
+                    <div class="flex items-center space-x-2.5">
+                        <div class="w-7 h-7 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center overflow-hidden flex-shrink-0">
+                            {{if $u.AvatarURL}}
+                            <img src="{{$u.AvatarURL}}" alt="{{$u.Name}}" class="w-full h-full object-cover">
+                            {{else}}
+                            <span class="text-[10px] font-bold text-zinc-400 dark:text-zinc-600">{{slice $u.Name 0 1}}</span>
+                            {{end}}
+                        </div>
+                        <a href="/user/{{$u.UserID}}/bets" class="hover:text-green-600 dark:hover:text-green-400 transition-colors {{if and $.User (eq $.User.Name $u.Name)}}text-green-600 dark:text-green-400 font-bold{{else}}text-zinc-700 dark:text-zinc-300 font-medium{{end}}">
+                            {{$u.Name}}
+                        </a>
+                        {{if and $.User (eq $.User.Name $u.Name)}}
+                        <span class="text-zinc-400 dark:text-zinc-600 text-xs ml-1">(você)</span>
+                        {{end}}
+                    </div>
                 </td>
-                <td class="py-3 px-4 text-right font-bold {{if and $.User (eq $.User.Name .Name)}}text-green-600 dark:text-green-400{{else}}text-zinc-700 dark:text-zinc-300{{end}}">{{.Points}}</td>
+                <td class="py-3 px-4 text-right font-bold {{if and $.User (eq $.User.Name $u.Name)}}text-green-600 dark:text-green-400{{else}}text-zinc-700 dark:text-zinc-300{{end}}">{{$u.Points}}</td>
             </tr>
-            <tr id="bets-{{.UserID}}">
+            <tr id="bets-{{$u.UserID}}">
             </tr>
             {{else}}
             <tr>

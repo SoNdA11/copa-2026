@@ -16,7 +16,7 @@ func NewRankingService(db *sql.DB) *RankingService {
 
 func (s *RankingService) GetRanking(groupID int64) ([]models.UserRanking, error) {
 	rows, err := s.db.Query(`
-		SELECT u.id, u.name,
+		SELECT u.id, u.name, COALESCE(u.avatar_url, ''),
 			COALESCE(b.total_bet_points, 0) + COALESCE(s.total_special_points, 0) + COALESCE(u.points_adjustment, 0) as total_points
 		FROM users u
 		LEFT JOIN (
@@ -41,7 +41,7 @@ func (s *RankingService) GetRanking(groupID int64) ([]models.UserRanking, error)
 	position := 1
 	for rows.Next() {
 		var r models.UserRanking
-		if err := rows.Scan(&r.UserID, &r.Name, &r.Points); err != nil {
+		if err := rows.Scan(&r.UserID, &r.Name, &r.AvatarURL, &r.Points); err != nil {
 			return nil, err
 		}
 		r.Position = position

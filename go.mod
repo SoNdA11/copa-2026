@@ -7,6 +7,7 @@ require (
 	github.com/gorilla/sessions v1.4.0
 	github.com/jackc/pgx/v5 v5.10.0
 	golang.org/x/crypto v0.53.0
+	golang.org/x/image v0.43.0
 )
 
 require (

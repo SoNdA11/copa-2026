@@ -14,4 +14,5 @@ type UserRanking struct {
 	Name     string `json:"name"`
 	Points   int    `json:"points"`
 	Position int    `json:"position"`
+	AvatarURL string `json:"avatar_url"`
 }

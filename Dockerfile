@@ -13,5 +13,6 @@ WORKDIR /app
 COPY --from=builder /app/web .
 COPY --from=builder /app/cmd/web/templates ./cmd/web/templates
 COPY --from=builder /app/data/seed ./data/seed
+RUN mkdir -p /app/data/avatars
 EXPOSE 3000
 CMD ["./web"]
