@@ -1,5 +1,6 @@
 # Binários
 /web
+/bin/
 *.exe
 
 # Banco de dados

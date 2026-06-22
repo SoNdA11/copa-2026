@@ -1,11 +1,11 @@
 {{define "page_content"}}
 <div class="flex items-center justify-between mb-6 animate-fade-in">
-    <h1 class="text-2xl font-bold text-stone-800 dark:text-stone-100">Palpites Especiais</h1>
+    <h1 class="text-2xl font-bold text-zinc-800 dark:text-zinc-100">Palpites Especiais</h1>
     <div class="flex space-x-2">
-        <a href="/special" class="px-4 py-2 rounded-xl text-xs font-bold transition-all text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/15 border border-stone-200/50 dark:border-stone-800/30">
+        <a href="/special" class="px-4 py-2 rounded-xl text-xs font-bold transition-all text-zinc-500 dark:text-zinc-500 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50/30 dark:hover:bg-green-950/15 border border-zinc-200/50 dark:border-zinc-800/30">
             Meus
         </a>
-        <a href="/special/all" class="px-4 py-2 rounded-xl text-xs font-bold transition-all card-strong text-emerald-600 dark:text-emerald-400">
+        <a href="/special/all" class="px-4 py-2 rounded-xl text-xs font-bold transition-all card-strong text-green-600 dark:text-green-400">
             Todos
         </a>
     </div>
@@ -15,7 +15,7 @@
     <div class="overflow-x-auto">
         <table class="w-full text-sm">
             <thead>
-                <tr class="bg-stone-100/50 dark:bg-stone-800/30 text-left text-xs text-stone-500 dark:text-stone-500">
+                <tr class="bg-zinc-100/50 dark:bg-zinc-800/30 text-left text-xs text-zinc-500 dark:text-zinc-500">
                     <th class="px-5 py-3.5 font-semibold">Jogador</th>
                     <th class="px-5 py-3.5 font-semibold">Campeao</th>
                     <th class="px-5 py-3.5 font-semibold">Melhor Jogador</th>
@@ -24,44 +24,44 @@
                     <th class="px-5 py-3.5 font-semibold">Melhor Jovem</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-stone-200/40 dark:divide-stone-800/30">
+            <tbody class="divide-y divide-zinc-200/40 dark:divide-zinc-800/30">
                 {{range .Data}}
-                <tr class="hover:bg-emerald-50/20 dark:hover:bg-emerald-950/10 transition-colors">
-                    <td class="px-5 py-3.5 font-semibold text-stone-700 dark:text-stone-300">{{.UserName}}</td>
+                <tr class="hover:bg-green-50/20 dark:hover:bg-green-950/10 transition-colors">
+                    <td class="px-5 py-3.5 font-semibold text-zinc-700 dark:text-zinc-300">{{.UserName}}</td>
                     <td class="px-5 py-3.5">
-                        <span class="font-medium text-stone-600 dark:text-stone-400">{{.Champion}}</span>
+                        <span class="font-medium text-zinc-600 dark:text-zinc-400">{{.Champion}}</span>
                         {{if gt .ChampionPts 0}}
-                        <span class="ml-2 text-xs font-bold text-emerald-600 dark:text-emerald-400">+{{.ChampionPts}}</span>
+                        <span class="ml-2 text-xs font-bold text-green-600 dark:text-green-400">+{{.ChampionPts}}</span>
                         {{end}}
                     </td>
                     <td class="px-5 py-3.5">
-                        <span class="font-medium text-stone-600 dark:text-stone-400">{{.BestPlayer}}</span>
+                        <span class="font-medium text-zinc-600 dark:text-zinc-400">{{.BestPlayer}}</span>
                         {{if gt .BestPlayerPts 0}}
-                        <span class="ml-2 text-xs font-bold text-emerald-600 dark:text-emerald-400">+{{.BestPlayerPts}}</span>
+                        <span class="ml-2 text-xs font-bold text-green-600 dark:text-green-400">+{{.BestPlayerPts}}</span>
                         {{end}}
                     </td>
                     <td class="px-5 py-3.5">
-                        <span class="font-medium text-stone-600 dark:text-stone-400">{{.TopScorer}}</span>
+                        <span class="font-medium text-zinc-600 dark:text-zinc-400">{{.TopScorer}}</span>
                         {{if gt .TopScorerPts 0}}
-                        <span class="ml-2 text-xs font-bold text-emerald-600 dark:text-emerald-400">+{{.TopScorerPts}}</span>
+                        <span class="ml-2 text-xs font-bold text-green-600 dark:text-green-400">+{{.TopScorerPts}}</span>
                         {{end}}
                     </td>
                     <td class="px-5 py-3.5">
-                        <span class="font-medium text-stone-600 dark:text-stone-400">{{.BestGoalkeeper}}</span>
+                        <span class="font-medium text-zinc-600 dark:text-zinc-400">{{.BestGoalkeeper}}</span>
                         {{if gt .BestGoalkeeperPts 0}}
-                        <span class="ml-2 text-xs font-bold text-emerald-600 dark:text-emerald-400">+{{.BestGoalkeeperPts}}</span>
+                        <span class="ml-2 text-xs font-bold text-green-600 dark:text-green-400">+{{.BestGoalkeeperPts}}</span>
                         {{end}}
                     </td>
                     <td class="px-5 py-3.5">
-                        <span class="font-medium text-stone-600 dark:text-stone-400">{{.BestYoung}}</span>
+                        <span class="font-medium text-zinc-600 dark:text-zinc-400">{{.BestYoung}}</span>
                         {{if gt .BestYoungPts 0}}
-                        <span class="ml-2 text-xs font-bold text-emerald-600 dark:text-emerald-400">+{{.BestYoungPts}}</span>
+                        <span class="ml-2 text-xs font-bold text-green-600 dark:text-green-400">+{{.BestYoungPts}}</span>
                         {{end}}
                     </td>
                 </tr>
                 {{else}}
                 <tr>
-                    <td colspan="6" class="px-5 py-16 text-center text-stone-400 dark:text-stone-600">
+                    <td colspan="6" class="px-5 py-16 text-center text-zinc-400 dark:text-zinc-600">
                         Nenhum palpite cadastrado ainda
                     </td>
                 </tr>

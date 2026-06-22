@@ -7,9 +7,9 @@
     <div class="card rounded-2xl p-5 mb-6 animate-fade-in animate-fade-in-d1">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-lg font-bold text-stone-800 dark:text-stone-200">{{$data.UserName}}</h1>
+                <h1 class="text-lg font-bold text-zinc-800 dark:text-zinc-200">{{$data.UserName}}</h1>
                 {{if $data.Rank}}
-                <p class="text-sm text-stone-500 dark:text-stone-500 mt-1">
+                <p class="text-sm text-zinc-500 dark:text-zinc-500 mt-1">
                     #{{$data.Rank.Position}} &middot; {{$data.Rank.Points}} pts
                 </p>
                 {{end}}
@@ -18,38 +18,38 @@
     </div>
 
     {{if $data.MatchBets}}
-    <h2 class="text-sm font-semibold text-stone-500 dark:text-stone-500 uppercase tracking-wider mb-3 animate-fade-in">Palpites dos Jogos</h2>
+    <h2 class="text-sm font-semibold text-zinc-500 dark:text-zinc-500 uppercase tracking-wider mb-3 animate-fade-in">Palpites dos Jogos</h2>
     <div class="space-y-2.5 mb-8">
         {{range $data.MatchBets}}
         <div class="card card-hover rounded-2xl p-4 animate-fade-in">
             <div class="flex items-center justify-between">
                 <div class="flex-1">
                     <div class="flex items-center space-x-3">
-                        <span class="font-medium text-stone-700 dark:text-stone-300 text-sm">{{.Match.HomeTeam.Name}}</span>
-                        <span class="bg-emerald-50/50 dark:bg-emerald-950/30 rounded-xl px-3 py-1 font-bold">
-                            <span class="text-emerald-600 dark:text-emerald-400">{{.HomeScore}}</span>
-                            <span class="text-stone-300 dark:text-stone-700 mx-1">x</span>
-                            <span class="text-emerald-600 dark:text-emerald-400">{{.AwayScore}}</span>
+                        <span class="font-medium text-zinc-700 dark:text-zinc-300 text-sm">{{.Match.HomeTeam.Name}}</span>
+                        <span class="bg-green-50/50 dark:bg-green-950/30 rounded-xl px-3 py-1 font-bold">
+                            <span class="text-green-600 dark:text-green-400">{{.HomeScore}}</span>
+                            <span class="text-zinc-300 dark:text-zinc-700 mx-1">x</span>
+                            <span class="text-green-600 dark:text-green-400">{{.AwayScore}}</span>
                         </span>
-                        <span class="font-medium text-stone-700 dark:text-stone-300 text-sm">{{.Match.AwayTeam.Name}}</span>
+                        <span class="font-medium text-zinc-700 dark:text-zinc-300 text-sm">{{.Match.AwayTeam.Name}}</span>
                     </div>
                 </div>
                 <div class="text-right flex-shrink-0 ml-4">
                     {{if eq .Match.Status "finished"}}
-                    <span class="inline-block text-sm font-bold {{if gt .Points 0}}bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/30 text-emerald-600 dark:text-emerald-400{{else}}bg-stone-100/50 dark:bg-stone-800/30 text-stone-400 dark:text-stone-600{{end}} px-3 py-1 rounded-xl">
+                    <span class="inline-block text-sm font-bold {{if gt .Points 0}}bg-green-50/60 dark:bg-green-950/30 border border-green-200/60 dark:border-green-800/30 text-green-600 dark:text-green-400{{else}}bg-zinc-100/50 dark:bg-zinc-800/30 text-zinc-400 dark:text-zinc-600{{end}} px-3 py-1 rounded-xl">
                         +{{.Points}} pts
                     </span>
                     {{else if eq .Match.Status "live"}}
-                    <span class="inline-flex items-center space-x-1 text-emerald-600 dark:text-emerald-400 text-xs font-bold">
-                        <span class="w-1.5 h-1.5 bg-emerald-500 dark:bg-emerald-400 rounded-full animate-pulse-soft"></span>
+                    <span class="inline-flex items-center space-x-1 text-green-600 dark:text-green-400 text-xs font-bold">
+                        <span class="w-1.5 h-1.5 bg-green-500 dark:bg-green-400 rounded-full animate-pulse-soft"></span>
                         <span>AO VIVO</span>
                     </span>
                     {{else}}
-                    <span class="text-stone-400 dark:text-stone-600 text-xs">{{.Match.MatchDate}}</span>
+                    <span class="text-zinc-400 dark:text-zinc-600 text-xs">{{.Match.MatchDate}}</span>
                     {{end}}
                 </div>
             </div>
-            <div class="text-xs text-stone-400 dark:text-stone-600 mt-2">
+            <div class="text-xs text-zinc-400 dark:text-zinc-600 mt-2">
                 {{stageLabel .Match.Stage}}{{if .Match.GroupName}} &middot; {{.Match.GroupName}}{{end}}
                 {{if .Match.HomeScore}}{{if .Match.AwayScore}} &middot; Placar final: {{deref .Match.HomeScore}}x{{deref .Match.AwayScore}}{{end}}{{end}}
             </div>
@@ -59,26 +59,26 @@
     {{end}}
 
     {{if $data.SpecialBets}}
-    <h2 class="text-sm font-semibold text-stone-500 dark:text-stone-500 uppercase tracking-wider mb-3 animate-fade-in">Especiais</h2>
+    <h2 class="text-sm font-semibold text-zinc-500 dark:text-zinc-500 uppercase tracking-wider mb-3 animate-fade-in">Especiais</h2>
     <div class="space-y-2.5">
         {{range $data.SpecialBets}}
         <div class="card card-hover rounded-2xl p-4 animate-fade-in">
             <div class="flex items-center justify-between">
                 <div class="flex-1">
                     <div class="flex items-center space-x-3">
-                        <span class="text-sm text-stone-700 dark:text-stone-300 font-medium">{{.TypeLabel}}</span>
-                        <span class="bg-stone-100/50 dark:bg-stone-800/30 rounded-xl px-3 py-1 font-medium text-stone-600 dark:text-stone-400 text-sm">
+                        <span class="text-sm text-zinc-700 dark:text-zinc-300 font-medium">{{.TypeLabel}}</span>
+                        <span class="bg-zinc-100/50 dark:bg-zinc-800/30 rounded-xl px-3 py-1 font-medium text-zinc-600 dark:text-zinc-400 text-sm">
                             {{.Value}}
                         </span>
                     </div>
                 </div>
                 <div class="text-right flex-shrink-0 ml-4">
-                    <span class="inline-block text-sm font-bold {{if gt .Points 0}}bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/30 text-emerald-600 dark:text-emerald-400{{else}}bg-stone-100/50 dark:bg-stone-800/30 text-stone-400 dark:text-stone-600{{end}} px-3 py-1 rounded-xl">
+                    <span class="inline-block text-sm font-bold {{if gt .Points 0}}bg-green-50/60 dark:bg-green-950/30 border border-green-200/60 dark:border-green-800/30 text-green-600 dark:text-green-400{{else}}bg-zinc-100/50 dark:bg-zinc-800/30 text-zinc-400 dark:text-zinc-600{{end}} px-3 py-1 rounded-xl">
                         +{{.Points}} pts
                     </span>
                 </div>
             </div>
-            <div class="text-xs text-stone-400 dark:text-stone-600 mt-2">
+            <div class="text-xs text-zinc-400 dark:text-zinc-600 mt-2">
                 Vale até {{.MaxPoints}} pontos
             </div>
         </div>
@@ -87,7 +87,7 @@
     {{end}}
 
     {{if not $data.MatchBets}}{{if not $data.SpecialBets}}
-    <div class="text-center py-16 text-stone-400 dark:text-stone-600">
+    <div class="text-center py-16 text-zinc-400 dark:text-zinc-600">
         <p class="text-base mb-2 font-medium">Nenhum palpite ainda</p>
     </div>
     {{end}}{{end}}

@@ -2,10 +2,10 @@
 <div class="max-w-4xl mx-auto animate-fade-in">
     <div class="mb-6">
         <a href="/admin/matches" class="link text-sm font-semibold mb-4 inline-block">&larr; Voltar</a>
-        <h1 class="text-2xl font-bold text-stone-800 dark:text-stone-100 mt-2">
+        <h1 class="text-2xl font-bold text-zinc-800 dark:text-zinc-100 mt-2">
             Palpites: {{if .Data.Match.HomeTeam}}{{.Data.Match.HomeTeam.Name}}{{else}}Time{{end}} vs {{if .Data.Match.AwayTeam}}{{.Data.Match.AwayTeam.Name}}{{else}}Time{{end}}
         </h1>
-        <p class="text-stone-500 dark:text-stone-500 mt-1 text-sm">
+        <p class="text-zinc-500 dark:text-zinc-500 mt-1 text-sm">
             {{.Data.Match.MatchDate}} {{.Data.Match.MatchTime}} &middot; 
             Status: <span class="font-semibold">{{.Data.Match.Status}}</span>
             {{if .Data.Match.HomeScore}} &middot; Placar: {{.Data.Match.HomeScore}}x{{.Data.Match.AwayScore}}{{end}}
@@ -13,13 +13,13 @@
     </div>
 
     <div class="card rounded-2xl overflow-hidden animate-fade-in animate-fade-in-d1 mb-6">
-        <div class="px-5 py-3 border-b border-stone-200/50 dark:border-stone-800/30 bg-stone-100/30 dark:bg-stone-800/20">
-            <h2 class="text-sm font-semibold text-stone-700 dark:text-stone-300">Palpites dos Usuários</h2>
+        <div class="px-5 py-3 border-b border-zinc-200/50 dark:border-zinc-800/30 bg-zinc-100/30 dark:bg-zinc-800/20">
+            <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Palpites dos Usuários</h2>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>
-                    <tr class="bg-stone-100/30 dark:bg-stone-800/20 text-left text-xs text-stone-500 dark:text-stone-500">
+                    <tr class="bg-zinc-100/30 dark:bg-zinc-800/20 text-left text-xs text-zinc-500 dark:text-zinc-500">
                         <th class="px-5 py-3 font-semibold">Usuário</th>
                         <th class="px-5 py-3 font-semibold">Palpite</th>
                         <th class="px-5 py-3 font-semibold">Criado em</th>
@@ -27,24 +27,24 @@
                         <th class="px-5 py-3 font-semibold">Pontos</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-stone-200/40 dark:divide-stone-800/30">
+                <tbody class="divide-y divide-zinc-200/40 dark:divide-zinc-800/30">
                     {{range .Data.Bets}}
-                    <tr class="hover:bg-stone-50/50 dark:hover:bg-stone-800/20 transition-colors">
-                        <td class="px-5 py-3 font-medium text-stone-700 dark:text-stone-300">{{.User.Name}}</td>
-                        <td class="px-5 py-3 font-bold text-stone-700 dark:text-stone-300">{{.HomeScore}}x{{.AwayScore}}</td>
-                        <td class="px-5 py-3 text-stone-500 dark:text-stone-500 text-xs">{{toBRT .CreatedAt}}</td>
-                        <td class="px-5 py-3 text-stone-500 dark:text-stone-500 text-xs">{{if .UpdatedAt}}{{toBRT .UpdatedAt}}{{else}}-{{end}}</td>
+                    <tr class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20 transition-colors">
+                        <td class="px-5 py-3 font-medium text-zinc-700 dark:text-zinc-300">{{.User.Name}}</td>
+                        <td class="px-5 py-3 font-bold text-zinc-700 dark:text-zinc-300">{{.HomeScore}}x{{.AwayScore}}</td>
+                        <td class="px-5 py-3 text-zinc-500 dark:text-zinc-500 text-xs">{{toBRT .CreatedAt}}</td>
+                        <td class="px-5 py-3 text-zinc-500 dark:text-zinc-500 text-xs">{{if .UpdatedAt}}{{toBRT .UpdatedAt}}{{else}}-{{end}}</td>
                         <td class="px-5 py-3">
                             {{if gt .Points 0}}
-                            <span class="text-emerald-600 dark:text-emerald-400 font-bold">+{{.Points}}</span>
+                            <span class="text-green-600 dark:text-green-400 font-bold">+{{.Points}}</span>
                             {{else}}
-                            <span class="text-stone-400 dark:text-stone-600">0</span>
+                            <span class="text-zinc-400 dark:text-zinc-600">0</span>
                             {{end}}
                         </td>
                     </tr>
                     {{else}}
                     <tr>
-                        <td colspan="5" class="px-5 py-8 text-center text-stone-400 dark:text-stone-600 text-sm">
+                        <td colspan="5" class="px-5 py-8 text-center text-zinc-400 dark:text-zinc-600 text-sm">
                             Nenhum palpite para esta partida
                         </td>
                     </tr>
@@ -55,37 +55,37 @@
     </div>
 
     <div class="card rounded-2xl overflow-hidden animate-fade-in animate-fade-in-d2">
-        <div class="px-5 py-3 border-b border-stone-200/50 dark:border-stone-800/30 bg-stone-100/30 dark:bg-stone-800/20">
-            <h2 class="text-sm font-semibold text-stone-700 dark:text-stone-300">Histórico de Alterações</h2>
-            <p class="text-xs text-stone-400 dark:text-stone-600 mt-0.5">Registro de quando um palpite foi editado</p>
+        <div class="px-5 py-3 border-b border-zinc-200/50 dark:border-zinc-800/30 bg-zinc-100/30 dark:bg-zinc-800/20">
+            <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Histórico de Alterações</h2>
+            <p class="text-xs text-zinc-400 dark:text-zinc-600 mt-0.5">Registro de quando um palpite foi editado</p>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>
-                    <tr class="bg-stone-100/30 dark:bg-stone-800/20 text-left text-xs text-stone-500 dark:text-stone-500">
+                    <tr class="bg-zinc-100/30 dark:bg-zinc-800/20 text-left text-xs text-zinc-500 dark:text-zinc-500">
                         <th class="px-5 py-3 font-semibold">Usuário</th>
                         <th class="px-5 py-3 font-semibold">Valor Antigo</th>
                         <th class="px-5 py-3 font-semibold">Valor Novo</th>
                         <th class="px-5 py-3 font-semibold">Data</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-stone-200/40 dark:divide-stone-800/30">
+                <tbody class="divide-y divide-zinc-200/40 dark:divide-zinc-800/30">
                     {{range .Data.History}}
-                    <tr class="hover:bg-stone-50/50 dark:hover:bg-stone-800/20 transition-colors">
-                        <td class="px-5 py-3 font-medium text-stone-700 dark:text-stone-300">{{.UserName}}</td>
-                        <td class="px-5 py-3 text-stone-400 dark:text-stone-600">
+                    <tr class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20 transition-colors">
+                        <td class="px-5 py-3 font-medium text-zinc-700 dark:text-zinc-300">{{.UserName}}</td>
+                        <td class="px-5 py-3 text-zinc-400 dark:text-zinc-600">
                             {{if .OldHome}}
-                            <span class="text-stone-500 dark:text-stone-500 line-through">{{.OldHome}}x{{.OldAway}}</span>
+                            <span class="text-zinc-500 dark:text-zinc-500 line-through">{{.OldHome}}x{{.OldAway}}</span>
                             {{else}}
-                            <span class="text-stone-300 dark:text-stone-700 italic">novo</span>
+                            <span class="text-zinc-300 dark:text-zinc-700 italic">novo</span>
                             {{end}}
                         </td>
-                        <td class="px-5 py-3 font-bold text-stone-700 dark:text-stone-300">{{.NewHome}}x{{.NewAway}}</td>
-                        <td class="px-5 py-3 text-stone-500 dark:text-stone-500 text-xs">{{toBRTStr .ChangedAt}}</td>
+                        <td class="px-5 py-3 font-bold text-zinc-700 dark:text-zinc-300">{{.NewHome}}x{{.NewAway}}</td>
+                        <td class="px-5 py-3 text-zinc-500 dark:text-zinc-500 text-xs">{{toBRTStr .ChangedAt}}</td>
                     </tr>
                     {{else}}
                     <tr>
-                        <td colspan="4" class="px-5 py-8 text-center text-stone-400 dark:text-stone-600 text-sm">
+                        <td colspan="4" class="px-5 py-8 text-center text-zinc-400 dark:text-zinc-600 text-sm">
                             Nenhuma alteração registrada
                         </td>
                     </tr>

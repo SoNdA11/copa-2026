@@ -2,68 +2,68 @@
 {{$data := .Data}}
 
 <div class="animate-fade-in">
-    <h1 class="text-2xl font-bold text-stone-800 dark:text-stone-100 mb-6">Insights do {{.User.GroupName}}</h1>
+    <h1 class="text-2xl font-bold text-zinc-800 dark:text-zinc-100 mb-6">Insights do {{.User.GroupName}}</h1>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <div class="card-dashboard rounded-2xl p-5 animate-fade-in animate-fade-in-d1">
-            <div class="text-xs font-semibold text-stone-500 dark:text-stone-500 uppercase tracking-wider mb-1">Jogadores</div>
-            <div class="stat-value text-stone-800 dark:text-stone-100">{{$data.TotalUsers}}</div>
+            <div class="text-xs font-semibold text-zinc-500 dark:text-zinc-500 uppercase tracking-wider mb-1">Jogadores</div>
+            <div class="stat-value text-zinc-800 dark:text-zinc-100">{{$data.TotalUsers}}</div>
         </div>
         <div class="card-dashboard rounded-2xl p-5 animate-fade-in animate-fade-in-d1">
-            <div class="text-xs font-semibold text-stone-500 dark:text-stone-500 uppercase tracking-wider mb-1">Palpites</div>
-            <div class="stat-value text-stone-800 dark:text-stone-100">{{$data.TotalBets}}</div>
+            <div class="text-xs font-semibold text-zinc-500 dark:text-zinc-500 uppercase tracking-wider mb-1">Palpites</div>
+            <div class="stat-value text-zinc-800 dark:text-zinc-100">{{$data.TotalBets}}</div>
         </div>
         <div class="card-dashboard rounded-2xl p-5 animate-fade-in animate-fade-in-d1">
-            <div class="text-xs font-semibold text-stone-500 dark:text-stone-500 uppercase tracking-wider mb-1">Média por Pessoa</div>
-            <div class="stat-value text-stone-800 dark:text-stone-100">{{$data.AvgBetsPerUser}}</div>
+            <div class="text-xs font-semibold text-zinc-500 dark:text-zinc-500 uppercase tracking-wider mb-1">Média por Pessoa</div>
+            <div class="stat-value text-zinc-800 dark:text-zinc-100">{{$data.AvgBetsPerUser}}</div>
         </div>
         <div class="card-dashboard rounded-2xl p-5 animate-fade-in animate-fade-in-d1">
-            <div class="text-xs font-semibold text-stone-500 dark:text-stone-500 uppercase tracking-wider mb-1">Jogos</div>
-            <div class="stat-value text-stone-800 dark:text-stone-100">{{$data.TotalMatches}}</div>
+            <div class="text-xs font-semibold text-zinc-500 dark:text-zinc-500 uppercase tracking-wider mb-1">Jogos</div>
+            <div class="stat-value text-zinc-800 dark:text-zinc-100">{{$data.TotalMatches}}</div>
         </div>
     </div>
 
     <div class="card-dashboard rounded-2xl p-5 mb-8 animate-fade-in animate-fade-in-d2">
         <div class="flex items-center justify-between mb-4">
-            <h3 class="font-bold text-stone-700 dark:text-stone-300 text-sm">Placares Mais Palpitados</h3>
-            <span class="text-xs text-stone-500 dark:text-stone-500">Os placares que o grupo mais escolheu</span>
+            <h3 class="font-bold text-zinc-700 dark:text-zinc-300 text-sm">Placares Mais Palpitados</h3>
+            <span class="text-xs text-zinc-500 dark:text-zinc-500">Os placares que o grupo mais escolheu</span>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div class="chart-container" style="min-height: 300px;">
                 <canvas id="polarChart"></canvas>
             </div>
             <div class="flex flex-col justify-center">
-                <div class="text-xs font-semibold text-stone-500 dark:text-stone-500 uppercase tracking-wider mb-3">Ranking de Placares</div>
+                <div class="text-xs font-semibold text-zinc-500 dark:text-zinc-500 uppercase tracking-wider mb-3">Ranking de Placares</div>
                 <div id="scoreRanking" class="space-y-2">
-                    <div class="text-stone-400 dark:text-stone-600 text-sm text-center py-4">Carregando...</div>
+                    <div class="text-zinc-400 dark:text-zinc-600 text-sm text-center py-4">Carregando...</div>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="card-dashboard rounded-2xl p-5 animate-fade-in animate-fade-in-d4">
-        <h3 class="font-bold text-stone-700 dark:text-stone-300 text-sm mb-4">Destaques do {{.User.GroupName}}</h3>
+        <h3 class="font-bold text-zinc-700 dark:text-zinc-300 text-sm mb-4">Destaques do {{.User.GroupName}}</h3>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="bg-emerald-50/30 dark:bg-emerald-950/20 rounded-xl p-5 text-center glass-hover">
-                <div class="w-10 h-10 mx-auto mb-3 bg-emerald-50/50 dark:bg-emerald-950/30 rounded-2xl flex items-center justify-center">
-                    <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+            <div class="bg-green-50/30 dark:bg-green-950/20 rounded-xl p-5 text-center glass-hover">
+                <div class="w-10 h-10 mx-auto mb-3 bg-green-50/50 dark:bg-green-950/30 rounded-2xl flex items-center justify-center">
+                    <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
                 </div>
-                <div class="text-xs font-semibold text-stone-500 dark:text-stone-500 uppercase tracking-wider mb-1">Jogo + Palpitado</div>
-                <div class="font-bold text-stone-800 dark:text-stone-200 text-sm">{{$data.MostBetMatch}}</div>
+                <div class="text-xs font-semibold text-zinc-500 dark:text-zinc-500 uppercase tracking-wider mb-1">Jogo + Palpitado</div>
+                <div class="font-bold text-zinc-800 dark:text-zinc-200 text-sm">{{$data.MostBetMatch}}</div>
             </div>
-            <div class="bg-amber-50/30 dark:bg-amber-950/20 rounded-xl p-5 text-center glass-hover">
-                <div class="w-10 h-10 mx-auto mb-3 bg-amber-50/50 dark:bg-amber-950/30 rounded-2xl flex items-center justify-center">
-                    <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
+            <div class="bg-orange-50/30 dark:bg-orange-950/20 rounded-xl p-5 text-center glass-hover">
+                <div class="w-10 h-10 mx-auto mb-3 bg-orange-50/50 dark:bg-orange-950/30 rounded-2xl flex items-center justify-center">
+                    <svg class="w-5 h-5 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
                 </div>
-                <div class="text-xs font-semibold text-stone-500 dark:text-stone-500 uppercase tracking-wider mb-1">Placar + Previsto</div>
-                <div class="font-bold text-emerald-600 dark:text-emerald-400 text-2xl">{{$data.MostPredictedScore}}</div>
+                <div class="text-xs font-semibold text-zinc-500 dark:text-zinc-500 uppercase tracking-wider mb-1">Placar + Previsto</div>
+                <div class="font-bold text-green-600 dark:text-green-400 text-2xl">{{$data.MostPredictedScore}}</div>
             </div>
-            <div class="bg-emerald-50/30 dark:bg-emerald-950/20 rounded-xl p-5 text-center glass-hover">
-                <div class="w-10 h-10 mx-auto mb-3 bg-emerald-50/50 dark:bg-emerald-950/30 rounded-2xl flex items-center justify-center">
-                    <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <div class="bg-green-50/30 dark:bg-green-950/20 rounded-xl p-5 text-center glass-hover">
+                <div class="w-10 h-10 mx-auto mb-3 bg-green-50/50 dark:bg-green-950/30 rounded-2xl flex items-center justify-center">
+                    <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
-                <div class="text-xs font-semibold text-stone-500 dark:text-stone-500 uppercase tracking-wider mb-1">Mais Acertos Exatos</div>
-                <div class="font-bold text-stone-800 dark:text-stone-200 text-sm">{{$data.TopExactUser}}</div>
+                <div class="text-xs font-semibold text-zinc-500 dark:text-zinc-500 uppercase tracking-wider mb-1">Mais Acertos Exatos</div>
+                <div class="font-bold text-zinc-800 dark:text-zinc-200 text-sm">{{$data.TopExactUser}}</div>
             </div>
         </div>
     </div>
@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!data || data.length === 0) return;
             const ctx = document.getElementById('polarChart').getContext('2d');
             const isDark = document.documentElement.classList.contains('dark');
-            const textColor = isDark ? '#a8a29e' : '#78716c';
+            const textColor = isDark ? '#a1a1aa' : '#71717a';
 
             const maxCount = Math.max(...data.map(d => d.count));
             const top10 = data.slice(0, 10);
@@ -115,9 +115,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             labels: { color: textColor, boxWidth: 10, padding: 8, font: { size: 10 }, usePointStyle: true, },
                         },
                         tooltip: {
-                            backgroundColor: isDark ? '#292524' : '#ffffff',
-                            titleColor: isDark ? '#e7e5e4' : '#44403c',
-                            bodyColor: isDark ? '#a8a29e' : '#78716c',
+                            backgroundColor: isDark ? '#27272a' : '#ffffff',
+                            titleColor: isDark ? '#e4e4e7' : '#3f3f46',
+                            bodyColor: isDark ? '#a1a1aa' : '#71717a',
                             borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
                             borderWidth: 1,
                             padding: 10,
@@ -139,20 +139,20 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             var html = '';
-            var rankColors = ['text-amber-500', 'text-stone-400', 'text-amber-700'];
+            var rankColors = ['text-orange-500', 'text-zinc-400', 'text-orange-700'];
             top10.slice(0, 8).forEach(function(d, i) {
                 var pct = Math.round(d.count / maxCount * 100);
-                var rankClass = rankColors[i] || 'text-stone-500 dark:text-stone-500';
+                var rankClass = rankColors[i] || 'text-zinc-500 dark:text-zinc-500';
                 html += '<div class="flex items-center justify-between py-1.5">' +
                     '<div class="flex items-center space-x-2 min-w-0">' +
                         '<span class="font-bold text-xs ' + rankClass + ' w-5">' + (i+1) + 'º</span>' +
-                        '<span class="font-bold text-sm text-stone-700 dark:text-stone-300">' + d.score + '</span>' +
+                        '<span class="font-bold text-sm text-zinc-700 dark:text-zinc-300">' + d.score + '</span>' +
                     '</div>' +
                     '<div class="flex items-center space-x-3">' +
-                        '<div class="w-20 h-1.5 bg-stone-200/50 dark:bg-stone-800/30 rounded-full overflow-hidden">' +
-                            '<div class="h-full bg-emerald-500 dark:bg-emerald-400 rounded-full" style="width:' + pct + '%"></div>' +
+                        '<div class="w-20 h-1.5 bg-zinc-200/50 dark:bg-zinc-800/30 rounded-full overflow-hidden">' +
+                            '<div class="h-full bg-green-500 dark:bg-green-400 rounded-full" style="width:' + pct + '%"></div>' +
                         '</div>' +
-                        '<span class="text-xs font-bold text-stone-500 dark:text-stone-500 w-8 text-right">' + d.count + 'x</span>' +
+                        '<span class="text-xs font-bold text-zinc-500 dark:text-zinc-500 w-8 text-right">' + d.count + 'x</span>' +
                     '</div>' +
                 '</div>';
             });

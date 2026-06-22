@@ -2,19 +2,19 @@
 <div class="overflow-x-auto">
     <table class="w-full text-sm">
         <thead>
-            <tr class="text-stone-400 dark:text-stone-600 border-b border-stone-200/50 dark:border-stone-800/30">
+            <tr class="text-zinc-400 dark:text-zinc-600 border-b border-zinc-200/50 dark:border-zinc-800/30">
                 <th class="py-3 px-2 w-0"></th>
                 <th class="py-3 px-4 text-left font-semibold">#</th>
                 <th class="py-3 px-4 text-left font-semibold">Jogador</th>
                 <th class="py-3 px-4 text-right font-semibold">
                     Pontos
                     <span class="group relative inline-flex items-center ml-1">
-                        <span class="w-4 h-4 rounded-full bg-stone-200 dark:bg-stone-700 text-stone-500 dark:text-stone-400 text-[10px] flex items-center justify-center cursor-help font-bold">?</span>
-                        <div class="absolute bottom-full right-0 mb-2 w-52 px-3 py-2.5 bg-stone-800 dark:bg-stone-700 text-white dark:text-stone-200 text-xs rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg z-10">
-                            <p class="font-semibold mb-1.5 text-emerald-400">Pontuação:</p>
-                            <p class="text-stone-300"><span class="font-bold text-emerald-400">3 pts</span> — placar exato</p>
-                            <p class="text-stone-300"><span class="font-bold text-emerald-400">1 pt</span> — vencedor/empate</p>
-                            <p class="text-stone-300 mt-1 border-t border-stone-700 dark:border-stone-600 pt-1">Especiais: até <span class="font-bold text-emerald-400">10 pts</span></p>
+                        <span class="w-4 h-4 rounded-full bg-zinc-200 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400 text-[10px] flex items-center justify-center cursor-help font-bold">?</span>
+                        <div class="absolute bottom-full right-0 mb-2 w-52 px-3 py-2.5 bg-zinc-800 dark:bg-zinc-700 text-white dark:text-zinc-200 text-xs rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg z-10">
+                            <p class="font-semibold mb-1.5 text-green-400">Pontuação:</p>
+                            <p class="text-zinc-300"><span class="font-bold text-green-400">3 pts</span> — placar exato</p>
+                            <p class="text-zinc-300"><span class="font-bold text-green-400">1 pt</span> — vencedor/empate</p>
+                            <p class="text-zinc-300 mt-1 border-t border-zinc-700 dark:border-zinc-600 pt-1">Especiais: até <span class="font-bold text-green-400">10 pts</span></p>
                         </div>
                     </span>
                 </th>
@@ -22,7 +22,7 @@
         </thead>
         <tbody>
             {{range .Data}}
-            <tr class="border-b border-stone-200/30 dark:border-stone-800/20 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/15 transition-colors {{if and $.User (eq $.User.Name .Name)}}bg-emerald-50/40 dark:bg-emerald-950/25{{end}}">
+            <tr class="border-b border-zinc-200/30 dark:border-zinc-800/20 hover:bg-green-50/30 dark:hover:bg-green-950/15 transition-colors {{if and $.User (eq $.User.Name .Name)}}bg-green-50/40 dark:bg-green-950/25{{end}}">
                 <td class="py-3 px-2">
                     <button onclick="
                         var t = document.getElementById('bets-{{.UserID}}');
@@ -34,35 +34,35 @@
                             this.innerHTML = '+';
                         }
                     "
-                        class="w-6 h-6 flex items-center justify-center rounded-lg text-stone-400 dark:text-stone-600 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30 transition-all text-xs font-bold"
+                        class="w-6 h-6 flex items-center justify-center rounded-lg text-zinc-400 dark:text-zinc-600 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50/50 dark:hover:bg-green-950/30 transition-all text-xs font-bold"
                         title="Ver palpites">+</button>
                 </td>
                 <td class="py-3 px-4">
                     {{if eq .Position 1}}
-                    <span class="inline-flex items-center justify-center w-7 h-7 bg-amber-100/60 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-xl text-xs font-bold">1</span>
+                    <span class="inline-flex items-center justify-center w-7 h-7 bg-orange-100/60 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-xl text-xs font-bold">1</span>
                     {{else if eq .Position 2}}
-                    <span class="inline-flex items-center justify-center w-7 h-7 bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-500 rounded-xl text-xs font-bold">2</span>
+                    <span class="inline-flex items-center justify-center w-7 h-7 bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-500 rounded-xl text-xs font-bold">2</span>
                     {{else if eq .Position 3}}
-                    <span class="inline-flex items-center justify-center w-7 h-7 bg-amber-100/30 dark:bg-amber-900/20 text-amber-500 dark:text-amber-500 rounded-xl text-xs font-bold">3</span>
+                    <span class="inline-flex items-center justify-center w-7 h-7 bg-orange-100/30 dark:bg-orange-900/20 text-orange-500 dark:text-orange-500 rounded-xl text-xs font-bold">3</span>
                     {{else}}
-                    <span class="text-stone-400 dark:text-stone-600 font-medium ml-2">{{.Position}}</span>
+                    <span class="text-zinc-400 dark:text-zinc-600 font-medium ml-2">{{.Position}}</span>
                     {{end}}
                 </td>
                 <td class="py-3 px-4">
-                    <a href="/user/{{.UserID}}/bets" class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors {{if and $.User (eq $.User.Name .Name)}}text-emerald-600 dark:text-emerald-400 font-bold{{else}}text-stone-700 dark:text-stone-300 font-medium{{end}}">
+                    <a href="/user/{{.UserID}}/bets" class="hover:text-green-600 dark:hover:text-green-400 transition-colors {{if and $.User (eq $.User.Name .Name)}}text-green-600 dark:text-green-400 font-bold{{else}}text-zinc-700 dark:text-zinc-300 font-medium{{end}}">
                         {{.Name}}
                     </a>
                     {{if and $.User (eq $.User.Name .Name)}}
-                    <span class="text-stone-400 dark:text-stone-600 text-xs ml-1">(você)</span>
+                    <span class="text-zinc-400 dark:text-zinc-600 text-xs ml-1">(você)</span>
                     {{end}}
                 </td>
-                <td class="py-3 px-4 text-right font-bold {{if and $.User (eq $.User.Name .Name)}}text-emerald-600 dark:text-emerald-400{{else}}text-stone-700 dark:text-stone-300{{end}}">{{.Points}}</td>
+                <td class="py-3 px-4 text-right font-bold {{if and $.User (eq $.User.Name .Name)}}text-green-600 dark:text-green-400{{else}}text-zinc-700 dark:text-zinc-300{{end}}">{{.Points}}</td>
             </tr>
             <tr id="bets-{{.UserID}}">
             </tr>
             {{else}}
             <tr>
-                <td colspan="4" class="py-12 text-center text-stone-400 dark:text-stone-600">
+                <td colspan="4" class="py-12 text-center text-zinc-400 dark:text-zinc-600">
                     Nenhum jogador cadastrado
                 </td>
             </tr>

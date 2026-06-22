@@ -1,6 +1,6 @@
 {{define "layout"}}
 <!DOCTYPE html>
-<html lang="pt-BR" class="">
+<html lang="pt-BR" class="" style="transition: background-color 0.3s ease;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,96 +18,131 @@
             document.documentElement.classList.add('dark');
         }
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var nav = document.querySelector('nav');
+            if (nav) {
+                var ticking = false;
+                window.addEventListener('scroll', function() {
+                    if (!ticking) {
+                        window.requestAnimationFrame(function() {
+                            nav.classList.toggle('nav-scrolled', window.scrollY > 20);
+                            ticking = false;
+                        });
+                        ticking = true;
+                    }
+                }, { passive: true });
+            }
+        });
+    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@350;400;500;600;700;800&display=swap');
-        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .dark body,
+        .dark .bg-zinc-950 {
+            background-image: radial-gradient(ellipse 70% 40% at 50% -10%, rgba(34, 197, 94, 0.04) 0%, transparent 70%);
+        }
 
         .card {
-            background: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.55);
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(251, 191, 36, 0.15);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+            border: 1px solid rgba(249, 115, 22, 0.12);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03), 0 1px 4px rgba(0,0,0,0.02);
             transition: all 0.2s ease;
         }
         .dark .card {
-            background: rgba(255, 255, 255, 0.06);
-            border-color: rgba(251, 191, 36, 0.12);
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(249, 115, 22, 0.08);
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
 
         .card-hover:hover {
             background: rgba(255, 255, 255, 0.8);
-            border-color: rgba(5, 150, 105, 0.2);
+            border-color: rgba(34, 197, 94, 0.2);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.06);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.05), 0 8px 24px rgba(0,0,0,0.03);
         }
         .dark .card-hover:hover {
-            background: rgba(255, 255, 255, 0.09);
-            border-color: rgba(52, 211, 153, 0.2);
-            box-shadow: 0 4px 20px rgba(52, 211, 153, 0.08);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(74, 222, 128, 0.2);
+            box-shadow: 0 4px 16px rgba(74, 222, 128, 0.05);
         }
 
         .card-strong {
             background: rgba(255, 255, 255, 0.75);
             backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(251, 191, 36, 0.2);
+            border: 1px solid rgba(249, 115, 22, 0.15);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
         }
         .dark .card-strong {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(251, 191, 36, 0.14);
+            background: rgba(255, 255, 255, 0.07);
+            border-color: rgba(249, 115, 22, 0.1);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
         }
 
         .card-dashboard {
-            background: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.45);
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(251, 191, 36, 0.12);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-            transition: all 0.3s ease;
+            border: 1px solid rgba(249, 115, 22, 0.1);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+            transition: all 0.25s ease;
         }
         .dark .card-dashboard {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(251, 191, 36, 0.1);
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(249, 115, 22, 0.07);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+        .card-dashboard:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.05);
         }
 
         .btn-primary {
-            background: #059669;
+            background: #22c55e;
             color: white;
             transition: all 0.2s ease;
         }
         .btn-primary:hover {
-            background: #047857;
+            background: #16a34a;
             transform: translateY(-1px);
-            box-shadow: 0 4px 14px rgba(5, 150, 105, 0.2);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25);
+        }
+        .btn-primary:active {
+            transform: translateY(0);
         }
         .dark .btn-primary {
-            background: #34d399;
-            color: #0c0a09;
+            background: #4ade80;
+            color: #09090b;
         }
         .dark .btn-primary:hover {
-            background: #6ee7b7;
-            box-shadow: 0 4px 14px rgba(52, 211, 153, 0.15);
+            background: #86efac;
+            box-shadow: 0 4px 12px rgba(74, 222, 128, 0.2);
         }
 
         .btn-ghost {
             background: transparent;
-            border: 1px solid rgba(5, 150, 105, 0.2);
-            color: #059669;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            color: #22c55e;
             transition: all 0.2s ease;
         }
         .btn-ghost:hover {
-            background: rgba(5, 150, 105, 0.06);
-            border-color: rgba(5, 150, 105, 0.3);
+            background: rgba(34, 197, 94, 0.06);
+            border-color: rgba(34, 197, 94, 0.3);
         }
         .dark .btn-ghost {
-            border-color: rgba(52, 211, 153, 0.15);
-            color: #34d399;
+            border-color: rgba(74, 222, 128, 0.15);
+            color: #4ade80;
         }
         .dark .btn-ghost:hover {
-            background: rgba(52, 211, 153, 0.06);
-            border-color: rgba(52, 211, 153, 0.25);
+            background: rgba(74, 222, 128, 0.06);
+            border-color: rgba(74, 222, 128, 0.25);
         }
 
         .stat-value {
@@ -117,25 +152,19 @@
             letter-spacing: -0.02em;
         }
 
-        .animate-float {
-            animation: float 3s ease-in-out infinite;
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-8px); }
-        }
-
         .animate-fade-in {
             opacity: 0;
-            transform: translateY(16px);
-            animation: fadeInUp 0.5s ease-out forwards;
+            transform: translateY(12px);
+            animation: fadeInUp 0.4s ease-out forwards;
         }
-        .animate-fade-in-d1 { animation-delay: 0.08s; }
-        .animate-fade-in-d2 { animation-delay: 0.16s; }
-        .animate-fade-in-d3 { animation-delay: 0.24s; }
-        .animate-fade-in-d4 { animation-delay: 0.32s; }
-        .animate-fade-in-d5 { animation-delay: 0.4s; }
-        .animate-fade-in-d6 { animation-delay: 0.48s; }
+        .animate-fade-in-d1 { animation-delay: 0.06s; }
+        .animate-fade-in-d2 { animation-delay: 0.12s; }
+        .animate-fade-in-d3 { animation-delay: 0.18s; }
+        .animate-fade-in-d4 { animation-delay: 0.24s; }
+        .animate-fade-in-d5 { animation-delay: 0.30s; }
+        .animate-fade-in-d6 { animation-delay: 0.36s; }
+        .animate-fade-in-d7 { animation-delay: 0.42s; }
+        .animate-fade-in-d8 { animation-delay: 0.48s; }
         @keyframes fadeInUp {
             to { opacity: 1; transform: translateY(0); }
         }
@@ -145,46 +174,59 @@
         }
         @keyframes pulseSoft {
             0%, 100% { opacity: 0.7; }
-            50% { opacity: 0.35; }
+            50% { opacity: 0.3; }
         }
 
         .animate-scale-in {
             opacity: 0;
             transform: scale(0.95);
-            animation: scaleIn 0.35s ease-out forwards;
+            animation: scaleIn 0.3s ease-out forwards;
         }
         @keyframes scaleIn {
             to { opacity: 1; transform: scale(1); }
         }
 
-        .link {
-            color: #059669;
-            transition: color 0.15s ease;
+        .animate-stagger > * {
+            opacity: 0;
+            transform: translateY(8px);
+            animation: staggerIn 0.35s ease-out forwards;
         }
-        .link:hover {
-            color: #047857;
-        }
-        .dark .link {
-            color: #34d399;
-        }
-        .dark .link:hover {
-            color: #6ee7b7;
+        .animate-stagger > *:nth-child(1) { animation-delay: 0.03s; }
+        .animate-stagger > *:nth-child(2) { animation-delay: 0.06s; }
+        .animate-stagger > *:nth-child(3) { animation-delay: 0.09s; }
+        .animate-stagger > *:nth-child(4) { animation-delay: 0.12s; }
+        .animate-stagger > *:nth-child(5) { animation-delay: 0.15s; }
+        .animate-stagger > *:nth-child(6) { animation-delay: 0.18s; }
+        .animate-stagger > *:nth-child(7) { animation-delay: 0.21s; }
+        .animate-stagger > *:nth-child(8) { animation-delay: 0.24s; }
+        .animate-stagger > *:nth-child(9) { animation-delay: 0.27s; }
+        .animate-stagger > *:nth-child(10) { animation-delay: 0.30s; }
+        @keyframes staggerIn {
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        ::selection { background: rgba(5, 150, 105, 0.15); }
+        .link {
+            color: #22c55e;
+            transition: color 0.15s ease;
+        }
+        .link:hover { color: #16a34a; }
+        .dark .link { color: #4ade80; }
+        .dark .link:hover { color: #86efac; }
+
+        ::selection { background: rgba(34, 197, 94, 0.2); }
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 3px; }
-        .dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.08); border-radius: 3px; }
+        .dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); }
 
         .skeleton {
             background: linear-gradient(90deg, rgba(0,0,0,0.04) 25%, rgba(0,0,0,0.08) 50%, rgba(0,0,0,0.04) 75%);
             background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
+            animation: shimmer 1.5s ease-in-out infinite;
             border-radius: 0.75rem;
         }
         .dark .skeleton {
-            background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.03) 75%);
+            background: linear-gradient(90deg, rgba(255,255,255,0.02) 25%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.02) 75%);
             background-size: 200% 100%;
         }
         @keyframes shimmer {
@@ -199,31 +241,63 @@
         }
 
         .glass-hover {
-            transition: all 0.3s ease;
+            transition: all 0.25s ease;
         }
         .glass-hover:hover {
             background: rgba(255, 255, 255, 0.7);
-            border-color: rgba(5, 150, 105, 0.15);
-            transform: translateY(-2px);
+            border-color: rgba(34, 197, 94, 0.15);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.03);
         }
         .dark .glass-hover:hover {
             background: rgba(255, 255, 255, 0.06);
-            border-color: rgba(52, 211, 153, 0.1);
+            border-color: rgba(74, 222, 128, 0.12);
+            box-shadow: 0 4px 16px rgba(74, 222, 128, 0.03);
         }
 
         .badge-gold { background: #fef3c7; color: #92400e; }
-        .dark .badge-gold { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+        .dark .badge-gold { background: rgba(251, 191, 36, 0.12); color: #fbbf24; }
         .badge-silver { background: #f1f5f9; color: #475569; }
-        .dark .badge-silver { background: rgba(148, 163, 184, 0.15); color: #94a3b8; }
+        .dark .badge-silver { background: rgba(148, 163, 184, 0.12); color: #94a3b8; }
         .badge-bronze { background: #fed7aa; color: #7c2d12; }
-        .dark .badge-bronze { background: rgba(251, 146, 60, 0.15); color: #fb923c; }
+        .dark .badge-bronze { background: rgba(251, 146, 60, 0.12); color: #fb923c; }
+
+        .nav-link {
+            position: relative;
+            transition: color 0.2s ease;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: #22c55e;
+            border-radius: 1px;
+            transform: translateX(-50%);
+            transition: width 0.2s ease;
+        }
+        .dark .nav-link::after { background: #4ade80; }
+        .nav-link:hover::after,
+        .nav-link.active::after { width: 60%; }
+        .nav-link.active { color: #22c55e; }
+        .dark .nav-link.active { color: #4ade80; }
+
+        .nav-scrolled {
+            backdrop-filter: blur(16px);
+            box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+        }
+        .dark .nav-scrolled { box-shadow: 0 1px 6px rgba(0,0,0,0.25); }
 
         @media (prefers-reduced-motion: reduce) {
-            .animate-float, .animate-fade-in, .animate-pulse-soft, .animate-scale-in, .skeleton { animation: none; opacity: 1; transform: none; }
+            *, *::after { animation: none !important; transition-duration: 0.01ms !important; }
+            .animate-fade-in, .animate-scale-in, .animate-stagger > * { opacity: 1; transform: none; }
+            html { scroll-behavior: auto; }
         }
     </style>
 </head>
-<body class="bg-stone-50 dark:bg-stone-950 text-stone-700 dark:text-stone-300 min-h-screen flex flex-col transition-colors duration-300">
+<body class="bg-zinc-50 dark:bg-zinc-950 text-zinc-700 dark:text-zinc-300 min-h-screen flex flex-col transition-colors duration-300 animate-fade-in">
     {{template "nav" .}}
 
     <main class="flex-1 max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10 w-full">
@@ -236,8 +310,8 @@
         {{template "page_content" .}}
     </main>
 
-    <footer class="border-t border-stone-200/50 dark:border-stone-800/30 mt-16 py-6 text-center">
-        <p class="text-stone-400 dark:text-stone-600 text-xs">Bolão Copa do Mundo 2026</p>
+    <footer class="border-t border-zinc-200/50 dark:border-zinc-800/30 mt-16 py-6 text-center">
+        <p class="text-zinc-400 dark:text-zinc-600 text-xs">Bolão Copa do Mundo 2026</p>
     </footer>
 </body>
 </html>

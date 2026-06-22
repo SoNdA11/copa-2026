@@ -1,27 +1,27 @@
 {{define "page_content"}}
 <div class="max-w-3xl mx-auto" hx-history="false">
 <div class="flex items-center justify-between mb-6 animate-fade-in">
-    <h1 class="text-2xl font-bold text-stone-800 dark:text-stone-100">Jogos</h1>
+    <h1 class="text-2xl font-bold text-zinc-800 dark:text-zinc-100">Jogos</h1>
     <div class="flex space-x-2 overflow-x-auto pb-1">
-        <a href="/matches" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{if not .Stage}}card-strong text-emerald-600 dark:text-emerald-400{{else}}text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/15 border border-stone-200/50 dark:border-stone-800/30{{end}}">
+        <a href="/matches" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{if not .Stage}}card-strong text-green-600 dark:text-green-400{{else}}text-zinc-500 dark:text-zinc-500 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50/30 dark:hover:bg-green-950/15 border border-zinc-200/50 dark:border-zinc-800/30{{end}}">
             Todas
         </a>
-        <a href="/matches?stage=group" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{if eq .Stage "group"}}card-strong text-emerald-600 dark:text-emerald-400{{else}}text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/15 border border-stone-200/50 dark:border-stone-800/30{{end}}">
+        <a href="/matches?stage=group" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{if eq .Stage "group"}}card-strong text-green-600 dark:text-green-400{{else}}text-zinc-500 dark:text-zinc-500 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50/30 dark:hover:bg-green-950/15 border border-zinc-200/50 dark:border-zinc-800/30{{end}}">
             Grupos
         </a>
-        <a href="/matches?stage=r32" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{if eq .Stage "r32"}}card-strong text-emerald-600 dark:text-emerald-400{{else}}text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/15 border border-stone-200/50 dark:border-stone-800/30{{end}}">
+        <a href="/matches?stage=r32" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{if eq .Stage "r32"}}card-strong text-green-600 dark:text-green-400{{else}}text-zinc-500 dark:text-zinc-500 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50/30 dark:hover:bg-green-950/15 border border-zinc-200/50 dark:border-zinc-800/30{{end}}">
             16 Avos
         </a>
-        <a href="/matches?stage=r16" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{if eq .Stage "r16"}}card-strong text-emerald-600 dark:text-emerald-400{{else}}text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/15 border border-stone-200/50 dark:border-stone-800/30{{end}}">
+        <a href="/matches?stage=r16" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{if eq .Stage "r16"}}card-strong text-green-600 dark:text-green-400{{else}}text-zinc-500 dark:text-zinc-500 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50/30 dark:hover:bg-green-950/15 border border-zinc-200/50 dark:border-zinc-800/30{{end}}">
             Oitavas
         </a>
-        <a href="/matches?stage=qf" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{if eq .Stage "qf"}}card-strong text-emerald-600 dark:text-emerald-400{{else}}text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/15 border border-stone-200/50 dark:border-stone-800/30{{end}}">
+        <a href="/matches?stage=qf" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{if eq .Stage "qf"}}card-strong text-green-600 dark:text-green-400{{else}}text-zinc-500 dark:text-zinc-500 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50/30 dark:hover:bg-green-950/15 border border-zinc-200/50 dark:border-zinc-800/30{{end}}">
             Quartas
         </a>
-        <a href="/matches?stage=sf" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{if eq .Stage "sf"}}card-strong text-emerald-600 dark:text-emerald-400{{else}}text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/15 border border-stone-200/50 dark:border-stone-800/30{{end}}">
+        <a href="/matches?stage=sf" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{if eq .Stage "sf"}}card-strong text-green-600 dark:text-green-400{{else}}text-zinc-500 dark:text-zinc-500 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50/30 dark:hover:bg-green-950/15 border border-zinc-200/50 dark:border-zinc-800/30{{end}}">
             Semi
         </a>
-        <a href="/matches?stage=final" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{if eq .Stage "final"}}card-strong text-emerald-600 dark:text-emerald-400{{else}}text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/15 border border-stone-200/50 dark:border-stone-800/30{{end}}">
+        <a href="/matches?stage=final" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{if eq .Stage "final"}}card-strong text-green-600 dark:text-green-400{{else}}text-zinc-500 dark:text-zinc-500 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50/30 dark:hover:bg-green-950/15 border border-zinc-200/50 dark:border-zinc-800/30{{end}}">
             Final
         </a>
     </div>
@@ -31,8 +31,8 @@
 <div class="space-y-6">
     {{range .Data}}
     <div class="card rounded-2xl overflow-hidden animate-fade-in">
-        <div class="bg-gradient-to-r from-emerald-50/50 dark:from-emerald-950/20 to-transparent px-5 py-3 border-b border-stone-200/50 dark:border-stone-800/30">
-            <h2 class="text-sm font-bold text-emerald-700 dark:text-emerald-300">Grupo {{.Name}}</h2>
+        <div class="bg-gradient-to-r from-green-50/50 dark:from-green-950/20 to-transparent px-5 py-3 border-b border-zinc-200/50 dark:border-zinc-800/30">
+            <h2 class="text-sm font-bold text-green-700 dark:text-green-300">Grupo {{.Name}}</h2>
         </div>
         <div class="p-4">
             {{template "group_standings" .Standings}}
@@ -44,7 +44,7 @@
         </div>
     </div>
     {{else}}
-    <div class="text-center py-16 text-stone-400 dark:text-stone-600">
+    <div class="text-center py-16 text-zinc-400 dark:text-zinc-600">
         Nenhum grupo encontrado
     </div>
     {{end}}
@@ -54,13 +54,13 @@
     {{if .Data.Today}}
     <div>
         <div class="flex items-center space-x-2 mb-3">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse-soft"></span>
-            <h2 class="text-sm font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">Hoje</h2>
-            <span class="text-xs text-stone-500 dark:text-stone-500">({{len .Data.Today}})</span>
+            <span class="w-2 h-2 rounded-full bg-green-500 dark:bg-green-400 animate-pulse-soft"></span>
+            <h2 class="text-sm font-bold text-green-700 dark:text-green-300 uppercase tracking-wider">Hoje</h2>
+            <span class="text-xs text-zinc-500 dark:text-zinc-500">({{len .Data.Today}})</span>
         </div>
-        <div class="space-y-2.5">
+        <div class="space-y-2.5 animate-stagger">
             {{range .Data.Today}}
-            <div class="animate-fade-in">{{template "match_row" .}}</div>
+            <div>{{template "match_row" .}}</div>
             {{end}}
         </div>
     </div>
@@ -68,10 +68,10 @@
 
     {{if .Data.Upcoming}}
     <div class="mt-6">
-        <h2 class="text-sm font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-3">Próximos</h2>
-        <div class="space-y-2.5">
+        <h2 class="text-sm font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-3">Próximos</h2>
+        <div class="space-y-2.5 animate-stagger">
             {{range .Data.Upcoming}}
-            <div class="animate-fade-in">{{template "match_row" .}}</div>
+            <div>{{template "match_row" .}}</div>
             {{end}}
         </div>
     </div>
@@ -79,7 +79,7 @@
 
     {{if .Data.Past}}
     <details class="mt-6 group">
-        <summary class="cursor-pointer text-sm font-semibold text-stone-500 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 transition-colors py-2 select-none">
+        <summary class="cursor-pointer text-sm font-semibold text-zinc-500 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors py-2 select-none">
             <span class="inline-flex items-center space-x-1.5">
                 <svg class="w-3.5 h-3.5 transition-transform duration-200 group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -96,7 +96,7 @@
     {{end}}
 
     {{if not .Data.Today}}{{if not .Data.Upcoming}}{{if not .Data.Past}}
-    <div class="text-center py-16 text-stone-400 dark:text-stone-600">
+    <div class="text-center py-16 text-zinc-400 dark:text-zinc-600">
         Nenhum jogo encontrado
     </div>
     {{end}}{{end}}{{end}}
@@ -135,19 +135,19 @@ function loadDistribution(matchId) {
             if (!container) return;
             var total = data.reduce(function(sum, d) { return sum + d.count; }, 0);
             if (total === 0) return;
-            var html = '<div class="mt-3 pt-3 border-t border-stone-200/50 dark:border-stone-800/30">' +
-                '<h4 class="text-xs font-bold text-stone-500 dark:text-stone-500 mb-3 uppercase tracking-wider">Distribuição dos Palpites</h4>';
+            var html = '<div class="mt-3 pt-3 border-t border-zinc-200/50 dark:border-zinc-800/30">' +
+                '<h4 class="text-xs font-bold text-zinc-500 dark:text-zinc-500 mb-3 uppercase tracking-wider">Distribuição dos Palpites</h4>';
             data.forEach(function(d) {
                 var pct = (d.count / total * 100).toFixed(0);
                 var barBg = d.is_exact
-                    ? 'bg-emerald-500'
-                    : 'bg-emerald-400';
+                    ? 'bg-green-500'
+                    : 'bg-green-400';
                 html += '<div class="flex items-center space-x-2 text-xs mb-1.5">' +
-                    '<span class="w-12 text-right font-semibold text-stone-600 dark:text-stone-400">' + d.score + '</span>' +
-                    '<div class="flex-1 bg-stone-200/70 dark:bg-stone-700/80 rounded-full h-5 overflow-hidden">' +
+                    '<span class="w-12 text-right font-semibold text-zinc-600 dark:text-zinc-400">' + d.score + '</span>' +
+                    '<div class="flex-1 bg-zinc-200/70 dark:bg-zinc-700/80 rounded-full h-5 overflow-hidden">' +
                     '<div class="h-full rounded-full ' + barBg + '" style="width:' + pct + '%;box-shadow:inset 0 1px 0 rgba(255,255,255,0.25)"></div>' +
                     '</div>' +
-                    '<span class="w-8 font-bold text-stone-700 dark:text-stone-300 text-center">' + d.count + '</span>' +
+                    '<span class="w-8 font-bold text-zinc-700 dark:text-zinc-300 text-center">' + d.count + '</span>' +
                     '</div>';
             });
             html += '</div>';

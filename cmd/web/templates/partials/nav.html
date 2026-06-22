@@ -1,33 +1,33 @@
 {{define "nav"}}
-<nav class="sticky top-0 z-50 bg-white/70 dark:bg-stone-950/70 backdrop-blur-lg border-b border-amber-200/20 dark:border-amber-900/10 transition-colors duration-300">
+<nav class="sticky top-0 z-50 bg-white/70 dark:bg-zinc-950/70 backdrop-blur-lg border-b border-orange-200/20 dark:border-orange-900/10 transition-colors duration-300 shadow-sm dark:shadow-none">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
         <div class="flex items-center justify-between h-14">
             <div class="flex items-center space-x-1">
-                <a href="/" class="text-emerald-600 dark:text-emerald-400 font-bold text-lg tracking-tight">
+                <a href="/" class="text-green-600 dark:text-green-400 font-bold text-lg tracking-tight">
                     copa-2026
                 </a>
                 <div class="hidden md:flex items-center ml-6 space-x-0.5">
-                    <a href="/matches" class="text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 px-3 py-2 text-sm font-medium transition-colors rounded-xl hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20">
+                    <a href="/matches" class="nav-link text-zinc-500 dark:text-zinc-500 hover:text-green-600 dark:hover:text-green-400 px-3 py-2 text-sm font-medium transition-colors rounded-xl hover:bg-green-50/50 dark:hover:bg-green-950/20">
                         Jogos
                     </a>
-                    <a href="/ranking" class="text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 px-3 py-2 text-sm font-medium transition-colors rounded-xl hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20">
+                    <a href="/ranking" class="nav-link text-zinc-500 dark:text-zinc-500 hover:text-green-600 dark:hover:text-green-400 px-3 py-2 text-sm font-medium transition-colors rounded-xl hover:bg-green-50/50 dark:hover:bg-green-950/20">
                         Ranking
                     </a>
-                    <a href="/insights" class="text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 px-3 py-2 text-sm font-medium transition-colors rounded-xl hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20">
+                    <a href="/insights" class="nav-link text-zinc-500 dark:text-zinc-500 hover:text-green-600 dark:hover:text-green-400 px-3 py-2 text-sm font-medium transition-colors rounded-xl hover:bg-green-50/50 dark:hover:bg-green-950/20">
                         Insights
                     </a>
                     {{if .User}}
-                    <a href="/my-bets" class="text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 px-3 py-2 text-sm font-medium transition-colors rounded-xl hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20">
+                    <a href="/my-bets" class="nav-link text-zinc-500 dark:text-zinc-500 hover:text-green-600 dark:hover:text-green-400 px-3 py-2 text-sm font-medium transition-colors rounded-xl hover:bg-green-50/50 dark:hover:bg-green-950/20">
                         Palpites
                     </a>
-                    <a href="/special" class="text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 px-3 py-2 text-sm font-medium transition-colors rounded-xl hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20">
+                    <a href="/special" class="nav-link text-zinc-500 dark:text-zinc-500 hover:text-green-600 dark:hover:text-green-400 px-3 py-2 text-sm font-medium transition-colors rounded-xl hover:bg-green-50/50 dark:hover:bg-green-950/20">
                         Especiais
                     </a>
                     {{if .User.IsAdmin}}
-                    <a href="/admin" class="text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 px-3 py-2 text-sm font-medium transition-colors rounded-xl hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20">
+                    <a href="/admin" class="nav-link text-zinc-500 dark:text-zinc-500 hover:text-green-600 dark:hover:text-green-400 px-3 py-2 text-sm font-medium transition-colors rounded-xl hover:bg-green-50/50 dark:hover:bg-green-950/20">
                         Admin
                     </a>
-                    <a href="/admin/matches" class="text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 px-3 py-2 text-sm font-medium transition-colors rounded-xl hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20">
+                    <a href="/admin/matches" class="nav-link text-zinc-500 dark:text-zinc-500 hover:text-green-600 dark:hover:text-green-400 px-3 py-2 text-sm font-medium transition-colors rounded-xl hover:bg-green-50/50 dark:hover:bg-green-950/20">
                         Jogos
                     </a>
                     {{end}}
@@ -35,42 +35,42 @@
                 </div>
             </div>
             <div class="flex items-center space-x-2">
-                <button onclick="toggleDark()" class="text-stone-400 dark:text-stone-600 hover:text-emerald-600 dark:hover:text-emerald-400 p-2 transition-colors rounded-xl hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 text-sm" title="Alternar tema">
+                <button onclick="toggleDark()" class="text-zinc-400 dark:text-zinc-600 hover:text-green-600 dark:hover:text-green-400 p-2 transition-colors rounded-xl hover:bg-green-50/50 dark:hover:bg-green-950/20 text-sm" title="Alternar tema">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
                     </svg>
                 </button>
                 {{if .User}}
                 <div class="hidden md:flex items-center space-x-3">
-                    <a href="/settings" class="text-stone-400 dark:text-stone-600 hover:text-emerald-600 dark:hover:text-emerald-400 p-2 transition-colors rounded-xl hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20" title="Configurações">
+                    <a href="/settings" class="text-zinc-400 dark:text-zinc-600 hover:text-green-600 dark:hover:text-green-400 p-2 transition-colors rounded-xl hover:bg-green-50/50 dark:hover:bg-green-950/20" title="Configurações">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                         </svg>
                     </a>
-                    <div class="flex items-center space-x-2 bg-emerald-50/60 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 px-3 py-1.5 rounded-xl text-sm font-medium">
-                        <span class="w-2 h-2 bg-emerald-500 dark:bg-emerald-400 rounded-full"></span>
+                    <div class="flex items-center space-x-2 bg-green-50/60 dark:bg-green-950/30 text-green-700 dark:text-green-300 px-3 py-1.5 rounded-xl text-sm font-medium">
+                        <span class="w-2 h-2 bg-green-500 dark:bg-green-400 rounded-full"></span>
                         <span>{{.User.Name}}</span>
-                        <span class="text-emerald-400/50 dark:text-emerald-600/50">|</span>
-                        <span class="text-emerald-500/70 dark:text-emerald-400/70 text-xs">{{.User.GroupName}}</span>
+                        <span class="text-green-400/50 dark:text-green-600/50">|</span>
+                        <span class="text-green-500/70 dark:text-green-400/70 text-xs">{{.User.GroupName}}</span>
                     </div>
-                    <a href="/logout" class="text-stone-400 dark:text-stone-600 hover:text-red-500 dark:hover:text-red-400 text-sm font-medium transition-colors">
+                    <a href="/logout" class="text-zinc-400 dark:text-zinc-600 hover:text-red-500 dark:hover:text-red-400 text-sm font-medium transition-colors">
                         Sair
                     </a>
                 </div>
-                <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="md:hidden text-stone-500 dark:text-stone-500 p-2 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800/50">
+                <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="md:hidden text-zinc-500 dark:text-zinc-500 p-2 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/50">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                     </svg>
                 </button>
                 {{else}}
-                <a href="/login" class="hidden md:inline-block text-stone-500 dark:text-stone-500 hover:text-emerald-600 dark:hover:text-emerald-400 px-3 py-2 text-sm font-medium transition-colors">
+                <a href="/login" class="hidden md:inline-block text-zinc-500 dark:text-zinc-500 hover:text-green-600 dark:hover:text-green-400 px-3 py-2 text-sm font-medium transition-colors">
                     Entrar
                 </a>
-                <a href="/register" class="hidden md:inline-block btn-primary text-white dark:text-stone-900 font-semibold px-5 py-2 rounded-xl text-sm">
+                <a href="/register" class="hidden md:inline-block btn-primary text-white dark:text-zinc-900 font-semibold px-5 py-2 rounded-xl text-sm">
                     Cadastro
                 </a>
-                <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="md:hidden text-stone-500 dark:text-stone-500 p-2 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800/50">
+                <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="md:hidden text-zinc-500 dark:text-zinc-500 p-2 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/50">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                     </svg>
@@ -79,31 +79,31 @@
             </div>
         </div>
 
-        <div id="mobile-menu" class="hidden md:hidden pb-3 space-y-1 border-t border-stone-200/50 dark:border-stone-800/30 pt-2">
+        <div id="mobile-menu" class="hidden md:hidden pb-3 space-y-1 border-t border-zinc-200/50 dark:border-zinc-800/30 pt-2">
             {{if .User}}
-            <div class="flex items-center justify-between px-2 py-2 border-b border-stone-200/50 dark:border-stone-800/30 mb-1">
+            <div class="flex items-center justify-between px-2 py-2 border-b border-zinc-200/50 dark:border-zinc-800/30 mb-1">
                 <div class="flex items-center space-x-2">
-                    <span class="w-2 h-2 bg-emerald-500 dark:bg-emerald-400 rounded-full"></span>
-                    <span class="text-sm font-medium text-stone-700 dark:text-stone-300">{{.User.Name}}</span>
-                    <span class="text-xs text-stone-400 dark:text-stone-600">({{.User.GroupName}})</span>
+                    <span class="w-2 h-2 bg-green-500 dark:bg-green-400 rounded-full"></span>
+                    <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{{.User.Name}}</span>
+                    <span class="text-xs text-zinc-400 dark:text-zinc-600">({{.User.GroupName}})</span>
                 </div>
-                <a href="/logout" class="text-xs text-stone-400 dark:text-stone-600 hover:text-red-500 dark:hover:text-red-400">Sair</a>
+                <a href="/logout" class="text-xs text-zinc-400 dark:text-zinc-600 hover:text-red-500 dark:hover:text-red-400">Sair</a>
             </div>
             {{end}}
-            <a href="/matches" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 rounded-xl">Jogos</a>
-            <a href="/ranking" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 rounded-xl">Ranking</a>
-            <a href="/insights" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 rounded-xl">Insights</a>
+            <a href="/matches" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50/50 dark:hover:bg-green-950/20 rounded-xl">Jogos</a>
+            <a href="/ranking" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50/50 dark:hover:bg-green-950/20 rounded-xl">Ranking</a>
+            <a href="/insights" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50/50 dark:hover:bg-green-950/20 rounded-xl">Insights</a>
             {{if .User}}
-            <a href="/my-bets" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 rounded-xl">Palpites</a>
-            <a href="/special" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 rounded-xl">Especiais</a>
+            <a href="/my-bets" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50/50 dark:hover:bg-green-950/20 rounded-xl">Palpites</a>
+            <a href="/special" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50/50 dark:hover:bg-green-950/20 rounded-xl">Especiais</a>
             {{if .User.IsAdmin}}
-            <a href="/admin" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 rounded-xl">Admin</a>
-            <a href="/admin/matches" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 rounded-xl">Jogos (Admin)</a>
+            <a href="/admin" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50/50 dark:hover:bg-green-950/20 rounded-xl">Admin</a>
+            <a href="/admin/matches" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50/50 dark:hover:bg-green-950/20 rounded-xl">Jogos (Admin)</a>
             {{end}}
-            <a href="/settings" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 rounded-xl">Configurações</a>
+            <a href="/settings" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50/50 dark:hover:bg-green-950/20 rounded-xl">Configurações</a>
             {{else}}
-            <a href="/login" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-stone-600 dark:text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 rounded-xl">Entrar</a>
-            <a href="/register" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 rounded-xl">Cadastro</a>
+            <a href="/login" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50/50 dark:hover:bg-green-950/20 rounded-xl">Entrar</a>
+            <a href="/register" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm font-semibold text-green-600 dark:text-green-400 hover:bg-green-50/50 dark:hover:bg-green-950/20 rounded-xl">Cadastro</a>
             {{end}}
         </div>
     </div>
