@@ -246,7 +246,7 @@ type matchDayInfo struct {
 }
 
 func (s *StatsService) getRankingEvolutionDB(groupID int64) []RankingEvolutionSeries {
-	rows, err := s.db.Query(`
+	dates, err := s.db.Query(`
 		SELECT DISTINCT m.match_date
 		FROM matches m
 		JOIN bets b ON b.match_id = m.id
@@ -257,21 +257,20 @@ func (s *StatsService) getRankingEvolutionDB(groupID int64) []RankingEvolutionSe
 	if err != nil {
 		return nil
 	}
-	defer rows.Close()
+	defer dates.Close()
 
-	var dates []string
-	for rows.Next() {
+	var dateList []string
+	for dates.Next() {
 		var d string
-		if err := rows.Scan(&d); err != nil {
+		if err := dates.Scan(&d); err != nil {
 			continue
 		}
-		dates = append(dates, d)
+		dateList = append(dateList, d)
 	}
-	if len(dates) == 0 {
+	if len(dateList) == 0 {
 		return nil
 	}
 
-	// For each date, get all users and their cumulative points
 	users, err := s.db.Query(`
 		SELECT id, name FROM users WHERE group_id = $1 AND COALESCE(is_admin,0) = 0 ORDER BY id
 	`, groupID)
@@ -292,20 +291,43 @@ func (s *StatsService) getRankingEvolutionDB(groupID int64) []RankingEvolutionSe
 		}
 		userList = append(userList, u)
 	}
+	if len(userList) == 0 {
+		return nil
+	}
+
+	pointRows, err := s.db.Query(`
+		SELECT b.user_id, m.match_date, COALESCE(SUM(b.points), 0)
+		FROM bets b
+		JOIN matches m ON m.id = b.match_id
+		WHERE b.user_id IN (SELECT id FROM users WHERE group_id = $1 AND COALESCE(is_admin,0) = 0)
+		  AND m.home_score IS NOT NULL
+		GROUP BY b.user_id, m.match_date
+	`, groupID)
+	if err != nil {
+		return nil
+	}
+	defer pointRows.Close()
+
+	pointMap := make(map[int64]map[string]int)
+	for pointRows.Next() {
+		var uid int64
+		var date string
+		var pts int
+		if err := pointRows.Scan(&uid, &date, &pts); err != nil {
+			continue
+		}
+		if pointMap[uid] == nil {
+			pointMap[uid] = make(map[string]int)
+		}
+		pointMap[uid][date] = pts
+	}
 
 	var result []RankingEvolutionSeries
 	for _, u := range userList {
 		series := RankingEvolutionSeries{Name: u.Name, GroupID: groupID}
 		cumulative := 0
-		for _, date := range dates {
-			var dayPoints int
-			s.db.QueryRow(`
-				SELECT COALESCE(SUM(b.points), 0)
-				FROM bets b
-				JOIN matches m ON m.id = b.match_id
-				WHERE b.user_id = $1 AND m.match_date = $2
-			`, u.ID, date).Scan(&dayPoints)
-			cumulative += dayPoints
+		for _, date := range dateList {
+			cumulative += pointMap[u.ID][date]
 			label := date
 			if len(label) > 5 {
 				label = label[5:]
@@ -693,16 +715,12 @@ func (s *StatsService) getGlobalInsightsMock(groupID int64) GlobalInsight {
 func (s *StatsService) getGlobalInsightsDB(groupID int64) GlobalInsight {
 	var ins GlobalInsight
 
-	s.db.QueryRow("SELECT COUNT(*) FROM users WHERE group_id = $1 AND COALESCE(is_admin,0) = 0", groupID).Scan(&ins.TotalUsers)
-	s.db.QueryRow("SELECT COUNT(*) FROM matches WHERE home_score IS NOT NULL").Scan(&ins.TotalMatches)
-
-	row := s.db.QueryRow(`
-		SELECT COUNT(*)
-		FROM bets b
-		JOIN users u ON u.id = b.user_id
-		WHERE u.group_id = $1
-	`, groupID)
-	row.Scan(&ins.TotalBets)
+	s.db.QueryRow(`
+		SELECT
+			COALESCE((SELECT COUNT(*) FROM users WHERE group_id = $1 AND COALESCE(is_admin,0) = 0), 0),
+			COALESCE((SELECT COUNT(*) FROM matches WHERE home_score IS NOT NULL), 0),
+			COALESCE((SELECT COUNT(*) FROM bets b JOIN users u ON u.id = b.user_id WHERE u.group_id = $1), 0)
+	`, groupID).Scan(&ins.TotalUsers, &ins.TotalMatches, &ins.TotalBets)
 
 	if ins.TotalUsers > 0 {
 		ins.AvgBetsPerUser = ins.TotalBets / ins.TotalUsers
@@ -722,24 +740,18 @@ func (s *StatsService) getGlobalInsightsDB(groupID int64) GlobalInsight {
 	`, groupID).Scan(&ins.MostBetMatch)
 
 	s.db.QueryRow(`
-		SELECT b.home_score || '-' || b.away_score
-		FROM bets b
-		JOIN users u ON u.id = b.user_id
-		WHERE u.group_id = $1
-		GROUP BY b.home_score, b.away_score
-		ORDER BY COUNT(*) DESC
-		LIMIT 1
-	`, groupID).Scan(&ins.MostPredictedScore)
-
-	s.db.QueryRow(`
-		SELECT u.name
-		FROM bets b
-		JOIN users u ON u.id = b.user_id
-		WHERE u.group_id = $1 AND b.points = 3
-		GROUP BY u.id, u.name
-		ORDER BY COUNT(*) DESC
-		LIMIT 1
-	`, groupID).Scan(&ins.TopExactUser)
+		SELECT
+			(SELECT b.home_score || '-' || b.away_score
+			 FROM bets b JOIN users u ON u.id = b.user_id
+			 WHERE u.group_id = $1
+			 GROUP BY b.home_score, b.away_score
+			 ORDER BY COUNT(*) DESC LIMIT 1) AS most_predicted,
+			(SELECT u2.name
+			 FROM bets b JOIN users u2 ON u2.id = b.user_id
+			 WHERE u2.group_id = $1 AND b.points = 3
+			 GROUP BY u2.id, u2.name
+			 ORDER BY COUNT(*) DESC LIMIT 1) AS top_exact
+	`, groupID).Scan(&ins.MostPredictedScore, &ins.TopExactUser)
 
 	return ins
 }
@@ -942,63 +954,103 @@ func (s *StatsService) getRadarDataMock(userID int64, groupID int64) RadarData {
 }
 
 func (s *StatsService) getRadarDataDB(userID int64, groupID int64) RadarData {
-	// Count total match days with results for consistency calculation
 	var totalMatchDays int
 	s.db.QueryRow("SELECT COUNT(DISTINCT match_date) FROM matches WHERE home_score IS NOT NULL").Scan(&totalMatchDays)
 	if totalMatchDays == 0 {
 		totalMatchDays = 1
 	}
 
-	calcMetrics := func(uid int64) RadarMetrics {
-		var exact, correct, total, points int
-		var activeDays float64
+	type radarRaw struct {
+		Total     int
+		Points    int
+		Exact     int
+		Correct   int
+		ActiveDay float64
+		Specials  int
+	}
+	rawMap := make(map[int64]radarRaw)
 
-		s.db.QueryRow(`
-			SELECT COUNT(*), COALESCE(SUM(points), 0),
-				COALESCE(SUM(CASE WHEN points = 3 THEN 1 ELSE 0 END), 0),
-				COALESCE(SUM(CASE WHEN points = 1 THEN 1 ELSE 0 END), 0)
-			FROM bets WHERE user_id = $1
-		`, uid).Scan(&total, &points, &exact, &correct)
-
-		s.db.QueryRow(`
-			SELECT COUNT(DISTINCT m.match_date)
-			FROM bets b
-			JOIN matches m ON m.id = b.match_id
-			WHERE b.user_id = $1 AND b.points > 0
-		`, uid).Scan(&activeDays)
-
-		var specials int
-		s.db.QueryRow("SELECT COUNT(*) FROM special_bets WHERE user_id = $1 AND points > 0", uid).Scan(&specials)
-
-		avgPts := 0.0
-		if total > 0 {
-			avgPts = math.Round(float64(points)/float64(total)*100) / 100
+	betRows, err := s.db.Query(`
+		SELECT b.user_id, COUNT(*), COALESCE(SUM(b.points), 0),
+			COALESCE(SUM(CASE WHEN b.points = 3 THEN 1 ELSE 0 END), 0),
+			COALESCE(SUM(CASE WHEN b.points = 1 THEN 1 ELSE 0 END), 0)
+		FROM bets b
+		JOIN users u ON u.id = b.user_id
+		WHERE u.group_id = $1 AND COALESCE(u.is_admin,0) = 0
+		GROUP BY b.user_id
+	`, groupID)
+	if err == nil {
+		defer betRows.Close()
+		for betRows.Next() {
+			var uid int64
+			var r radarRaw
+			if err := betRows.Scan(&uid, &r.Total, &r.Points, &r.Exact, &r.Correct); err == nil {
+				rawMap[uid] = r
+			}
 		}
-		consistency := math.Round(activeDays / float64(totalMatchDays) * 100)
+	}
 
+	dayRows, err := s.db.Query(`
+		SELECT b.user_id, COUNT(DISTINCT m.match_date)
+		FROM bets b
+		JOIN matches m ON m.id = b.match_id
+		JOIN users u ON u.id = b.user_id
+		WHERE u.group_id = $1 AND COALESCE(u.is_admin,0) = 0 AND b.points > 0
+		GROUP BY b.user_id
+	`, groupID)
+	if err == nil {
+		defer dayRows.Close()
+		for dayRows.Next() {
+			var uid int64
+			var days float64
+			if err := dayRows.Scan(&uid, &days); err == nil {
+				r := rawMap[uid]
+				r.ActiveDay = days
+				rawMap[uid] = r
+			}
+		}
+	}
+
+	specRows, err := s.db.Query(`
+		SELECT sb.user_id, COUNT(*)
+		FROM special_bets sb
+		JOIN users u ON u.id = sb.user_id
+		WHERE u.group_id = $1 AND COALESCE(u.is_admin,0) = 0 AND sb.points > 0
+		GROUP BY sb.user_id
+	`, groupID)
+	if err == nil {
+		defer specRows.Close()
+		for specRows.Next() {
+			var uid int64
+			var cnt int
+			if err := specRows.Scan(&uid, &cnt); err == nil {
+				r := rawMap[uid]
+				r.Specials = cnt
+				rawMap[uid] = r
+			}
+		}
+	}
+
+	calcMetrics := func(uid int64) RadarMetrics {
+		r := rawMap[uid]
+		avgPts := 0.0
+		if r.Total > 0 {
+			avgPts = math.Round(float64(r.Points)/float64(r.Total)*100) / 100
+		}
+		consistency := math.Round(r.ActiveDay / float64(totalMatchDays) * 100)
 		return RadarMetrics{
-			ExactScore: float64(exact), CorrectWinner: float64(correct),
-			Specials: float64(specials), AvgPoints: avgPts,
-			Consistency: consistency, TotalBets: float64(total),
+			ExactScore: float64(r.Exact), CorrectWinner: float64(r.Correct),
+			Specials: float64(r.Specials), AvgPoints: avgPts,
+			Consistency: consistency, TotalBets: float64(r.Total),
 		}
 	}
 
 	userMetrics := calcMetrics(userID)
 
-	// Group average (excluding current user)
-	rows, err := s.db.Query(`
-		SELECT id FROM users WHERE group_id = $1 AND COALESCE(is_admin,0) = 0 AND id != $2
-	`, groupID, userID)
-	if err != nil {
-		return RadarData{User: userMetrics}
-	}
-	defer rows.Close()
-
 	var avgExact, avgCorrect, avgSpecials, avgAvgPts, avgConsistency, avgTotalBets float64
 	var count int
-	for rows.Next() {
-		var uid int64
-		if err := rows.Scan(&uid); err != nil {
+	for uid := range rawMap {
+		if uid == userID {
 			continue
 		}
 		m := calcMetrics(uid)
