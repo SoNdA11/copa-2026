@@ -96,6 +96,20 @@ func (s *AuthService) CreateAdmin(name, password string, groupID int64) error {
 	return err
 }
 
+func (s *AuthService) ChangeName(userID int64, newName string, groupID int64) error {
+	var existing int
+	err := s.db.QueryRow("SELECT COUNT(*) FROM users WHERE name = $1 AND group_id = $2 AND id != $3", newName, groupID, userID).Scan(&existing)
+	if err != nil {
+		return err
+	}
+	if existing > 0 {
+		return errors.New("nome de usuário já existe nesse grupo")
+	}
+
+	_, err = s.db.Exec("UPDATE users SET name = $1 WHERE id = $2", newName, userID)
+	return err
+}
+
 func (s *AuthService) GetGroups() ([]models.Group, error) {
 	rows, err := s.db.Query("SELECT id, name, slug FROM groups ORDER BY id")
 	if err != nil {

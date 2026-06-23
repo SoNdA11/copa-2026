@@ -4,21 +4,25 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/gorilla/sessions"
+
+	"copa-2026/internal/services"
 )
 
 type SettingsHandler struct {
-	db       *sql.DB
-	renderer *Renderer
+	db          *sql.DB
+	renderer    *Renderer
+	authService *services.AuthService
 }
 
-func NewSettingsHandler(db *sql.DB, renderer *Renderer) *SettingsHandler {
-	return &SettingsHandler{db: db, renderer: renderer}
+func NewSettingsHandler(db *sql.DB, renderer *Renderer, authService *services.AuthService) *SettingsHandler {
+	return &SettingsHandler{db: db, renderer: renderer, authService: authService}
 }
 
 func (h *SettingsHandler) Page(w http.ResponseWriter, r *http.Request) {
@@ -37,6 +41,48 @@ func (h *SettingsHandler) Page(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.renderer.Render(w, "cmd/web/templates/pages/settings.html", data)
+}
+
+func (h *SettingsHandler) UpdateName(w http.ResponseWriter, r *http.Request) {
+	user := GetUserFromSession(r)
+	if user == nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Redirect(w, r, "/settings?error=Erro+ao+processar+formul%C3%A1rio", http.StatusSeeOther)
+		return
+	}
+
+	newName := strings.TrimSpace(r.FormValue("name"))
+	if newName == "" {
+		http.Redirect(w, r, "/settings?error=Nome+n%C3%A3o+pode+ficar+vazio", http.StatusSeeOther)
+		return
+	}
+	if len(newName) < 3 {
+		http.Redirect(w, r, "/settings?error=Nome+deve+ter+pelo+menos+3+caracteres", http.StatusSeeOther)
+		return
+	}
+
+	if err := h.authService.ChangeName(user.ID, newName, user.GroupID); err != nil {
+		http.Redirect(w, r, "/settings?error="+url.QueryEscape(err.Error()), http.StatusSeeOther)
+		return
+	}
+
+	session, _ := store.Get(r, "session")
+	session.Values["user_name"] = newName
+	session.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   86400 * 30,
+		HttpOnly: true,
+	}
+	if err := session.Save(r, w); err != nil {
+		http.Redirect(w, r, "/settings?error=Erro+ao+salvar+sess%C3%A3o", http.StatusSeeOther)
+		return
+	}
+
+	http.Redirect(w, r, "/settings", http.StatusSeeOther)
 }
 
 func (h *SettingsHandler) UploadAvatar(w http.ResponseWriter, r *http.Request) {

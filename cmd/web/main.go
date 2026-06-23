@@ -68,7 +68,7 @@ func main() {
 	betHandler := handlers.NewBetHandler(betSvc, db, renderer)
 	rankingHandler := handlers.NewRankingHandler(rankingSvc, renderer)
 	specialBetHandler := handlers.NewSpecialBetHandler(db, renderer)
-	settingsHandler := handlers.NewSettingsHandler(db, renderer)
+	settingsHandler := handlers.NewSettingsHandler(db, renderer, authSvc)
 	adminHandler := handlers.NewAdminHandler(db, betSvc, renderer)
 	profileHandler := handlers.NewProfileHandler(betSvc, rankingSvc, db, renderer)
 	statsHandler := handlers.NewStatsHandler(statsSvc, renderer)
@@ -146,6 +146,7 @@ func main() {
 	r.Group(func(r chi.Router) {
 		r.Use(handlers.RequireAuth)
 		r.Get("/settings", settingsHandler.Page)
+		r.Post("/settings/name", settingsHandler.UpdateName)
 		r.Post("/settings/delete", settingsHandler.DeleteAccount)
 		r.Post("/settings/avatar", settingsHandler.UploadAvatar)
 		r.Post("/settings/avatar/remove", settingsHandler.RemoveAvatar)
