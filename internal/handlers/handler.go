@@ -87,6 +87,9 @@ var funcMap = template.FuncMap{
 		}
 		return stage
 	},
+	"safeURL": func(s string) template.URL {
+		return template.URL(s)
+	},
 }
 
 func LoadPageTemplate(files ...string) (*template.Template, error) {

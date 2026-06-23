@@ -9,7 +9,7 @@
         <div class="flex flex-col items-center w-28 animate-fade-in animate-fade-in-d1">
             <div class="w-16 h-16 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center overflow-hidden mb-2 ring-2 ring-zinc-300 dark:ring-zinc-600 shadow-lg">
                 {{if (index $first3 1).AvatarURL}}
-                <img src="{{(index $first3 1).AvatarURL}}" alt="{{(index $first3 1).Name}}" class="w-full h-full object-cover">
+                <img src="{{safeURL (index $first3 1).AvatarURL}}" alt="{{(index $first3 1).Name}}" class="w-full h-full object-cover">
                 {{else}}
                 <span class="text-lg font-bold text-zinc-400 dark:text-zinc-600">{{slice (index $first3 1).Name 0 1}}</span>
                 {{end}}
@@ -31,7 +31,7 @@
                 </svg>
                 <div class="w-20 h-20 rounded-full bg-gradient-to-br from-amber-100 to-amber-50 dark:from-amber-900/40 dark:to-amber-800/20 flex items-center justify-center overflow-hidden ring-2 ring-amber-300 dark:ring-amber-500 shadow-xl shadow-amber-200/30 dark:shadow-amber-900/30">
                     {{if (index $first3 0).AvatarURL}}
-                    <img src="{{(index $first3 0).AvatarURL}}" alt="{{(index $first3 0).Name}}" class="w-full h-full object-cover">
+                    <img src="{{safeURL (index $first3 0).AvatarURL}}" alt="{{(index $first3 0).Name}}" class="w-full h-full object-cover">
                     {{else}}
                     <span class="text-2xl font-bold text-amber-400 dark:text-amber-300">{{slice (index $first3 0).Name 0 1}}</span>
                     {{end}}
@@ -50,7 +50,7 @@
         <div class="flex flex-col items-center w-28 animate-fade-in animate-fade-in-d2">
             <div class="w-16 h-16 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center overflow-hidden mb-2 ring-2 ring-orange-200 dark:ring-orange-900/50 shadow-lg">
                 {{if (index $first3 2).AvatarURL}}
-                <img src="{{(index $first3 2).AvatarURL}}" alt="{{(index $first3 2).Name}}" class="w-full h-full object-cover">
+                <img src="{{safeURL (index $first3 2).AvatarURL}}" alt="{{(index $first3 2).Name}}" class="w-full h-full object-cover">
                 {{else}}
                 <span class="text-lg font-bold text-zinc-400 dark:text-zinc-600">{{slice (index $first3 2).Name 0 1}}</span>
                 {{end}}
@@ -122,7 +122,7 @@
                     <div class="flex items-center space-x-2.5">
                         <div class="w-7 h-7 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center overflow-hidden flex-shrink-0">
                             {{if $u.AvatarURL}}
-                            <img src="{{$u.AvatarURL}}" alt="{{$u.Name}}" class="w-full h-full object-cover">
+                            <img src="{{safeURL $u.AvatarURL}}" alt="{{$u.Name}}" class="w-full h-full object-cover">
                             {{else}}
                             <span class="text-[10px] font-bold text-zinc-400 dark:text-zinc-600">{{slice $u.Name 0 1}}</span>
                             {{end}}
