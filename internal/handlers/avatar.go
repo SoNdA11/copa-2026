@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"bytes"
+	"encoding/base64"
 	"image"
 	"image/color"
 	stddraw "image/draw"
@@ -12,10 +14,10 @@ import (
 	"golang.org/x/image/draw"
 )
 
-func processAvatar(src io.Reader, dst io.Writer, size int) error {
+func processAvatar(src io.Reader, size int) ([]byte, error) {
 	img, _, err := image.Decode(src)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	bounds := img.Bounds()
@@ -47,5 +49,13 @@ func processAvatar(src io.Reader, dst io.Writer, size int) error {
 	resized := image.NewRGBA(image.Rect(0, 0, size, size))
 	draw.CatmullRom.Scale(resized, resized.Bounds(), square, square.Bounds(), draw.Over, nil)
 
-	return png.Encode(dst, resized)
+	var buf bytes.Buffer
+	if err := png.Encode(&buf, resized); err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+func avatarDataURI(data []byte) string {
+	return "data:image/png;base64," + base64.StdEncoding.EncodeToString(data)
 }

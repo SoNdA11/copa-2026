@@ -152,7 +152,7 @@ func main() {
 		r.Post("/settings/avatar/remove", settingsHandler.RemoveAvatar)
 	})
 
-	// Static files (avatars)
+	// Static files
 	r.Get("/static/*", func(w http.ResponseWriter, r *http.Request) {
 		http.StripPrefix("/static/", http.FileServer(http.Dir("data"))).ServeHTTP(w, r)
 	})

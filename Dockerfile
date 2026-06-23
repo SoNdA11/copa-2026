@@ -14,6 +14,5 @@ COPY --from=builder /app/web .
 COPY --from=builder /app/cmd/web/templates ./cmd/web/templates
 COPY --from=builder /app/data/seed ./data/seed
 COPY --from=builder /app/data/chart.min.js ./data/chart.min.js
-RUN mkdir -p /app/data/avatars
 EXPOSE 3000
 CMD ["./web"]

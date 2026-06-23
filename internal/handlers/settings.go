@@ -2,13 +2,9 @@ package handlers
 
 import (
 	"database/sql"
-	"fmt"
 	"net/http"
 	"net/url"
-	"os"
-	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/gorilla/sessions"
 
@@ -105,31 +101,13 @@ func (h *SettingsHandler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
-	avatarDir := "data/avatars"
-	if err := os.MkdirAll(avatarDir, 0755); err != nil {
-		http.Redirect(w, r, "/settings?error=Erro+ao+criar+diret%C3%B3rio", http.StatusSeeOther)
-		return
-	}
-
-	oldFiles, _ := filepath.Glob(filepath.Join(avatarDir, fmt.Sprintf("%d_%d_*.png", user.ID, user.GroupID)))
-	for _, f := range oldFiles {
-		os.Remove(f)
-	}
-
-	filename := fmt.Sprintf("%d_%d_%d.png", user.ID, user.GroupID, time.Now().UnixMilli())
-	dst, err := os.Create(filepath.Join(avatarDir, filename))
+	data, err := processAvatar(file, 256)
 	if err != nil {
-		http.Redirect(w, r, "/settings?error=Erro+ao+salvar+arquivo", http.StatusSeeOther)
-		return
-	}
-	defer dst.Close()
-
-	if err := processAvatar(file, dst, 256); err != nil {
 		http.Redirect(w, r, "/settings?error=Erro+ao+processar+imagem", http.StatusSeeOther)
 		return
 	}
 
-	avatarURL := "/static/avatars/" + filename
+	avatarURL := avatarDataURI(data)
 	if _, err := h.db.Exec("UPDATE users SET avatar_url = $1 WHERE id = $2", avatarURL, user.ID); err != nil {
 		http.Redirect(w, r, "/settings?error=Erro+ao+atualizar+avatar", http.StatusSeeOther)
 		return
@@ -157,31 +135,19 @@ func (h *SettingsHandler) RemoveAvatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if user.AvatarURL != "" {
-		oldPath := user.AvatarURL
-		if strings.HasPrefix(oldPath, "/static/avatars/") {
-			os.Remove("data/avatars/" + strings.TrimPrefix(oldPath, "/static/avatars/"))
-		}
-
-		oldFiles, _ := filepath.Glob(filepath.Join("data/avatars", fmt.Sprintf("%d_%d_*.png", user.ID, user.GroupID)))
-		for _, f := range oldFiles {
-			os.Remove(f)
-		}
-
-		if _, err := h.db.Exec("UPDATE users SET avatar_url = '' WHERE id = $1", user.ID); err != nil {
-			http.Redirect(w, r, "/settings?error=Erro+ao+remover+avatar", http.StatusSeeOther)
-			return
-		}
-
-		session, _ := store.Get(r, "session")
-		session.Values["avatar_url"] = ""
-		session.Options = &sessions.Options{
-			Path:     "/",
-			MaxAge:   86400 * 30,
-			HttpOnly: true,
-		}
-		session.Save(r, w)
+	if _, err := h.db.Exec("UPDATE users SET avatar_url = '' WHERE id = $1", user.ID); err != nil {
+		http.Redirect(w, r, "/settings?error=Erro+ao+remover+avatar", http.StatusSeeOther)
+		return
 	}
+
+	session, _ := store.Get(r, "session")
+	session.Values["avatar_url"] = ""
+	session.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   86400 * 30,
+		HttpOnly: true,
+	}
+	session.Save(r, w)
 
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)
 }
@@ -207,18 +173,6 @@ func (h *SettingsHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) 
 		}
 		h.renderer.Render(w, "cmd/web/templates/pages/settings.html", data)
 		return
-	}
-
-	// Remove avatar file if exists
-	if user.AvatarURL != "" {
-		avatarPath := user.AvatarURL
-		if strings.HasPrefix(avatarPath, "/static/avatars/") {
-			os.Remove("data/avatars/" + strings.TrimPrefix(avatarPath, "/static/avatars/"))
-		}
-	}
-	oldFiles, _ := filepath.Glob(filepath.Join("data/avatars", fmt.Sprintf("%d_%d_*.png", user.ID, user.GroupID)))
-	for _, f := range oldFiles {
-		os.Remove(f)
 	}
 
 	tx, err := h.db.Begin()
