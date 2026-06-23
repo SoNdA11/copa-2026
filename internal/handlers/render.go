@@ -14,7 +14,7 @@ func NewRenderer(db *sql.DB) *Renderer {
 }
 
 func (r *Renderer) Render(w http.ResponseWriter, pagePath string, data PageData) {
-	if data.User != nil && data.User.ID > 0 && data.User.AvatarURL == "" {
+	if data.User != nil && data.User.ID > 0 {
 		var avatarURL string
 		r.db.QueryRow("SELECT COALESCE(avatar_url, '') FROM users WHERE id = $1", data.User.ID).Scan(&avatarURL)
 		data.User.AvatarURL = avatarURL

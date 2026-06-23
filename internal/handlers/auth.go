@@ -42,11 +42,9 @@ func GetUserFromSession(r *http.Request) *UserInfo {
 	isAdmin, _ := session.Values["is_admin"].(bool)
 	groupName, _ := session.Values["group_name"].(string)
 	groupSlug, _ := session.Values["group_slug"].(string)
-	avatarURL, _ := session.Values["avatar_url"].(string)
 	return &UserInfo{
 		ID: userID, Name: userName, IsAdmin: isAdmin,
 		GroupID: groupID, GroupName: groupName, GroupSlug: groupSlug,
-		AvatarURL: avatarURL,
 	}
 }
 
