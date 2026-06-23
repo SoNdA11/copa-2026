@@ -113,18 +113,6 @@ func (h *SettingsHandler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	session, _ := store.Get(r, "session")
-	session.Values["avatar_url"] = avatarURL
-	session.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   86400 * 30,
-		HttpOnly: true,
-	}
-	if err := session.Save(r, w); err != nil {
-		http.Redirect(w, r, "/settings?error=Erro+ao+salvar+sess%C3%A3o", http.StatusSeeOther)
-		return
-	}
-
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)
 }
 
@@ -139,15 +127,6 @@ func (h *SettingsHandler) RemoveAvatar(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/settings?error=Erro+ao+remover+avatar", http.StatusSeeOther)
 		return
 	}
-
-	session, _ := store.Get(r, "session")
-	session.Values["avatar_url"] = ""
-	session.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   86400 * 30,
-		HttpOnly: true,
-	}
-	session.Save(r, w)
 
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)
 }

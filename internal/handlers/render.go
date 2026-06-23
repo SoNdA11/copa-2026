@@ -1,16 +1,25 @@
 package handlers
 
 import (
+	"database/sql"
 	"net/http"
 )
 
-type Renderer struct{}
+type Renderer struct {
+	db *sql.DB
+}
 
-func NewRenderer() *Renderer {
-	return &Renderer{}
+func NewRenderer(db *sql.DB) *Renderer {
+	return &Renderer{db: db}
 }
 
 func (r *Renderer) Render(w http.ResponseWriter, pagePath string, data PageData) {
+	if data.User != nil && data.User.ID > 0 && data.User.AvatarURL == "" {
+		var avatarURL string
+		r.db.QueryRow("SELECT COALESCE(avatar_url, '') FROM users WHERE id = $1", data.User.ID).Scan(&avatarURL)
+		data.User.AvatarURL = avatarURL
+	}
+
 	allFiles := []string{
 		"cmd/web/templates/layout.html",
 		"cmd/web/templates/partials/nav.html",

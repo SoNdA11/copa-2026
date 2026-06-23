@@ -46,7 +46,7 @@ func main() {
 		log.Fatalf("Failed to validate templates: %v", err)
 	}
 
-	renderer := handlers.NewRenderer()
+	renderer := handlers.NewRenderer(db)
 
 	authSvc := services.NewAuthService(db)
 	betSvc := services.NewBetService(db)
