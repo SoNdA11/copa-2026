@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"sort"
@@ -472,6 +473,23 @@ type MatchGroupBet struct {
 	HomeScore   int
 	AwayScore   int
 	TotalPoints int
+	AvatarURL   string
+}
+
+type GroupedBetUser struct {
+	UserID      int64
+	UserName    string
+	AvatarURL   string
+	TotalPoints int
+	IsCurrent   bool
+}
+
+type GroupedBet struct {
+	HomeScore int
+	AwayScore int
+	Users     []GroupedBetUser
+	Count     int
+	IsUserBet bool
 }
 
 func (h *MatchHandler) GroupBets(w http.ResponseWriter, r *http.Request) {
@@ -492,7 +510,8 @@ func (h *MatchHandler) GroupBets(w http.ResponseWriter, r *http.Request) {
 		SELECT u.name, u.id, b.home_score, b.away_score,
 			COALESCE((SELECT SUM(points) FROM bets WHERE user_id = u.id), 0) +
 			COALESCE((SELECT SUM(points) FROM special_bets WHERE user_id = u.id), 0) +
-			COALESCE(u.points_adjustment, 0) as total_points
+			COALESCE(u.points_adjustment, 0) as total_points,
+			COALESCE(u.avatar_url, '')
 		FROM bets b
 		JOIN users u ON u.id = b.user_id
 		WHERE b.match_id = $1 AND COALESCE(u.is_admin, 0) = 0 AND u.group_id = $2
@@ -507,16 +526,56 @@ func (h *MatchHandler) GroupBets(w http.ResponseWriter, r *http.Request) {
 	var bets []MatchGroupBet
 	for rows.Next() {
 		var b MatchGroupBet
-		if err := rows.Scan(&b.UserName, &b.UserID, &b.HomeScore, &b.AwayScore, &b.TotalPoints); err != nil {
+		if err := rows.Scan(&b.UserName, &b.UserID, &b.HomeScore, &b.AwayScore, &b.TotalPoints, &b.AvatarURL); err != nil {
 			continue
 		}
 		bets = append(bets, b)
 	}
 
+	groupMap := make(map[string]*GroupedBet)
+	for _, b := range bets {
+		key := fmt.Sprintf("%d-%d", b.HomeScore, b.AwayScore)
+		gb, ok := groupMap[key]
+		if !ok {
+			gb = &GroupedBet{
+				HomeScore: b.HomeScore,
+				AwayScore: b.AwayScore,
+			}
+			groupMap[key] = gb
+		}
+		userBet := user != nil && b.UserID == user.ID
+		gb.Users = append(gb.Users, GroupedBetUser{
+			UserID:      b.UserID,
+			UserName:    b.UserName,
+			AvatarURL:   b.AvatarURL,
+			TotalPoints: b.TotalPoints,
+			IsCurrent:   userBet,
+		})
+		if userBet {
+			gb.IsUserBet = true
+		}
+		gb.Count++
+	}
+
+	grouped := make([]*GroupedBet, 0, len(groupMap))
+	for _, gb := range groupMap {
+		sort.Slice(gb.Users, func(i, j int) bool {
+			return gb.Users[i].UserName < gb.Users[j].UserName
+		})
+		grouped = append(grouped, gb)
+	}
+
+	sort.Slice(grouped, func(i, j int) bool {
+		if grouped[i].IsUserBet != grouped[j].IsUserBet {
+			return grouped[i].IsUserBet
+		}
+		return grouped[i].Count > grouped[j].Count
+	})
+
 	data := PageData{
 		Title: "Palpites do Grupo",
 		User:  user,
-		Data:  bets,
+		Data:  grouped,
 	}
 
 	tmpl, err := LoadPageTemplate("cmd/web/templates/partials/match_bets_group.html")

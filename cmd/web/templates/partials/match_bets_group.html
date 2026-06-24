@@ -1,39 +1,56 @@
 {{define "match_bets_group"}}
-<div class="card rounded-2xl overflow-hidden">
+<div class="rounded-2xl overflow-hidden">
     <div class="bg-gradient-to-r from-green-50/50 dark:from-green-950/20 to-transparent px-5 py-3 border-b border-zinc-200/50 dark:border-zinc-800/30 flex items-center space-x-2">
         <svg class="w-4 h-4 text-green-500 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
         </svg>
         <h3 class="font-bold text-zinc-700 dark:text-zinc-300 text-sm">Palpites do Grupo <span class="text-xs font-normal text-zinc-400 dark:text-zinc-600">(pts ranking)</span></h3>
     </div>
+    {{if .Data}}
     <div class="divide-y divide-zinc-200/40 dark:divide-zinc-800/30">
-        {{range .Data}}
-        <div class="flex items-center justify-between px-5 py-3 {{if and $.User (eq $.User.ID .UserID)}}bg-green-50/30 dark:bg-green-950/20{{end}}">
-            <div class="flex items-center space-x-2">
-                <span class="font-medium text-sm {{if and $.User (eq $.User.ID .UserID)}}text-green-600 dark:text-green-400{{else}}text-zinc-700 dark:text-zinc-300{{end}}">
-                    {{.UserName}}
-                </span>
-                {{if and $.User (eq $.User.ID .UserID)}}
-                <span class="text-xs text-green-400 dark:text-green-500 font-semibold">(você)</span>
-                {{end}}
+        {{range $g := .Data}}
+        <div class="px-5 py-3 {{if $g.IsUserBet}}bg-green-50/20 dark:bg-green-950/10{{end}}">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <span class="font-bold text-sm {{if $g.IsUserBet}}text-green-600 dark:text-green-400{{else}}text-zinc-700 dark:text-zinc-300{{end}}">
+                        {{$g.HomeScore}}x{{$g.AwayScore}}
+                    </span>
+                    <span class="text-xs font-medium text-zinc-400 dark:text-zinc-500">
+                        ({{$g.Count}} {{if eq $g.Count 1}}palpite{{else}}palpites{{end}})
+                    </span>
+                    {{if $g.IsUserBet}}
+                    <span class="text-[10px] font-semibold text-green-400 dark:text-green-500 bg-green-50 dark:bg-green-950/40 px-2 py-0.5 rounded-full">seu palpite</span>
+                    {{end}}
+                </div>
+                <div class="flex items-center" style="margin-left: auto;">
+                    {{range $u := $g.Users}}
+                    <div class="group/avatar relative -ml-1.5 first:ml-0">
+                        <div class="w-7 h-7 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center overflow-hidden flex-shrink-0 border-2 border-white dark:border-zinc-900 {{if $u.IsCurrent}}ring-2 ring-green-400{{end}}">
+                            {{if $u.AvatarURL}}
+                            <img src="{{safeURL $u.AvatarURL}}" alt="{{$u.UserName}}" class="w-full h-full object-cover">
+                            {{else}}
+                            <span class="text-[10px] font-bold text-zinc-400 dark:text-zinc-500">{{slice $u.UserName 0 1}}</span>
+                            {{end}}
+                        </div>
+                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/avatar:block z-10">
+                            <div class="bg-zinc-800 dark:bg-zinc-200 text-white dark:text-zinc-800 text-xs font-medium px-2 py-1 rounded-lg whitespace-nowrap shadow-lg">
+                                {{$u.UserName}} {{if $u.IsCurrent}}(você){{end}}
+                                <span class="block text-[10px] font-semibold">{{$u.TotalPoints}} pts</span>
+                                <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-0.5 border-4 border-transparent border-t-zinc-800 dark:border-t-zinc-200"></div>
+                            </div>
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
             </div>
-            <div class="flex items-center space-x-2">
-                <span class="bg-zinc-100/50 dark:bg-zinc-800/50 rounded-lg px-2.5 py-1 font-bold text-sm {{if and $.User (eq $.User.ID .UserID)}}text-green-600 dark:text-green-400{{else}}text-zinc-700 dark:text-zinc-300{{end}}">
-                    {{.HomeScore}}x{{.AwayScore}}
-                </span>
-                {{if gt .TotalPoints 0}}
-                <span class="text-xs font-bold text-green-600 dark:text-green-400">{{.TotalPoints}} pts</span>
-                {{else}}
-                <span class="text-xs font-medium text-zinc-400 dark:text-zinc-600">{{.TotalPoints}} pts</span>
-                {{end}}
-            </div>
-        </div>
-        {{else}}
-        <div class="px-5 py-8 text-center">
-            <p class="text-zinc-400 dark:text-zinc-600 text-sm">Nenhum palpite ainda</p>
-            <p class="text-zinc-400 dark:text-zinc-600 text-xs mt-1">Seja o primeiro a palpitar!</p>
         </div>
         {{end}}
     </div>
+    {{else}}
+    <div class="px-5 py-8 text-center">
+        <p class="text-zinc-400 dark:text-zinc-600 text-sm">Nenhum palpite ainda</p>
+        <p class="text-zinc-400 dark:text-zinc-600 text-xs mt-1">Seja o primeiro a palpitar!</p>
+    </div>
+    {{end}}
 </div>
 {{end}}

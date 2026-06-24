@@ -88,8 +88,14 @@
                 {{if .HasUserBet}}Editar &rarr;{{else}}Palpitar &rarr;{{end}}
             </a>
             <span class="text-zinc-300 dark:text-zinc-700">|</span>
-            <span class="text-zinc-400 dark:text-zinc-600 hover:text-green-600 dark:hover:text-green-400 font-semibold transition-all cursor-pointer"
-                onclick="toggleGroupBets({{.ID}}, this)">Ver palpites &darr;</span>
+            <span class="inline-flex items-center space-x-1 text-zinc-400 dark:text-zinc-600 hover:text-green-600 dark:hover:text-green-400 font-semibold transition-all cursor-pointer group"
+                onclick="toggleGroupBets({{.ID}}, this)">
+                <span class="bet-toggle-text-open">Ver palpites</span>
+                <span class="bet-toggle-text-closed">Ocultar</span>
+                <svg class="bet-toggle-chevron w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </span>
             {{else}}
             <a href="/matches/{{.ID}}" class="link font-semibold transition-all">
                 Detalhes &rarr;
@@ -99,7 +105,6 @@
     </div>
     <div id="group-bets-{{.ID}}" class="hidden mt-3 pt-3 border-t border-zinc-200/50 dark:border-zinc-800/30">
         <div id="group-bets-table-{{.ID}}"></div>
-        <div id="group-bets-distribution-{{.ID}}"></div>
     </div>
 </div>
 {{end}}
