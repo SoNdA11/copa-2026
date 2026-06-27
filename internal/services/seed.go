@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -91,21 +92,42 @@ func (s *SeedService) updateMatchDetails() {
 			continue
 		}
 
-		date, time := s.toBrasiliaTime(sm.LocalDate, stadiumOffset(cityName))
+		date, matchTime := s.toBrasiliaTime(sm.LocalDate, stadiumOffset(cityName))
 		if date == "" {
 			continue
 		}
 
+		// Base update: stadium and time
 		_, err := s.db.Exec(
 			"UPDATE matches SET stadium = $1, match_date = $2, match_time = $3 WHERE id = $4",
-			cityName, date, time, sm.ID,
+			cityName, date, matchTime, sm.ID,
 		)
 		if err == nil {
 			count++
 		}
+
+		// If the seed file already has a result, update status and score too
+		if sm.Finished == "TRUE" || sm.TimeElapsed == "finished" {
+			hs, err1 := strconv.Atoi(sm.HomeScore)
+			as, err2 := strconv.Atoi(sm.AwayScore)
+			if err1 == nil && err2 == nil {
+				s.db.Exec(
+					"UPDATE matches SET status = 'finished', home_score = $1, away_score = $2 WHERE id = $3 AND status != 'finished'",
+					hs, as, sm.ID,
+				)
+			}
+		}
+
+		// Update home/away team IDs for all matches where seed has real team IDs
+		if sm.HomeTeamID != "" && sm.HomeTeamID != "0" {
+			s.db.Exec("UPDATE matches SET home_team_id = $1 WHERE id = $2", sm.HomeTeamID, sm.ID)
+		}
+		if sm.AwayTeamID != "" && sm.AwayTeamID != "0" {
+			s.db.Exec("UPDATE matches SET away_team_id = $1 WHERE id = $2", sm.AwayTeamID, sm.ID)
+		}
 	}
 	if count > 0 {
-		log.Printf("Updated %d matches with Brasília time", count)
+		log.Printf("Updated %d matches with Brasília time and results", count)
 	}
 }
 

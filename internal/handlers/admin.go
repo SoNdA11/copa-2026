@@ -11,13 +11,15 @@ import (
 )
 
 type AdminHandler struct {
-	db       *sql.DB
-	betSvc   *services.BetService
-	renderer *Renderer
+	db          *sql.DB
+	betSvc      *services.BetService
+	syncSvc     *services.SyncService
+	knockoutSvc *services.KnockoutService
+	renderer    *Renderer
 }
 
-func NewAdminHandler(db *sql.DB, betSvc *services.BetService, renderer *Renderer) *AdminHandler {
-	return &AdminHandler{db: db, betSvc: betSvc, renderer: renderer}
+func NewAdminHandler(db *sql.DB, betSvc *services.BetService, syncSvc *services.SyncService, knockoutSvc *services.KnockoutService, renderer *Renderer) *AdminHandler {
+	return &AdminHandler{db: db, betSvc: betSvc, syncSvc: syncSvc, knockoutSvc: knockoutSvc, renderer: renderer}
 }
 
 type adminUserRow struct {
@@ -323,6 +325,19 @@ func (h *AdminHandler) UpdateMatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/admin/matches?flash=jogo+atualizado", http.StatusSeeOther)
+}
+
+func (h *AdminHandler) ForceSync(w http.ResponseWriter, r *http.Request) {
+	go func() {
+		log.Println("[Admin] Forcing full sync...")
+		if err := h.syncSvc.SyncAllData(); err != nil {
+			log.Printf("[Admin] Sync error: %v", err)
+		}
+		h.betSvc.RecalculateAllFinishedMatches()
+		h.knockoutSvc.RecalculateAll()
+		log.Println("[Admin] Sync complete.")
+	}()
+	http.Redirect(w, r, "/admin/matches?flash=sync+iniciado", http.StatusSeeOther)
 }
 
 func (h *AdminHandler) MatchBetsPage(w http.ResponseWriter, r *http.Request) {

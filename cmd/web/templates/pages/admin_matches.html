@@ -18,8 +18,17 @@
                 <a href="/admin/matches" class="text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 px-2 py-1 rounded-xl hover:bg-green-50/50 dark:hover:bg-green-950/20 transition-colors {{if not .Stage}}font-bold{{end}}">Todas</a>
                 <a href="/admin/matches?stage=group" class="text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 px-2 py-1 rounded-xl hover:bg-green-50/50 dark:hover:bg-green-950/20 transition-colors {{if eq .Stage "group"}}font-bold{{end}}">Grupos</a>
                 <a href="/admin/matches?stage=final" class="text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 px-2 py-1 rounded-xl hover:bg-green-50/50 dark:hover:bg-green-950/20 transition-colors {{if eq .Stage "final"}}font-bold{{end}}">Final</a>
+                <span class="text-zinc-300 dark:text-zinc-700">|</span>
+                <form method="POST" action="/admin/sync" class="inline">
+                    <button type="submit" class="inline-flex items-center space-x-1.5 text-xs font-semibold bg-orange-500/10 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 hover:bg-orange-500/20 border border-orange-500/30 px-3 py-1.5 rounded-xl transition-colors"
+                        onclick="this.disabled=true; this.innerText='Sincronizando...'">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        <span>Forçar Sync</span>
+                    </button>
+                </form>
             </div>
         </div>
+
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>

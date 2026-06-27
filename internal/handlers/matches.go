@@ -634,9 +634,52 @@ func (h *MatchHandler) Bracket(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+
 	loadAll := func(stage string) []models.Match {
-		m, _ := h.getMatches(stage)
-		return m
+		rows, err := h.db.Query(`
+			SELECT m.id, COALESCE(m.home_team_id, 0), COALESCE(m.away_team_id, 0),
+				m.home_score, m.away_score,
+				m.match_date, m.match_time, m.stage, COALESCE(m.group_name, ''), COALESCE(m.stadium, ''), m.status,
+				COALESCE(ht.id, 0), COALESCE(ht.name, 'TBD'), COALESCE(ht.fifa_code, ''), COALESCE(ht.group_name, ''), COALESCE(ht.flag_url, ''),
+				COALESCE(at.id, 0), COALESCE(at.name, 'TBD'), COALESCE(at.fifa_code, ''), COALESCE(at.group_name, ''), COALESCE(at.flag_url, ''),
+				COALESCE(m.home_team_label, ''), COALESCE(m.away_team_label, '')
+			FROM matches m
+			LEFT JOIN teams ht ON ht.id = m.home_team_id
+			LEFT JOIN teams at ON at.id = m.away_team_id
+			WHERE m.stage = $1
+			ORDER BY m.id
+		`, stage)
+		if err != nil {
+			return nil
+		}
+		defer rows.Close()
+		var matches []models.Match
+		for rows.Next() {
+			var m models.Match
+			m.HomeTeam = &models.Team{}
+			m.AwayTeam = &models.Team{}
+			var homeScore, awayScore sql.NullInt64
+			err := rows.Scan(
+				&m.ID, &m.HomeTeamID, &m.AwayTeamID, &homeScore, &awayScore,
+				&m.MatchDate, &m.MatchTime, &m.Stage, &m.GroupName, &m.Stadium, &m.Status,
+				&m.HomeTeam.ID, &m.HomeTeam.Name, &m.HomeTeam.FifaCode, &m.HomeTeam.GroupName, &m.HomeTeam.FlagURL,
+				&m.AwayTeam.ID, &m.AwayTeam.Name, &m.AwayTeam.FifaCode, &m.AwayTeam.GroupName, &m.AwayTeam.FlagURL,
+				&m.HomeTeamLabel, &m.AwayTeamLabel,
+			)
+			if err != nil {
+				continue
+			}
+			if homeScore.Valid {
+				v := int(homeScore.Int64)
+				m.HomeScore = &v
+			}
+			if awayScore.Valid {
+				v := int(awayScore.Int64)
+				m.AwayScore = &v
+			}
+			matches = append(matches, m)
+		}
+		return matches
 	}
 
 	leftR32Order := []int64{74, 77, 73, 75, 83, 84, 81, 82}

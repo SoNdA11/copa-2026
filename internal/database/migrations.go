@@ -131,6 +131,29 @@ func RunMigrations(db *sql.DB) error {
 				FOREIGN KEY (match_id) REFERENCES matches(id)
 			)`,
 		},
+		{
+			name: "add_team_labels_to_matches",
+			sql: `ALTER TABLE matches ADD COLUMN IF NOT EXISTS home_team_label TEXT DEFAULT '';
+			ALTER TABLE matches ADD COLUMN IF NOT EXISTS away_team_label TEXT DEFAULT ''`,
+		},
+		{
+			name: "add_knockout_fields_to_bets",
+			sql: `ALTER TABLE bets ADD COLUMN IF NOT EXISTS advancing_team_id INTEGER DEFAULT 0;
+			ALTER TABLE bets ADD COLUMN IF NOT EXISTS is_favorite INTEGER DEFAULT 0`,
+		},
+		{
+			name: "create_user_stage_points",
+			sql: `CREATE TABLE IF NOT EXISTS user_stage_points (
+				user_id INTEGER NOT NULL,
+				stage TEXT NOT NULL,
+				common_points INTEGER DEFAULT 0,
+				exact_score_bonus INTEGER DEFAULT 0,
+				favorites_bonus INTEGER DEFAULT 0,
+				total_points INTEGER DEFAULT 0,
+				PRIMARY KEY (user_id, stage),
+				FOREIGN KEY (user_id) REFERENCES users(id)
+			)`,
+		},
 	}
 
 	for _, m := range migrations {

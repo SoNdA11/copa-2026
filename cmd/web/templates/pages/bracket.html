@@ -29,6 +29,8 @@
         {{if and .Match.HomeTeam.Name (ne .Match.HomeTeam.FifaCode "TBD")}}
           <span class="text-[10px] font-black uppercase {{if $homeWon}}text-green-400{{else}}text-zinc-200{{end}}">{{.Match.HomeTeam.FifaCode}}</span>
           <span class="text-[8px] font-medium truncate max-w-[140px] hidden sm:inline {{if $homeWon}}text-green-500/80{{else}}text-zinc-400{{end}}">{{.Match.HomeTeam.Name}}</span>
+        {{else if .Match.HomeTeamLabel}}
+          <span class="text-[8px] font-bold text-zinc-500 italic truncate max-w-[150px]">{{.Match.HomeTeamLabel}}</span>
         {{else}}
           <span class="text-[8.5px] font-bold text-zinc-500 italic">A definir</span>
         {{end}}
@@ -60,6 +62,8 @@
         {{if and .Match.AwayTeam.Name (ne .Match.AwayTeam.FifaCode "TBD")}}
           <span class="text-[10px] font-black uppercase {{if $awayWon}}text-green-400{{else}}text-zinc-200{{end}}">{{.Match.AwayTeam.FifaCode}}</span>
           <span class="text-[8px] font-medium truncate max-w-[140px] hidden sm:inline {{if $awayWon}}text-green-500/80{{else}}text-zinc-400{{end}}">{{.Match.AwayTeam.Name}}</span>
+        {{else if .Match.AwayTeamLabel}}
+          <span class="text-[8px] font-bold text-zinc-500 italic truncate max-w-[150px]">{{.Match.AwayTeamLabel}}</span>
         {{else}}
           <span class="text-[8.5px] font-bold text-zinc-500 italic">A definir</span>
         {{end}}

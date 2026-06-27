@@ -73,7 +73,7 @@ func main() {
 	rankingHandler := handlers.NewRankingHandler(rankingSvc, renderer)
 	specialBetHandler := handlers.NewSpecialBetHandler(db, renderer)
 	settingsHandler := handlers.NewSettingsHandler(db, renderer, authSvc)
-	adminHandler := handlers.NewAdminHandler(db, betSvc, renderer)
+	adminHandler := handlers.NewAdminHandler(db, betSvc, syncSvc, knockoutSvc, renderer)
 	profileHandler := handlers.NewProfileHandler(betSvc, rankingSvc, db, renderer)
 	statsHandler := handlers.NewStatsHandler(statsSvc, renderer)
 
@@ -172,6 +172,7 @@ func main() {
 		r.Get("/admin/matches", adminHandler.MatchesPage)
 		r.Post("/admin/update-match", adminHandler.UpdateMatch)
 		r.Get("/admin/match-bets", adminHandler.MatchBetsPage)
+		r.Post("/admin/sync", adminHandler.ForceSync)
 	})
 
 	// Stats API
