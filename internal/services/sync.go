@@ -139,7 +139,8 @@ func (s *SyncService) updateMatch(apiMatch APIMatch) error {
 
 	var currentStatus string
 	var currentHomeScore, currentAwayScore sql.NullInt64
-	err := s.db.QueryRow("SELECT status, home_score, away_score FROM matches WHERE id = $1", matchID).Scan(&currentStatus, &currentHomeScore, &currentAwayScore)
+	var currentHomeTeamID, currentAwayTeamID int64
+	err := s.db.QueryRow("SELECT status, home_score, away_score, home_team_id, away_team_id FROM matches WHERE id = $1", matchID).Scan(&currentStatus, &currentHomeScore, &currentAwayScore, &currentHomeTeamID, &currentAwayTeamID)
 	if err != nil {
 		return nil
 	}
@@ -163,9 +164,22 @@ func (s *SyncService) updateMatch(apiMatch APIMatch) error {
 		awayScore = parseInt(apiMatch.AwayScore)
 	}
 
+	apiHomeTeamID := parseInt(apiMatch.HomeTeamID)
+	apiAwayTeamID := parseInt(apiMatch.AwayTeamID)
+
+	newHomeTeamID := currentHomeTeamID
+	newAwayTeamID := currentAwayTeamID
+
+	if apiHomeTeamID != nil && *apiHomeTeamID > 0 {
+		newHomeTeamID = int64(*apiHomeTeamID)
+	}
+	if apiAwayTeamID != nil && *apiAwayTeamID > 0 {
+		newAwayTeamID = int64(*apiAwayTeamID)
+	}
+
 	_, err = s.db.Exec(`
-		UPDATE matches SET home_score = $1, away_score = $2, status = $3 WHERE id = $4
-	`, homeScore, awayScore, status, matchID)
+		UPDATE matches SET home_score = $1, away_score = $2, status = $3, home_team_id = $4, away_team_id = $5 WHERE id = $6
+	`, homeScore, awayScore, status, newHomeTeamID, newAwayTeamID, matchID)
 	if err != nil {
 		return err
 	}

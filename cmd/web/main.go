@@ -42,6 +42,7 @@ func main() {
 		"cmd/web/templates/partials/group_standings.html",
 		"cmd/web/templates/partials/match_bets_group.html",
 		"cmd/web/templates/partials/user_bets_partial.html",
+		"cmd/web/templates/pages/bracket.html",
 	); err != nil {
 		log.Fatalf("Failed to validate templates: %v", err)
 	}
@@ -118,6 +119,7 @@ func main() {
 	r.Get("/matches/{id}", matchHandler.Detail)
 	r.Get("/matches/{id}/bets", matchHandler.GroupBets)
 	r.Get("/matches/{id}/inline-bet", matchHandler.InlineBetForm)
+	r.Get("/knockout", matchHandler.Bracket)
 
 	// Bets (requires auth)
 	r.Group(func(r chi.Router) {

@@ -586,6 +586,117 @@ func (h *MatchHandler) GroupBets(w http.ResponseWriter, r *http.Request) {
 	tmpl.ExecuteTemplate(w, "match_bets_group", data)
 }
 
+type BracketMatchView struct {
+	Match       models.Match
+	HasUserBet  bool
+	BetHome     int
+	BetAway     int
+}
+
+func (h *MatchHandler) Bracket(w http.ResponseWriter, r *http.Request) {
+	user := GetUserFromSession(r)
+
+	userBets := make(map[int64]struct{ home, away int })
+	if user != nil {
+		rows, err := h.db.Query("SELECT match_id, home_score, away_score FROM bets WHERE user_id = $1", user.ID)
+		if err == nil {
+			defer rows.Close()
+			for rows.Next() {
+				var mid int64
+				var hs, as int
+				if rows.Scan(&mid, &hs, &as) == nil {
+					userBets[mid] = struct{ home, away int }{hs, as}
+				}
+			}
+		}
+	}
+
+	loadMatches := func(stage string) []BracketMatchView {
+		matches, err := h.getMatches(stage)
+		if err != nil {
+			return nil
+		}
+		var out []BracketMatchView
+		for i := range matches {
+			bv := BracketMatchView{Match: matches[i]}
+			if ub, ok := userBets[matches[i].ID]; ok {
+				bv.HasUserBet = true
+				bv.BetHome, bv.BetAway = ub.home, ub.away
+			}
+			out = append(out, bv)
+		}
+		return out
+	}
+
+	allR32 := loadMatches("r32")
+	allR16 := loadMatches("r16")
+	allQF := loadMatches("qf")
+	allSF := loadMatches("sf")
+
+	type roundData struct {
+		Name    string
+		Matches []BracketMatchView
+	}
+
+	var topRounds, botRounds []roundData
+	names := map[string]string{"r32": "16 Avos", "r16": "Oitavas", "qf": "Quartas", "sf": "Semifinais"}
+
+	split := func(matches []BracketMatchView, stage string) {
+		if len(matches) == 0 {
+			return
+		}
+		mid := len(matches) / 2
+		topRounds = append(topRounds, roundData{Name: names[stage], Matches: matches[:mid]})
+		botRounds = append(botRounds, roundData{Name: names[stage], Matches: matches[mid:]})
+	}
+
+	split(allR32, "r32")
+	split(allR16, "r16")
+	split(allQF, "qf")
+	split(allSF, "sf")
+
+	var finalMatch, thirdMatch *models.Match
+	if f, err := h.getMatchDetail(104); err == nil {
+		finalMatch = f
+	}
+	if t, err := h.getMatchDetail(103); err == nil {
+		thirdMatch = t
+	}
+
+	loc, _ := time.LoadLocation("America/Sao_Paulo")
+	todayStr := time.Now().In(loc).Format("2006-01-02")
+	setToday := func(matches []BracketMatchView) {
+		for i := range matches {
+			matches[i].Match.IsToday = matches[i].Match.MatchDate == todayStr
+		}
+	}
+	for _, rd := range topRounds {
+		setToday(rd.Matches)
+	}
+	for _, rd := range botRounds {
+		setToday(rd.Matches)
+	}
+	if finalMatch != nil {
+		finalMatch.IsToday = finalMatch.MatchDate == todayStr
+	}
+	if thirdMatch != nil {
+		thirdMatch.IsToday = thirdMatch.MatchDate == todayStr
+	}
+
+	data := PageData{
+		Title: "Mata-Mata",
+		User:  user,
+		Data: map[string]interface{}{
+			"TopRounds":  topRounds,
+			"BotRounds":  botRounds,
+			"FinalMatch": finalMatch,
+			"ThirdMatch": thirdMatch,
+		},
+	}
+
+	h.renderer.Render(w, "cmd/web/templates/pages/bracket.html", data)
+}
+
 func scanMatches(rows *sql.Rows) ([]models.Match, error) {
 	var matches []models.Match
 	for rows.Next() {

@@ -24,6 +24,32 @@ var funcMap = template.FuncMap{
 	"add": func(a, b int) int {
 		return a + b
 	},
+	"sub": func(a, b int) int {
+		return a - b
+	},
+	"div": func(a, b int) int {
+		if b == 0 {
+			return 0
+		}
+		return a / b
+	},
+	"mod": func(a, b int) int {
+		if b == 0 {
+			return 0
+		}
+		return a % b
+	},
+	"dict": func(values ...interface{}) map[string]interface{} {
+		m := make(map[string]interface{})
+		for i := 0; i+1 < len(values); i += 2 {
+			key, ok := values[i].(string)
+			if !ok {
+				continue
+			}
+			m[key] = values[i+1]
+		}
+		return m
+	},
 	"seq": func(start, end int) []int {
 		var s []int
 		for i := start; i <= end; i++ {
