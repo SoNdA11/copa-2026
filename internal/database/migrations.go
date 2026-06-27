@@ -132,14 +132,20 @@ func RunMigrations(db *sql.DB) error {
 			)`,
 		},
 		{
-			name: "add_team_labels_to_matches",
-			sql: `ALTER TABLE matches ADD COLUMN IF NOT EXISTS home_team_label TEXT DEFAULT '';
-			ALTER TABLE matches ADD COLUMN IF NOT EXISTS away_team_label TEXT DEFAULT ''`,
+			name: "add_home_team_label_to_matches",
+			sql:  `ALTER TABLE matches ADD COLUMN IF NOT EXISTS home_team_label TEXT DEFAULT ''`,
 		},
 		{
-			name: "add_knockout_fields_to_bets",
-			sql: `ALTER TABLE bets ADD COLUMN IF NOT EXISTS advancing_team_id INTEGER DEFAULT 0;
-			ALTER TABLE bets ADD COLUMN IF NOT EXISTS is_favorite INTEGER DEFAULT 0`,
+			name: "add_away_team_label_to_matches",
+			sql:  `ALTER TABLE matches ADD COLUMN IF NOT EXISTS away_team_label TEXT DEFAULT ''`,
+		},
+		{
+			name: "add_advancing_team_id_to_bets",
+			sql:  `ALTER TABLE bets ADD COLUMN IF NOT EXISTS advancing_team_id INTEGER DEFAULT 0`,
+		},
+		{
+			name: "add_is_favorite_to_bets",
+			sql:  `ALTER TABLE bets ADD COLUMN IF NOT EXISTS is_favorite INTEGER DEFAULT 0`,
 		},
 		{
 			name: "create_user_stage_points",
