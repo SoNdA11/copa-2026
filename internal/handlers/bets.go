@@ -13,13 +13,14 @@ import (
 )
 
 type BetHandler struct {
-	betSvc   *services.BetService
-	db       *sql.DB
-	renderer *Renderer
+	betSvc     *services.BetService
+	bracketSvc *services.BracketService
+	db         *sql.DB
+	renderer   *Renderer
 }
 
-func NewBetHandler(betSvc *services.BetService, db *sql.DB, renderer *Renderer) *BetHandler {
-	return &BetHandler{betSvc: betSvc, db: db, renderer: renderer}
+func NewBetHandler(betSvc *services.BetService, bracketSvc *services.BracketService, db *sql.DB, renderer *Renderer) *BetHandler {
+	return &BetHandler{betSvc: betSvc, bracketSvc: bracketSvc, db: db, renderer: renderer}
 }
 
 func (h *BetHandler) Place(w http.ResponseWriter, r *http.Request) {
@@ -58,14 +59,38 @@ func (h *BetHandler) Place(w http.ResponseWriter, r *http.Request) {
 
 	existing, _ := h.betSvc.GetUserBet(user.ID, matchID)
 
-	if err := h.betSvc.PlaceBet(user.ID, matchID, homeScore, awayScore); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+	var stage string
+	err = h.db.QueryRow("SELECT stage FROM matches WHERE id = $1", matchID).Scan(&stage)
+	if err != nil {
+		http.Error(w, "Jogo não encontrado", http.StatusNotFound)
 		return
+	}
+
+	if isKnockoutStage(stage) {
+		advancingTeamID := int64(0)
+		if val := r.FormValue("advancing_team_id"); val != "" {
+			advancingTeamID, _ = strconv.ParseInt(val, 10, 64)
+		}
+		isFavorite := r.FormValue("is_favorite") == "1" || r.FormValue("is_favorite") == "true" || r.FormValue("is_favorite") == "on"
+
+		if err := h.bracketSvc.PlaceKnockoutBet(user.ID, matchID, homeScore, awayScore, advancingTeamID, isFavorite); err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(err.Error()))
+			return
+		}
+	} else {
+		if err := h.betSvc.PlaceBet(user.ID, matchID, homeScore, awayScore); err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(err.Error()))
+			return
+		}
 	}
 
 	bet, _ := h.betSvc.GetUserBet(user.ID, matchID)
 	match := h.getMatchWithTeams(matchID)
+	if isKnockoutStage(match.Stage) {
+		h.bracketSvc.ResolveSimulatedMatch(user.ID, match)
+	}
 
 	w.Header().Set("HX-Trigger", "bet-placed")
 

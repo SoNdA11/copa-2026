@@ -1,204 +1,227 @@
-{{define "match_card"}}
-<div class="bracket-match rounded-xl border border-zinc-200/50 dark:border-zinc-800/30 bg-white dark:bg-zinc-900/50 overflow-hidden transition-all hover:shadow-md flex-shrink-0
-  {{if .Match.IsToday}}border-l-2 border-l-green-400 dark:border-l-green-500{{end}}"
-  style="height:64px;width:170px;">
-  <div class="flex items-center h-1/2 px-2.5 gap-1.5
-    {{if and .Match.HomeScore .Match.AwayScore (gt (deref .Match.HomeScore) (deref .Match.AwayScore))}}bg-green-50/50 dark:bg-green-950/20{{end}}">
-    <div class="w-5 h-5 flex-shrink-0">
-      {{if .Match.HomeTeam.FlagURL}}
-      <img src="{{.Match.HomeTeam.FlagURL}}" alt="{{.Match.HomeTeam.Name}}" class="w-5 h-5 object-contain">
-      {{else}}
-      <div class="w-5 h-5 bg-zinc-100 dark:bg-zinc-800 rounded flex items-center justify-center text-[7px] text-zinc-500 font-semibold">{{slice .Match.HomeTeam.Name 0 2}}</div>
-      {{end}}
-    </div>
-    <span class="text-xs font-semibold text-zinc-700 dark:text-zinc-300 truncate flex-1">{{.Match.HomeTeam.Name}}</span>
-    {{if .Match.HomeScore}}
-    <span class="text-xs font-bold {{if and (gt (deref .Match.HomeScore) (deref .Match.AwayScore))}}text-green-600 dark:text-green-400{{else}}text-zinc-500 dark:text-zinc-400{{end}}">{{.Match.HomeScore}}</span>
-    {{end}}
-  </div>
-  <div class="flex items-center h-1/2 px-2.5 gap-1.5 border-t border-zinc-100/50 dark:border-zinc-800/20
-    {{if and .Match.HomeScore .Match.AwayScore (gt (deref .Match.AwayScore) (deref .Match.HomeScore))}}bg-green-50/50 dark:bg-green-950/20{{end}}">
-    <div class="w-5 h-5 flex-shrink-0">
-      {{if .Match.AwayTeam.FlagURL}}
-      <img src="{{.Match.AwayTeam.FlagURL}}" alt="{{.Match.AwayTeam.Name}}" class="w-5 h-5 object-contain">
-      {{else}}
-      <div class="w-5 h-5 bg-zinc-100 dark:bg-zinc-800 rounded flex items-center justify-center text-[7px] text-zinc-500 font-semibold">{{slice .Match.AwayTeam.Name 0 2}}</div>
-      {{end}}
-    </div>
-    <span class="text-xs font-semibold text-zinc-700 dark:text-zinc-300 truncate flex-1">{{.Match.AwayTeam.Name}}</span>
-    {{if .Match.AwayScore}}
-    <span class="text-xs font-bold {{if and (gt (deref .Match.AwayScore) (deref .Match.HomeScore))}}text-green-600 dark:text-green-400{{else}}text-zinc-500 dark:text-zinc-400{{end}}">{{.Match.AwayScore}}</span>
-    {{end}}
-  </div>
-  <div class="text-center" style="margin-top:-14px;">
-    {{if eq .Match.Status "live"}}
-    <span class="text-[9px] text-green-600 dark:text-green-400 font-bold px-1.5 py-0.5 rounded-full bg-green-50/50 dark:bg-green-950/30">AO VIVO</span>
-    {{else if eq .Match.Status "finished"}}
-    <span class="text-[9px] text-zinc-400 dark:text-zinc-600">Finalizado</span>
-    {{else}}
-    <span class="text-[9px] text-zinc-400 dark:text-zinc-600">{{.Match.MatchDate}}</span>
-    {{end}}
-  </div>
-</div>
+{{define "bracket_card"}}
+{{$hasScore := and .Match.HomeScore .Match.AwayScore}}
+{{$homeWon := false}}
+{{$awayWon := false}}
+{{if $hasScore}}
+  {{$homeWon = gt (deref .Match.HomeScore) (deref .Match.AwayScore)}}
+  {{$awayWon = gt (deref .Match.AwayScore) (deref .Match.HomeScore)}}
 {{end}}
-
-{{define "round_col"}}
-<div class="flex flex-col flex-shrink-0" style="width:180px;">
-  <div class="text-xs font-bold text-green-600 dark:text-green-400 uppercase tracking-wider text-center mb-2 pb-1 border-b border-zinc-100 dark:border-zinc-800/30">{{.Name}}</div>
-  <div class="flex flex-col justify-around flex-1 gap-1">
-    {{range .Matches}}
-    <div class="flex items-center justify-center flex-1 py-0.5">
-      {{template "match_card" .}}
-    </div>
-    {{end}}
+<a href="/matches/{{.Match.ID}}" class="block w-full h-full bg-zinc-900/60 dark:bg-zinc-900/30 border border-zinc-800/80 hover:border-green-500/40 rounded-xl overflow-hidden shadow-sm hover:shadow-[0_0_12px_rgba(34,197,94,0.1)] hover:-translate-y-0.5 transition-all text-left flex flex-col group z-10"
+   style="height: 68px;">
+  
+  <!-- Card Header -->
+  <div class="bg-zinc-950/60 px-3 py-1 border-b border-zinc-900/80 flex justify-between items-center text-[7.5px] text-zinc-500 font-bold uppercase tracking-wider">
+    <span class="truncate max-w-[130px]">&bull; {{.Match.Stadium}}</span>
+    <span>{{.Match.MatchDate}} &bull; {{.Match.MatchTime}}</span>
   </div>
-</div>
-{{end}}
-
-{{define "connector_col"}}
-<div class="flex flex-col flex-shrink-0" style="width:28px;">
-  {{$total := .total}}{{$pairs := .pairs}}
-  {{range $i := seq 0 (sub $total 1)}}
-    {{$isTop := mod $i 2 | eq 0}}
-    <div style="flex:1;position:relative;min-height:32px;">
-      {{if $isTop}}
-      <div style="position:absolute;left:0;top:50%;width:14px;height:0;border-top:2px solid #d4d4d4;" class="dark:border-zinc-700"></div>
+  
+  <!-- Home Team Row -->
+  <div class="flex items-center justify-between px-3 flex-1 min-w-0 {{if $awayWon}}opacity-45{{end}}">
+    <div class="flex items-center space-x-2.5 truncate flex-1 min-w-0">
+      <div class="w-4 h-4 flex-shrink-0 flex items-center justify-center">
+        {{if and .Match.HomeTeam.FlagURL (ne .Match.HomeTeam.FifaCode "TBD")}}
+        <img src="{{.Match.HomeTeam.FlagURL}}" alt="" class="w-4 h-4 object-contain rounded-full border border-zinc-800/80 shadow-sm">
+        {{else}}
+        <div class="w-4 h-4 rounded-full bg-zinc-950 border border-zinc-800/60 flex items-center justify-center text-[7px] text-zinc-655 font-bold">?</div>
+        {{end}}
+      </div>
+      <div class="flex items-baseline space-x-1.5 min-w-0 truncate">
+        {{if and .Match.HomeTeam.Name (ne .Match.HomeTeam.FifaCode "TBD")}}
+          <span class="text-[10px] font-black uppercase {{if $homeWon}}text-green-400{{else}}text-zinc-200{{end}}">{{.Match.HomeTeam.FifaCode}}</span>
+          <span class="text-[8px] font-medium truncate max-w-[140px] hidden sm:inline {{if $homeWon}}text-green-500/80{{else}}text-zinc-400{{end}}">{{.Match.HomeTeam.Name}}</span>
+        {{else}}
+          <span class="text-[8.5px] font-bold text-zinc-500 italic">A definir</span>
+        {{end}}
+      </div>
+    </div>
+    <div class="flex items-center space-x-1.5 flex-shrink-0 ml-1.5">
+      {{if .HasUserBet}}
+      <span class="text-[7px] text-zinc-500 font-extrabold">({{.BetHome}})</span>
       {{end}}
-      {{if $isTop}}
-      <div style="position:absolute;left:14px;top:0;width:0;height:100%;border-right:2px solid #d4d4d4;" class="dark:border-zinc-700"></div>
-      {{end}}
-      {{if not $isTop}}
-      <div style="position:absolute;left:0;top:50%;width:14px;height:0;border-top:2px solid #d4d4d4;" class="dark:border-zinc-700"></div>
+      {{if .Match.HomeScore}}
+      <span class="text-[11px] font-black text-right min-w-[8px] {{if $homeWon}}text-green-400 bg-green-950/40 px-1.5 py-0.5 rounded border border-green-900/30{{else}}text-zinc-400{{end}}">
+        {{.Match.HomeScore}}
+      </span>
       {{end}}
     </div>
-  {{end}}
-</div>
+  </div>
+
+  <!-- Away Team Row -->
+  <div class="flex items-center justify-between px-3 flex-1 min-w-0 border-t border-zinc-900/40 {{if $homeWon}}opacity-45{{end}}">
+    <div class="flex items-center space-x-2.5 truncate flex-1 min-w-0">
+      <div class="w-4 h-4 flex-shrink-0 flex items-center justify-center">
+        {{if and .Match.AwayTeam.FlagURL (ne .Match.AwayTeam.FifaCode "TBD")}}
+        <img src="{{.Match.AwayTeam.FlagURL}}" alt="" class="w-4 h-4 object-contain rounded-full border border-zinc-800/80 shadow-sm">
+        {{else}}
+        <div class="w-4 h-4 rounded-full bg-zinc-950 border border-zinc-800/80 flex items-center justify-center text-[7px] text-zinc-655 font-bold">?</div>
+        {{end}}
+      </div>
+      <div class="flex items-baseline space-x-1.5 min-w-0 truncate">
+        {{if and .Match.AwayTeam.Name (ne .Match.AwayTeam.FifaCode "TBD")}}
+          <span class="text-[10px] font-black uppercase {{if $awayWon}}text-green-400{{else}}text-zinc-200{{end}}">{{.Match.AwayTeam.FifaCode}}</span>
+          <span class="text-[8px] font-medium truncate max-w-[140px] hidden sm:inline {{if $awayWon}}text-green-500/80{{else}}text-zinc-400{{end}}">{{.Match.AwayTeam.Name}}</span>
+        {{else}}
+          <span class="text-[8.5px] font-bold text-zinc-500 italic">A definir</span>
+        {{end}}
+      </div>
+    </div>
+    <div class="flex items-center space-x-1.5 flex-shrink-0 ml-1.5">
+      {{if .HasUserBet}}
+      <span class="text-[7.5px] text-zinc-500 font-extrabold">({{.BetAway}})</span>
+      {{end}}
+      {{if .Match.AwayScore}}
+      <span class="text-[11px] font-black text-right min-w-[8px] {{if $awayWon}}text-green-400 bg-green-950/40 px-1.5 py-0.5 rounded border border-green-900/30{{else}}text-zinc-400{{end}}">
+        {{.Match.AwayScore}}
+      </span>
+      {{end}}
+    </div>
+  </div>
+</a>
 {{end}}
 
 {{define "page_content"}}
-<div class="max-w-7xl mx-auto px-2 sm:px-4" hx-history="false">
-  <div class="flex items-center justify-between mb-4 animate-fade-in">
-    <h1 class="text-2xl font-bold text-zinc-800 dark:text-zinc-100">Mata-Mata</h1>
-    <div class="flex space-x-2">
-      <a href="/matches" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all text-zinc-500 dark:text-zinc-500 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50/30 dark:hover:bg-green-950/15 border border-zinc-200/50 dark:border-zinc-800/30">
-        Lista
-      </a>
-    </div>
-  </div>
+<div class="relative w-full min-h-[calc(100vh-64px)] overflow-hidden text-zinc-300" hx-history="false">
+  
+  <!-- Scrollable Bracket Wrapper -->
+  <div id="bracket-wrapper" class="w-full h-full min-h-[calc(100vh-64px)] overflow-auto p-12 flex items-start justify-start cursor-grab select-none">
+    <!-- Scaled Container (Default 65% zoom) -->
+    <div id="bracket-scaler" style="position:relative; width: 2520px; height: 840px; flex-shrink: 0; margin-bottom: 50px; zoom: 0.65;">
+      
+      <!-- Column Headers -->
+      <div style="position:absolute; left:20px; top:0; width:240px; text-align:center;" class="text-[8px] font-black text-zinc-500 uppercase tracking-widest">16 Avos (Esq)</div>
+      <div style="position:absolute; left:300px; top:0; width:240px; text-align:center;" class="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Oitavas (Esq)</div>
+      <div style="position:absolute; left:580px; top:0; width:240px; text-align:center;" class="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Quartas (Esq)</div>
+      <div style="position:absolute; left:860px; top:0; width:240px; text-align:center;" class="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Semifinal (Esq)</div>
+      <div style="position:absolute; left:1140px; top:0; width:240px; text-align:center;" class="text-[8px] font-black text-green-500 uppercase tracking-widest">Decisão</div>
+      <div style="position:absolute; left:1420px; top:0; width:240px; text-align:center;" class="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Semifinal (Dir)</div>
+      <div style="position:absolute; left:1700px; top:0; width:240px; text-align:center;" class="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Quartas (Dir)</div>
+      <div style="position:absolute; left:1980px; top:0; width:240px; text-align:center;" class="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Oitavas (Dir)</div>
+      <div style="position:absolute; left:2260px; top:0; width:240px; text-align:center;" class="text-[8px] font-black text-zinc-500 uppercase tracking-widest">16 Avos (Dir)</div>
 
-  {{$top := index .Data "TopRounds"}}
-  {{$bot := index .Data "BotRounds"}}
-  {{$final := index .Data "FinalMatch"}}
-  {{$third := index .Data "ThirdMatch"}}
-
-  <div class="bracket-wrapper overflow-x-auto pb-4">
-    <div class="flex min-w-[1000px]">
-
-      <div class="flex flex-col flex-1 gap-3">
-        {{range $ri, $rd := $top}}
-        <div class="flex items-stretch gap-0">
-          {{template "round_col" $rd}}
-
-          {{if lt $ri (sub (len $top) 1)}}
-            {{$n := len $rd.Matches}}
-            {{template "connector_col" dict "total" $n "pairs" (div $n 2)}}
-          {{end}}
-
-          {{if eq $ri (sub (len $top) 1)}}
-          <div class="flex flex-col justify-center flex-shrink-0" style="width:32px;">
-            <div class="relative flex flex-col items-center h-full">
-              <div style="position:absolute;left:0;top:50%;width:16px;height:0;border-top:2px solid #d4d4d4;" class="dark:border-zinc-700"></div>
-              <div style="position:absolute;left:16px;top:50%;width:0;height:50%;border-right:2px solid #d4d4d4;" class="dark:border-zinc-700"></div>
-            </div>
-          </div>
-          {{end}}
-        </div>
+      <!-- Connecting Vector Lines -->
+      {{range .Data.Lines}}
+        {{$dx := sub .X2 .X1}}
+        {{$dy := sub .Y2 .Y1}}
+        {{if gt $dx 0}}
+        <div data-pos-x="{{.X1}}" data-pos-y="{{.Y1}}" data-pos-w="{{$dx}}" data-pos-h="0" class="absolute border-t-2 border-zinc-800/80 dark:border-zinc-850/60"></div>
         {{end}}
+        {{if gt $dy 0}}
+        <div data-pos-x="{{.X1}}" data-pos-y="{{.Y1}}" data-pos-w="0" data-pos-h="{{$dy}}" class="absolute border-l-2 border-zinc-800/80 dark:border-zinc-850/60"></div>
+        {{end}}
+      {{end}}
 
-        <div class="flex items-stretch gap-0">
-          {{range $ri, $rd := $bot}}
-            {{if eq $ri (sub (len $bot) 1)}}
-            <div class="flex flex-col justify-center flex-shrink-0" style="width:32px;">
-              <div class="relative flex flex-col items-center h-full">
-                <div style="position:absolute;left:0;top:50%;width:16px;height:0;border-top:2px solid #d4d4d4;" class="dark:border-zinc-700"></div>
-                <div style="position:absolute;left:16px;top:0;width:0;height:50%;border-right:2px solid #d4d4d4;" class="dark:border-zinc-700"></div>
-              </div>
-            </div>
-            {{end}}
+      <!-- Final & 3rd Place Headers -->
+      <div style="position:absolute; left:1140px; top:250px; width:240px; text-align:center;" class="text-[8px] font-black text-green-500/80 uppercase tracking-wider">🏆 Grande Final</div>
+      <div style="position:absolute; left:1140px; top:456px; width:240px; text-align:center;" class="text-[8px] font-black text-zinc-500/80 uppercase tracking-wider">🥉 Decisão de 3º Lugar</div>
 
-            {{if lt $ri (sub (len $bot) 1)}}
-              {{$n := len $rd.Matches}}
-              {{template "connector_col" dict "total" $n "pairs" (div $n 2)}}
-            {{end}}
-          {{template "round_col" $rd}}
-          {{end}}
-        </div>
+      <!-- Matches Cards (Width: 240px, Height: 68px) -->
+      {{range .Data.Matches}}
+      <div data-pos-x="{{.X}}" data-pos-y="{{.Y}}" data-pos-w="240" data-pos-h="68" class="absolute z-10">
+        {{template "bracket_card" .}}
       </div>
-
-      <div class="flex flex-col items-center justify-center flex-shrink-0 px-4" style="width:240px;">
-        <div class="flex flex-col items-center w-full">
-          <div class="text-xs font-bold text-green-600 dark:text-green-400 uppercase tracking-wider text-center mb-2">Final</div>
-
-          {{if $final}}
-          <div class="bracket-match rounded-xl border-2 border-yellow-400/50 dark:border-yellow-600/50 bg-gradient-to-br from-yellow-50/50 dark:from-yellow-950/20 to-transparent overflow-hidden shadow-lg flex-shrink-0"
-            style="height:72px;width:190px;">
-            <div class="flex items-center h-1/2 px-3 gap-2
-              {{if and $final.HomeScore $final.AwayScore (gt (deref $final.HomeScore) (deref $final.AwayScore))}}bg-yellow-50/50 dark:bg-yellow-950/20{{end}}">
-              <div class="w-6 h-6 flex-shrink-0">
-                {{if $final.HomeTeam.FlagURL}}
-                <img src="{{$final.HomeTeam.FlagURL}}" alt="{{$final.HomeTeam.Name}}" class="w-6 h-6 object-contain">
-                {{else}}
-                <div class="w-6 h-6 bg-zinc-100 dark:bg-zinc-800 rounded flex items-center justify-center text-[8px] text-zinc-500 font-semibold">{{slice $final.HomeTeam.Name 0 2}}</div>
-                {{end}}
-              </div>
-              <span class="text-sm font-bold text-zinc-800 dark:text-zinc-200 truncate flex-1">{{$final.HomeTeam.Name}}</span>
-              {{if $final.HomeScore}}
-              <span class="text-sm font-bold {{if and (gt (deref $final.HomeScore) (deref $final.AwayScore))}}text-yellow-600 dark:text-yellow-400{{else}}text-zinc-500 dark:text-zinc-400{{end}}">{{$final.HomeScore}}</span>
-              {{end}}
-            </div>
-            <div class="flex items-center h-1/2 px-3 gap-2 border-t border-yellow-200/30 dark:border-yellow-800/20
-              {{if and $final.HomeScore $final.AwayScore (gt (deref $final.AwayScore) (deref $final.HomeScore))}}bg-yellow-50/50 dark:bg-yellow-950/20{{end}}">
-              <div class="w-6 h-6 flex-shrink-0">
-                {{if $final.AwayTeam.FlagURL}}
-                <img src="{{$final.AwayTeam.FlagURL}}" alt="{{$final.AwayTeam.Name}}" class="w-6 h-6 object-contain">
-                {{else}}
-                <div class="w-6 h-6 bg-zinc-100 dark:bg-zinc-800 rounded flex items-center justify-center text-[8px] text-zinc-500 font-semibold">{{slice $final.AwayTeam.Name 0 2}}</div>
-                {{end}}
-              </div>
-              <span class="text-sm font-bold text-zinc-800 dark:text-zinc-200 truncate flex-1">{{$final.AwayTeam.Name}}</span>
-              {{if $final.AwayScore}}
-              <span class="text-sm font-bold {{if and (gt (deref $final.AwayScore) (deref $final.HomeScore))}}text-yellow-600 dark:text-yellow-400{{else}}text-zinc-500 dark:text-zinc-400{{end}}">{{$final.AwayScore}}</span>
-              {{end}}
-            </div>
-          </div>
-          {{else}}
-          <div class="flex items-center justify-center h-20 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800 text-xs text-zinc-400 dark:text-zinc-600" style="width:190px;">
-            A definir
-          </div>
-          {{end}}
-
-          <div class="w-px h-6 bg-zinc-200 dark:bg-zinc-800 my-2"></div>
-
-          {{if $third}}
-          <div class="w-full">
-            <div class="text-xs font-bold text-zinc-500 dark:text-zinc-500 uppercase tracking-wider text-center mb-1">3º Lugar</div>
-            <div class="flex items-center justify-center">
-            {{template "match_card" dict "Match" $third}}
-            </div>
-          </div>
-          {{end}}
-        </div>
-      </div>
+      {{end}}
 
     </div>
   </div>
 </div>
 
-<style>
-.bracket-wrapper::-webkit-scrollbar { height:6px; }
-.bracket-wrapper::-webkit-scrollbar-track { background:transparent; }
-.bracket-wrapper::-webkit-scrollbar-thumb { background:#d4d4d4; border-radius:3px; }
-.dark .bracket-wrapper::-webkit-scrollbar-thumb { background:#525252; }
-.bracket-match { cursor:default; }
-</style>
+<script>
+// Dynamic parent layout overrides to make bracket full width
+(function() {
+  const main = document.querySelector('main');
+  if (main) {
+    main.classList.remove('max-w-6xl', 'mx-auto', 'px-4', 'sm:px-6', 'py-6', 'sm:py-10');
+    main.classList.add('w-full', 'px-0', 'py-0');
+  }
+  const footer = document.querySelector('footer');
+  if (footer) {
+    footer.style.marginTop = '0';
+  }
+})();
+
+// Process dynamic positions on load to resolve IDE validation warnings
+function applyAbsolutePositions() {
+  document.querySelectorAll('[data-pos-x]').forEach(el => {
+    const x = el.getAttribute('data-pos-x');
+    const y = el.getAttribute('data-pos-y');
+    const w = el.getAttribute('data-pos-w');
+    const h = el.getAttribute('data-pos-h');
+    if (x !== null) el.style.left = x + 'px';
+    if (y !== null) el.style.top = y + 'px';
+    if (w !== null) el.style.width = w + 'px';
+    if (h !== null) el.style.height = h + 'px';
+  });
+}
+applyAbsolutePositions();
+
+let currentZoom = 0.75;
+
+function updateZoom() {
+  const scaler = document.getElementById('bracket-scaler');
+  if (!scaler) return;
+  scaler.style.zoom = currentZoom;
+}
+
+// Mouse Scroll Zooming Behavior
+const wrapper = document.getElementById('bracket-wrapper');
+if (wrapper) {
+  wrapper.style.scrollbarWidth = 'thin';
+  wrapper.style.scrollbarColor = '#1e293b transparent';
+  
+  wrapper.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const zoomStep = 0.03;
+    if (e.deltaY < 0) {
+      currentZoom = Math.min(currentZoom + zoomStep, 2.0);
+    } else {
+      currentZoom = Math.max(currentZoom - zoomStep, 0.4);
+    }
+    updateZoom();
+  }, { passive: false });
+}
+
+// Click-and-Drag Panning Behavior
+let isDown = false;
+let startX;
+let startY;
+let scrollLeft;
+let scrollTop;
+
+if (wrapper) {
+  wrapper.addEventListener('mousedown', (e) => {
+    isDown = true;
+    wrapper.classList.remove('cursor-grab');
+    wrapper.classList.add('cursor-grabbing');
+    startX = e.pageX - wrapper.offsetLeft;
+    startY = e.pageY - wrapper.offsetTop;
+    scrollLeft = wrapper.scrollLeft;
+    scrollTop = wrapper.scrollTop;
+  });
+
+  wrapper.addEventListener('mouseleave', () => {
+    isDown = false;
+    wrapper.classList.remove('cursor-grabbing');
+    wrapper.classList.add('cursor-grab');
+  });
+
+  wrapper.addEventListener('mouseup', () => {
+    isDown = false;
+    wrapper.classList.remove('cursor-grabbing');
+    wrapper.classList.add('cursor-grab');
+  });
+
+  wrapper.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - wrapper.offsetLeft;
+    const y = e.pageY - wrapper.offsetTop;
+    const walkX = (x - startX) * 1.5;
+    const walkY = (y - startY) * 1.5;
+    wrapper.scrollLeft = scrollLeft - walkX;
+    wrapper.scrollTop = scrollTop - walkY;
+  });
+}
+
+updateZoom();
+</script>
 {{end}}

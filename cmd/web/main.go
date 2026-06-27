@@ -53,20 +53,23 @@ func main() {
 	betSvc := services.NewBetService(db)
 	rankingSvc := services.NewRankingService(db)
 	statsSvc := services.NewStatsService(db)
+	knockoutSvc := services.NewKnockoutService(db)
+	bracketSvc := services.NewBracketService(db, knockoutSvc)
 
 	syncSvc := services.NewSyncService(db, cfg.APIURL, betSvc)
 	go func() {
+		knockoutSvc.RecalculateAll()
 		if err := syncSvc.SyncAllData(); err != nil {
 			log.Printf("API sync error: %v", err)
 		}
-		// Recalcula pontos de todos os jogos finalizados (fix retroativo)
 		betSvc.RecalculateAllFinishedMatches()
+		knockoutSvc.RecalculateAll()
 	}()
 	syncSvc.Start()
 
 	authHandler := handlers.NewAuthHandler(authSvc, renderer)
-	matchHandler := handlers.NewMatchHandler(db, betSvc, syncSvc, renderer)
-	betHandler := handlers.NewBetHandler(betSvc, db, renderer)
+	matchHandler := handlers.NewMatchHandler(db, betSvc, syncSvc, bracketSvc, renderer)
+	betHandler := handlers.NewBetHandler(betSvc, bracketSvc, db, renderer)
 	rankingHandler := handlers.NewRankingHandler(rankingSvc, renderer)
 	specialBetHandler := handlers.NewSpecialBetHandler(db, renderer)
 	settingsHandler := handlers.NewSettingsHandler(db, renderer, authSvc)

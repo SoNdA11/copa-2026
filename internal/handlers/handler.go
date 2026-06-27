@@ -77,6 +77,13 @@ var funcMap = template.FuncMap{
 	"specialBettingOpen": func() bool {
 		return services.IsSpecialBettingOpen()
 	},
+	"isKnockoutStage": func(stage string) bool {
+		switch stage {
+		case "r32", "r16", "qf", "sf", "third", "final":
+			return true
+		}
+		return false
+	},
 	"toBRT": func(t time.Time) string {
 		loc, _ := time.LoadLocation("America/Sao_Paulo")
 		return t.In(loc).Format("02/01/2006 15:04")
