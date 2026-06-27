@@ -42,6 +42,7 @@ func main() {
 		"cmd/web/templates/partials/group_standings.html",
 		"cmd/web/templates/partials/match_bets_group.html",
 		"cmd/web/templates/partials/user_bets_partial.html",
+		"cmd/web/templates/pages/bracket.html",
 	); err != nil {
 		log.Fatalf("Failed to validate templates: %v", err)
 	}
@@ -52,20 +53,23 @@ func main() {
 	betSvc := services.NewBetService(db)
 	rankingSvc := services.NewRankingService(db)
 	statsSvc := services.NewStatsService(db)
+	knockoutSvc := services.NewKnockoutService(db)
+	bracketSvc := services.NewBracketService(db, knockoutSvc)
 
 	syncSvc := services.NewSyncService(db, cfg.APIURL, betSvc)
 	go func() {
+		knockoutSvc.RecalculateAll()
 		if err := syncSvc.SyncAllData(); err != nil {
 			log.Printf("API sync error: %v", err)
 		}
-		// Recalcula pontos de todos os jogos finalizados (fix retroativo)
 		betSvc.RecalculateAllFinishedMatches()
+		knockoutSvc.RecalculateAll()
 	}()
 	syncSvc.Start()
 
 	authHandler := handlers.NewAuthHandler(authSvc, renderer)
-	matchHandler := handlers.NewMatchHandler(db, betSvc, syncSvc, renderer)
-	betHandler := handlers.NewBetHandler(betSvc, db, renderer)
+	matchHandler := handlers.NewMatchHandler(db, betSvc, syncSvc, bracketSvc, renderer)
+	betHandler := handlers.NewBetHandler(betSvc, bracketSvc, db, renderer)
 	rankingHandler := handlers.NewRankingHandler(rankingSvc, renderer)
 	specialBetHandler := handlers.NewSpecialBetHandler(db, renderer)
 	settingsHandler := handlers.NewSettingsHandler(db, renderer, authSvc)
@@ -118,6 +122,7 @@ func main() {
 	r.Get("/matches/{id}", matchHandler.Detail)
 	r.Get("/matches/{id}/bets", matchHandler.GroupBets)
 	r.Get("/matches/{id}/inline-bet", matchHandler.InlineBetForm)
+	r.Get("/knockout", matchHandler.Bracket)
 
 	// Bets (requires auth)
 	r.Group(func(r chi.Router) {

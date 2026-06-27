@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -111,11 +112,17 @@ func (s *SyncService) SyncMatches() error {
 		}
 	}
 
+	knockoutSvc := NewKnockoutService(s.db)
+	if err := knockoutSvc.ComputeAdvancement(); err != nil {
+		log.Printf("Knockout recalculation error after sync: %v", err)
+	}
+
 	return nil
 }
 
 func (s *SyncService) fetchMatches() ([]APIMatch, error) {
-	resp, err := http.Get(s.apiURL + "/get/games")
+	client := &http.Client{Timeout: 5 * time.Second}
+	resp, err := client.Get(s.apiURL + "/get/games")
 	if err != nil {
 		return nil, err
 	}
@@ -135,13 +142,20 @@ func (s *SyncService) fetchMatches() ([]APIMatch, error) {
 }
 
 func (s *SyncService) updateMatch(apiMatch APIMatch) error {
-	matchID := apiMatch.ID
-
-	var currentStatus string
-	var currentHomeScore, currentAwayScore sql.NullInt64
-	err := s.db.QueryRow("SELECT status, home_score, away_score FROM matches WHERE id = $1", matchID).Scan(&currentStatus, &currentHomeScore, &currentAwayScore)
+	matchID, err := strconv.ParseInt(apiMatch.ID, 10, 64)
 	if err != nil {
-		return nil
+		return fmt.Errorf("invalid match ID %s: %w", apiMatch.ID, err)
+	}
+
+	var currentStatus, stage string
+	var currentHomeScore, currentAwayScore sql.NullInt64
+	var currentHomeTeamID, currentAwayTeamID int64
+	err = s.db.QueryRow("SELECT status, home_score, away_score, home_team_id, away_team_id, stage FROM matches WHERE id = $1", matchID).Scan(&currentStatus, &currentHomeScore, &currentAwayScore, &currentHomeTeamID, &currentAwayTeamID, &stage)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil
+		}
+		return err
 	}
 
 	if currentStatus == "finished" && apiMatch.Finished != "TRUE" && apiMatch.TimeElapsed != "finished" {
@@ -163,9 +177,39 @@ func (s *SyncService) updateMatch(apiMatch APIMatch) error {
 		awayScore = parseInt(apiMatch.AwayScore)
 	}
 
+	apiHomeTeamID := parseInt(apiMatch.HomeTeamID)
+	apiAwayTeamID := parseInt(apiMatch.AwayTeamID)
+
+	newHomeTeamID := int64(0)
+	newAwayTeamID := int64(0)
+
+	// Fetch team assignments from the API, but override the known API mock bug
+	// where Belgium (25) is incorrectly assigned to Match 80's Winner Group L slot.
+	if apiHomeTeamID != nil && *apiHomeTeamID > 0 {
+		if apiMatch.ID == "80" && *apiHomeTeamID == 25 {
+			newHomeTeamID = 0
+		} else {
+			newHomeTeamID = int64(*apiHomeTeamID)
+		}
+	}
+	if apiAwayTeamID != nil && *apiAwayTeamID > 0 {
+		newAwayTeamID = int64(*apiAwayTeamID)
+	}
+
+	// For knockout matches, only overwrite home/away team from API if the API actually has a team ID > 0.
+	// Otherwise, preserve the locally calculated team ID!
+	if stage != "group" {
+		if apiHomeTeamID == nil || *apiHomeTeamID <= 0 {
+			newHomeTeamID = currentHomeTeamID
+		}
+		if apiAwayTeamID == nil || *apiAwayTeamID <= 0 {
+			newAwayTeamID = currentAwayTeamID
+		}
+	}
+
 	_, err = s.db.Exec(`
-		UPDATE matches SET home_score = $1, away_score = $2, status = $3 WHERE id = $4
-	`, homeScore, awayScore, status, matchID)
+		UPDATE matches SET home_score = $1, away_score = $2, status = $3, home_team_id = $4, away_team_id = $5 WHERE id = $6
+	`, homeScore, awayScore, status, newHomeTeamID, newAwayTeamID, matchID)
 	if err != nil {
 		return err
 	}
@@ -175,12 +219,8 @@ func (s *SyncService) updateMatch(apiMatch APIMatch) error {
 		awayScoreInt := parseInt(apiMatch.AwayScore)
 
 		if homeScoreInt != nil && awayScoreInt != nil {
-			mID := int64(0)
-			fmt.Sscanf(matchID, "%d", &mID)
-			if mID > 0 {
-				if err := s.betSvc.RecalculateMatchBets(mID); err != nil {
-					log.Printf("Error recalculating bets for match %s: %v", matchID, err)
-				}
+			if err := s.betSvc.RecalculateMatchBets(matchID); err != nil {
+				log.Printf("Error recalculating bets for match %d: %v", matchID, err)
 			}
 		}
 	}
@@ -218,7 +258,8 @@ func (s *SyncService) SyncAllData() error {
 }
 
 func (s *SyncService) SyncTeams() error {
-	resp, err := http.Get(s.apiURL + "/get/teams")
+	client := &http.Client{Timeout: 5 * time.Second}
+	resp, err := client.Get(s.apiURL + "/get/teams")
 	if err != nil {
 		return fmt.Errorf("failed to fetch teams: %w", err)
 	}

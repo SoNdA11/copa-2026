@@ -1,0 +1,227 @@
+{{define "bracket_card"}}
+{{$hasScore := and .Match.HomeScore .Match.AwayScore}}
+{{$homeWon := false}}
+{{$awayWon := false}}
+{{if $hasScore}}
+  {{$homeWon = gt (deref .Match.HomeScore) (deref .Match.AwayScore)}}
+  {{$awayWon = gt (deref .Match.AwayScore) (deref .Match.HomeScore)}}
+{{end}}
+<a href="/matches/{{.Match.ID}}" class="block w-full h-full bg-zinc-900/60 dark:bg-zinc-900/30 border border-zinc-800/80 hover:border-green-500/40 rounded-xl overflow-hidden shadow-sm hover:shadow-[0_0_12px_rgba(34,197,94,0.1)] hover:-translate-y-0.5 transition-all text-left flex flex-col group z-10"
+   style="height: 68px;">
+  
+  <!-- Card Header -->
+  <div class="bg-zinc-950/60 px-3 py-1 border-b border-zinc-900/80 flex justify-between items-center text-[7.5px] text-zinc-500 font-bold uppercase tracking-wider">
+    <span class="truncate max-w-[130px]">&bull; {{.Match.Stadium}}</span>
+    <span>{{.Match.MatchDate}} &bull; {{.Match.MatchTime}}</span>
+  </div>
+  
+  <!-- Home Team Row -->
+  <div class="flex items-center justify-between px-3 flex-1 min-w-0 {{if $awayWon}}opacity-45{{end}}">
+    <div class="flex items-center space-x-2.5 truncate flex-1 min-w-0">
+      <div class="w-4 h-4 flex-shrink-0 flex items-center justify-center">
+        {{if and .Match.HomeTeam.FlagURL (ne .Match.HomeTeam.FifaCode "TBD")}}
+        <img src="{{.Match.HomeTeam.FlagURL}}" alt="" class="w-4 h-4 object-contain rounded-full border border-zinc-800/80 shadow-sm">
+        {{else}}
+        <div class="w-4 h-4 rounded-full bg-zinc-950 border border-zinc-800/60 flex items-center justify-center text-[7px] text-zinc-655 font-bold">?</div>
+        {{end}}
+      </div>
+      <div class="flex items-baseline space-x-1.5 min-w-0 truncate">
+        {{if and .Match.HomeTeam.Name (ne .Match.HomeTeam.FifaCode "TBD")}}
+          <span class="text-[10px] font-black uppercase {{if $homeWon}}text-green-400{{else}}text-zinc-200{{end}}">{{.Match.HomeTeam.FifaCode}}</span>
+          <span class="text-[8px] font-medium truncate max-w-[140px] hidden sm:inline {{if $homeWon}}text-green-500/80{{else}}text-zinc-400{{end}}">{{.Match.HomeTeam.Name}}</span>
+        {{else}}
+          <span class="text-[8.5px] font-bold text-zinc-500 italic">A definir</span>
+        {{end}}
+      </div>
+    </div>
+    <div class="flex items-center space-x-1.5 flex-shrink-0 ml-1.5">
+      {{if .HasUserBet}}
+      <span class="text-[7px] text-zinc-500 font-extrabold">({{.BetHome}})</span>
+      {{end}}
+      {{if .Match.HomeScore}}
+      <span class="text-[11px] font-black text-right min-w-[8px] {{if $homeWon}}text-green-400 bg-green-950/40 px-1.5 py-0.5 rounded border border-green-900/30{{else}}text-zinc-400{{end}}">
+        {{.Match.HomeScore}}
+      </span>
+      {{end}}
+    </div>
+  </div>
+
+  <!-- Away Team Row -->
+  <div class="flex items-center justify-between px-3 flex-1 min-w-0 border-t border-zinc-900/40 {{if $homeWon}}opacity-45{{end}}">
+    <div class="flex items-center space-x-2.5 truncate flex-1 min-w-0">
+      <div class="w-4 h-4 flex-shrink-0 flex items-center justify-center">
+        {{if and .Match.AwayTeam.FlagURL (ne .Match.AwayTeam.FifaCode "TBD")}}
+        <img src="{{.Match.AwayTeam.FlagURL}}" alt="" class="w-4 h-4 object-contain rounded-full border border-zinc-800/80 shadow-sm">
+        {{else}}
+        <div class="w-4 h-4 rounded-full bg-zinc-950 border border-zinc-800/80 flex items-center justify-center text-[7px] text-zinc-655 font-bold">?</div>
+        {{end}}
+      </div>
+      <div class="flex items-baseline space-x-1.5 min-w-0 truncate">
+        {{if and .Match.AwayTeam.Name (ne .Match.AwayTeam.FifaCode "TBD")}}
+          <span class="text-[10px] font-black uppercase {{if $awayWon}}text-green-400{{else}}text-zinc-200{{end}}">{{.Match.AwayTeam.FifaCode}}</span>
+          <span class="text-[8px] font-medium truncate max-w-[140px] hidden sm:inline {{if $awayWon}}text-green-500/80{{else}}text-zinc-400{{end}}">{{.Match.AwayTeam.Name}}</span>
+        {{else}}
+          <span class="text-[8.5px] font-bold text-zinc-500 italic">A definir</span>
+        {{end}}
+      </div>
+    </div>
+    <div class="flex items-center space-x-1.5 flex-shrink-0 ml-1.5">
+      {{if .HasUserBet}}
+      <span class="text-[7.5px] text-zinc-500 font-extrabold">({{.BetAway}})</span>
+      {{end}}
+      {{if .Match.AwayScore}}
+      <span class="text-[11px] font-black text-right min-w-[8px] {{if $awayWon}}text-green-400 bg-green-950/40 px-1.5 py-0.5 rounded border border-green-900/30{{else}}text-zinc-400{{end}}">
+        {{.Match.AwayScore}}
+      </span>
+      {{end}}
+    </div>
+  </div>
+</a>
+{{end}}
+
+{{define "page_content"}}
+<div class="relative w-full min-h-[calc(100vh-64px)] overflow-hidden text-zinc-300" hx-history="false">
+  
+  <!-- Scrollable Bracket Wrapper -->
+  <div id="bracket-wrapper" class="w-full h-full min-h-[calc(100vh-64px)] overflow-auto p-12 flex items-start justify-start cursor-grab select-none">
+    <!-- Scaled Container (Default 65% zoom) -->
+    <div id="bracket-scaler" style="position:relative; width: 2520px; height: 840px; flex-shrink: 0; margin-bottom: 50px; zoom: 0.65;">
+      
+      <!-- Column Headers -->
+      <div style="position:absolute; left:20px; top:0; width:240px; text-align:center;" class="text-[8px] font-black text-zinc-500 uppercase tracking-widest">16 Avos (Esq)</div>
+      <div style="position:absolute; left:300px; top:0; width:240px; text-align:center;" class="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Oitavas (Esq)</div>
+      <div style="position:absolute; left:580px; top:0; width:240px; text-align:center;" class="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Quartas (Esq)</div>
+      <div style="position:absolute; left:860px; top:0; width:240px; text-align:center;" class="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Semifinal (Esq)</div>
+      <div style="position:absolute; left:1140px; top:0; width:240px; text-align:center;" class="text-[8px] font-black text-green-500 uppercase tracking-widest">Decisão</div>
+      <div style="position:absolute; left:1420px; top:0; width:240px; text-align:center;" class="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Semifinal (Dir)</div>
+      <div style="position:absolute; left:1700px; top:0; width:240px; text-align:center;" class="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Quartas (Dir)</div>
+      <div style="position:absolute; left:1980px; top:0; width:240px; text-align:center;" class="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Oitavas (Dir)</div>
+      <div style="position:absolute; left:2260px; top:0; width:240px; text-align:center;" class="text-[8px] font-black text-zinc-500 uppercase tracking-widest">16 Avos (Dir)</div>
+
+      <!-- Connecting Vector Lines -->
+      {{range .Data.Lines}}
+        {{$dx := sub .X2 .X1}}
+        {{$dy := sub .Y2 .Y1}}
+        {{if gt $dx 0}}
+        <div data-pos-x="{{.X1}}" data-pos-y="{{.Y1}}" data-pos-w="{{$dx}}" data-pos-h="0" class="absolute border-t-2 border-zinc-800/80 dark:border-zinc-850/60"></div>
+        {{end}}
+        {{if gt $dy 0}}
+        <div data-pos-x="{{.X1}}" data-pos-y="{{.Y1}}" data-pos-w="0" data-pos-h="{{$dy}}" class="absolute border-l-2 border-zinc-800/80 dark:border-zinc-850/60"></div>
+        {{end}}
+      {{end}}
+
+      <!-- Final & 3rd Place Headers -->
+      <div style="position:absolute; left:1140px; top:250px; width:240px; text-align:center;" class="text-[8px] font-black text-green-500/80 uppercase tracking-wider">🏆 Grande Final</div>
+      <div style="position:absolute; left:1140px; top:456px; width:240px; text-align:center;" class="text-[8px] font-black text-zinc-500/80 uppercase tracking-wider">🥉 Decisão de 3º Lugar</div>
+
+      <!-- Matches Cards (Width: 240px, Height: 68px) -->
+      {{range .Data.Matches}}
+      <div data-pos-x="{{.X}}" data-pos-y="{{.Y}}" data-pos-w="240" data-pos-h="68" class="absolute z-10">
+        {{template "bracket_card" .}}
+      </div>
+      {{end}}
+
+    </div>
+  </div>
+</div>
+
+<script>
+// Dynamic parent layout overrides to make bracket full width
+(function() {
+  const main = document.querySelector('main');
+  if (main) {
+    main.classList.remove('max-w-6xl', 'mx-auto', 'px-4', 'sm:px-6', 'py-6', 'sm:py-10');
+    main.classList.add('w-full', 'px-0', 'py-0');
+  }
+  const footer = document.querySelector('footer');
+  if (footer) {
+    footer.style.marginTop = '0';
+  }
+})();
+
+// Process dynamic positions on load to resolve IDE validation warnings
+function applyAbsolutePositions() {
+  document.querySelectorAll('[data-pos-x]').forEach(el => {
+    const x = el.getAttribute('data-pos-x');
+    const y = el.getAttribute('data-pos-y');
+    const w = el.getAttribute('data-pos-w');
+    const h = el.getAttribute('data-pos-h');
+    if (x !== null) el.style.left = x + 'px';
+    if (y !== null) el.style.top = y + 'px';
+    if (w !== null) el.style.width = w + 'px';
+    if (h !== null) el.style.height = h + 'px';
+  });
+}
+applyAbsolutePositions();
+
+let currentZoom = 0.75;
+
+function updateZoom() {
+  const scaler = document.getElementById('bracket-scaler');
+  if (!scaler) return;
+  scaler.style.zoom = currentZoom;
+}
+
+// Mouse Scroll Zooming Behavior
+const wrapper = document.getElementById('bracket-wrapper');
+if (wrapper) {
+  wrapper.style.scrollbarWidth = 'thin';
+  wrapper.style.scrollbarColor = '#1e293b transparent';
+  
+  wrapper.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const zoomStep = 0.03;
+    if (e.deltaY < 0) {
+      currentZoom = Math.min(currentZoom + zoomStep, 2.0);
+    } else {
+      currentZoom = Math.max(currentZoom - zoomStep, 0.4);
+    }
+    updateZoom();
+  }, { passive: false });
+}
+
+// Click-and-Drag Panning Behavior
+let isDown = false;
+let startX;
+let startY;
+let scrollLeft;
+let scrollTop;
+
+if (wrapper) {
+  wrapper.addEventListener('mousedown', (e) => {
+    isDown = true;
+    wrapper.classList.remove('cursor-grab');
+    wrapper.classList.add('cursor-grabbing');
+    startX = e.pageX - wrapper.offsetLeft;
+    startY = e.pageY - wrapper.offsetTop;
+    scrollLeft = wrapper.scrollLeft;
+    scrollTop = wrapper.scrollTop;
+  });
+
+  wrapper.addEventListener('mouseleave', () => {
+    isDown = false;
+    wrapper.classList.remove('cursor-grabbing');
+    wrapper.classList.add('cursor-grab');
+  });
+
+  wrapper.addEventListener('mouseup', () => {
+    isDown = false;
+    wrapper.classList.remove('cursor-grabbing');
+    wrapper.classList.add('cursor-grab');
+  });
+
+  wrapper.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - wrapper.offsetLeft;
+    const y = e.pageY - wrapper.offsetTop;
+    const walkX = (x - startX) * 1.5;
+    const walkY = (y - startY) * 1.5;
+    wrapper.scrollLeft = scrollLeft - walkX;
+    wrapper.scrollTop = scrollTop - walkY;
+  });
+}
+
+updateZoom();
+</script>
+{{end}}

@@ -16,14 +16,15 @@ import (
 )
 
 type MatchHandler struct {
-	db       *sql.DB
-	betSvc   *services.BetService
-	syncSvc  *services.SyncService
-	renderer *Renderer
+	db         *sql.DB
+	betSvc     *services.BetService
+	syncSvc    *services.SyncService
+	bracketSvc *services.BracketService
+	renderer   *Renderer
 }
 
-func NewMatchHandler(db *sql.DB, betSvc *services.BetService, syncSvc *services.SyncService, renderer *Renderer) *MatchHandler {
-	return &MatchHandler{db: db, betSvc: betSvc, syncSvc: syncSvc, renderer: renderer}
+func NewMatchHandler(db *sql.DB, betSvc *services.BetService, syncSvc *services.SyncService, bracketSvc *services.BracketService, renderer *Renderer) *MatchHandler {
+	return &MatchHandler{db: db, betSvc: betSvc, syncSvc: syncSvc, bracketSvc: bracketSvc, renderer: renderer}
 }
 
 type GroupStanding struct {
@@ -586,6 +587,283 @@ func (h *MatchHandler) GroupBets(w http.ResponseWriter, r *http.Request) {
 	tmpl.ExecuteTemplate(w, "match_bets_group", data)
 }
 
+type PosMatch struct {
+	Match     models.Match
+	X, Y      int
+	HasUserBet bool
+	BetHome   int
+	BetAway   int
+	Round     string
+	Half      string
+}
+
+type LineSeg struct {
+	X1, Y1, X2, Y2 int
+	Round          string
+}
+
+type BracketLayout struct {
+	Matches  []PosMatch
+	Lines    []LineSeg
+	Rounds   []RoundHeader
+	Width    int
+	Height   int
+}
+
+type RoundHeader struct {
+	Name  string
+	X     int
+	Y     int
+}
+
+func (h *MatchHandler) Bracket(w http.ResponseWriter, r *http.Request) {
+	user := GetUserFromSession(r)
+
+	userBets := make(map[int64]struct{ home, away int })
+	if user != nil {
+		rows, err := h.db.Query("SELECT match_id, home_score, away_score FROM bets WHERE user_id = $1", user.ID)
+		if err == nil {
+			defer rows.Close()
+			for rows.Next() {
+				var mid int64
+				var hs, as int
+				if rows.Scan(&mid, &hs, &as) == nil {
+					userBets[mid] = struct{ home, away int }{hs, as}
+				}
+			}
+		}
+	}
+
+	loadAll := func(stage string) []models.Match {
+		m, _ := h.getMatches(stage)
+		return m
+	}
+
+	leftR32Order := []int64{74, 77, 73, 75, 83, 84, 81, 82}
+	rightR32Order := []int64{76, 78, 79, 80, 86, 88, 85, 87}
+
+	leftR16Order := []int64{89, 90, 93, 94}
+	rightR16Order := []int64{91, 92, 95, 96}
+
+	leftQFOrder := []int64{97, 98}
+	rightQFOrder := []int64{99, 100}
+
+	leftSFOrder := []int64{101}
+	rightSFOrder := []int64{102}
+
+	roundData := map[string][]models.Match{
+		"r32": loadAll("r32"),
+		"r16": loadAll("r16"),
+		"qf":  loadAll("qf"),
+		"sf":  loadAll("sf"),
+	}
+
+	var layout BracketLayout
+
+	findMatch := func(matches []models.Match, id int64) (models.Match, bool) {
+		for _, m := range matches {
+			if m.ID == id {
+				return m, true
+			}
+		}
+		return models.Match{}, false
+	}
+
+	createPosMatch := func(m models.Match, round string, side string, x, y int) PosMatch {
+		pm := PosMatch{
+			Match: m, Round: round, Half: side, X: x, Y: y,
+		}
+		if ub, ok := userBets[m.ID]; ok {
+			pm.HasUserBet = true
+			pm.BetHome, pm.BetAway = ub.home, ub.away
+		}
+		return pm
+	}
+
+	mw := 240
+	mh := 64
+
+	// Coordinates configuration
+	leftX := []int{20, 300, 580, 860}
+	rightX := []int{2260, 1980, 1700, 1420} // corresponding to Col 9, 8, 7, 6
+
+	yR32 := []int{20, 112, 204, 296, 450, 542, 634, 726}
+	yR16 := []int{66, 250, 496, 680}
+	yQF := []int{158, 588}
+	ySF := []int{373}
+
+	yCoords := map[string][]int{
+		"r32": yR32,
+		"r16": yR16,
+		"qf":  yQF,
+		"sf":  ySF,
+	}
+
+	// 1. Process Left Wing Matches
+	for i, id := range leftR32Order {
+		if m, ok := findMatch(roundData["r32"], id); ok {
+			layout.Matches = append(layout.Matches, createPosMatch(m, "r32", "left", leftX[0], yR32[i]))
+		}
+	}
+	for i, id := range leftR16Order {
+		if m, ok := findMatch(roundData["r16"], id); ok {
+			layout.Matches = append(layout.Matches, createPosMatch(m, "r16", "left", leftX[1], yR16[i]))
+		}
+	}
+	for i, id := range leftQFOrder {
+		if m, ok := findMatch(roundData["qf"], id); ok {
+			layout.Matches = append(layout.Matches, createPosMatch(m, "qf", "left", leftX[2], yQF[i]))
+		}
+	}
+	for i, id := range leftSFOrder {
+		if m, ok := findMatch(roundData["sf"], id); ok {
+			layout.Matches = append(layout.Matches, createPosMatch(m, "sf", "left", leftX[3], ySF[i]))
+		}
+	}
+
+	// 2. Process Center Matches
+	var finalMatch, thirdMatch *models.Match
+	if f, err := h.getMatchDetail(104); err == nil {
+		finalMatch = f
+	}
+	if t, err := h.getMatchDetail(103); err == nil {
+		thirdMatch = t
+	}
+
+	if finalMatch != nil {
+		layout.Matches = append(layout.Matches, createPosMatch(*finalMatch, "final", "center", 1140, 270))
+	}
+	if thirdMatch != nil {
+		layout.Matches = append(layout.Matches, createPosMatch(*thirdMatch, "third", "center", 1140, 476))
+	}
+
+	// 3. Process Right Wing Matches
+	for i, id := range rightSFOrder {
+		if m, ok := findMatch(roundData["sf"], id); ok {
+			layout.Matches = append(layout.Matches, createPosMatch(m, "sf", "right", rightX[3], ySF[i]))
+		}
+	}
+	for i, id := range rightQFOrder {
+		if m, ok := findMatch(roundData["qf"], id); ok {
+			layout.Matches = append(layout.Matches, createPosMatch(m, "qf", "right", rightX[2], yQF[i]))
+		}
+	}
+	for i, id := range rightR16Order {
+		if m, ok := findMatch(roundData["r16"], id); ok {
+			layout.Matches = append(layout.Matches, createPosMatch(m, "r16", "right", rightX[1], yR16[i]))
+		}
+	}
+	for i, id := range rightR32Order {
+		if m, ok := findMatch(roundData["r32"], id); ok {
+			layout.Matches = append(layout.Matches, createPosMatch(m, "r32", "right", rightX[0], yR32[i]))
+		}
+	}
+
+	// 4. Generate Line Segments
+	stages := []string{"r32", "r16", "qf"}
+	nextStages := []string{"r16", "qf", "sf"}
+
+	// Left Wing Lines
+	for si := 0; si < len(stages); si++ {
+		st := stages[si]
+		nst := nextStages[si]
+		yVals := yCoords[st]
+		nextYVals := yCoords[nst]
+		xStart := leftX[si] + mw
+		xEnd := leftX[si+1]
+		xMid := (xStart + xEnd) / 2
+
+		for p := 0; p < len(nextYVals); p++ {
+			y1 := yVals[2*p] + mh/2
+			y2 := yVals[2*p+1] + mh/2
+			y3 := nextYVals[p] + mh/2
+
+			layout.Lines = append(layout.Lines,
+				LineSeg{X1: xStart, Y1: y1, X2: xMid, Y2: y1},
+				LineSeg{X1: xStart, Y1: y2, X2: xMid, Y2: y2},
+				LineSeg{X1: xMid, Y1: y1, X2: xMid, Y2: y2},
+				LineSeg{X1: xMid, Y1: y3, X2: xEnd, Y2: y3},
+			)
+		}
+	}
+
+	// Right Wing Lines
+	for si := 0; si < len(stages); si++ {
+		st := stages[si]
+		nst := nextStages[si]
+		yVals := yCoords[st]
+		nextYVals := yCoords[nst]
+		xStart := rightX[si]
+		xEnd := rightX[si+1] + mw
+		xMid := (xStart + xEnd) / 2
+
+		for p := 0; p < len(nextYVals); p++ {
+			y1 := yVals[2*p] + mh/2
+			y2 := yVals[2*p+1] + mh/2
+			y3 := nextYVals[p] + mh/2
+
+			layout.Lines = append(layout.Lines,
+				LineSeg{X1: xStart, Y1: y1, X2: xMid, Y2: y1},
+				LineSeg{X1: xStart, Y1: y2, X2: xMid, Y2: y2},
+				LineSeg{X1: xMid, Y1: y1, X2: xMid, Y2: y2},
+				LineSeg{X1: xMid, Y1: y3, X2: xEnd, Y2: y3},
+			)
+		}
+	}
+
+	// Center SF to Final & 3rd Place Lines
+	sfLeftY := ySF[0] + mh/2   // 405
+	sfRightY := ySF[0] + mh/2  // 405
+	finalY := 270 + mh/2       // 302
+	thirdY := 476 + mh/2       // 508
+
+	// SF Left (Col 4 X=860) to Final (Col 5 X=1140) and 3rd Place (Col 5 X=1140)
+	xStartL := leftX[3] + mw   // 860 + 240 = 1100
+	xEndL := 1140
+	xMidL := (xStartL + xEndL) / 2 // 1120
+
+	layout.Lines = append(layout.Lines,
+		// To Final
+		LineSeg{X1: xStartL, Y1: sfLeftY, X2: xMidL, Y2: sfLeftY},
+		LineSeg{X1: xMidL, Y1: finalY, X2: xMidL, Y2: sfLeftY},
+		LineSeg{X1: xMidL, Y1: finalY, X2: xEndL, Y2: finalY},
+		// To 3rd Place
+		LineSeg{X1: xMidL, Y1: sfLeftY, X2: xMidL, Y2: thirdY},
+		LineSeg{X1: xMidL, Y1: thirdY, X2: xEndL, Y2: thirdY},
+	)
+
+	// SF Right (Col 6 X=1420) to Final (Col 5 X=1140) and 3rd Place (Col 5 X=1140)
+	xStartR := rightX[3]      // 1420
+	xEndR := 1140 + mw         // 1140 + 240 = 1380
+	xMidR := (xStartR + xEndR) / 2 // 1400
+
+	layout.Lines = append(layout.Lines,
+		// To Final
+		LineSeg{X1: xStartR, Y1: sfRightY, X2: xMidR, Y2: sfRightY},
+		LineSeg{X1: xMidR, Y1: sfRightY, X2: xMidR, Y2: finalY},
+		LineSeg{X1: xMidR, Y1: finalY, X2: xEndR, Y2: finalY},
+		// To 3rd Place
+		LineSeg{X1: xMidR, Y1: sfRightY, X2: xMidR, Y2: thirdY},
+		LineSeg{X1: xMidR, Y1: thirdY, X2: xEndR, Y2: thirdY},
+	)
+
+	layout.Width = 2520
+	layout.Height = 820
+
+	loc, _ := time.LoadLocation("America/Sao_Paulo")
+	todayStr := time.Now().In(loc).Format("2006-01-02")
+	for i := range layout.Matches {
+		layout.Matches[i].Match.IsToday = layout.Matches[i].Match.MatchDate == todayStr
+	}
+
+	data := PageData{
+		Title: "Mata-Mata",
+		User:  user,
+		Data:  layout,
+	}
+	h.renderer.Render(w, "cmd/web/templates/pages/bracket.html", data)
+}
+
 func scanMatches(rows *sql.Rows) ([]models.Match, error) {
 	var matches []models.Match
 	for rows.Next() {
@@ -624,4 +902,12 @@ func scanMatches(rows *sql.Rows) ([]models.Match, error) {
 	}
 
 	return matches, rows.Err()
+}
+
+func isKnockoutStage(stage string) bool {
+	switch stage {
+	case "r32", "r16", "qf", "sf", "third", "final":
+		return true
+	}
+	return false
 }
