@@ -129,6 +129,75 @@ func (s *SeedService) updateMatchDetails() {
 	if count > 0 {
 		log.Printf("Updated %d matches with Brasília time and results", count)
 	}
+
+	// Populate knockout labels programmatically for any matches that still have them empty
+	s.setKnockoutLabels()
+}
+
+var koLabels = map[int64][2]string{
+	73:  {"Runner-up Group A", "Runner-up Group B"},
+	74:  {"Winner Group E", "Runner-up Group D"},
+	75:  {"Winner Group F", "Runner-up Group C"},
+	76:  {"Winner Group C", "Runner-up Group F"},
+	77:  {"Winner Group I", "3rd Group F"},
+	78:  {"Runner-up Group E", "3rd Group I"},
+	79:  {"Winner Group A", "3rd Group E"},
+	80:  {"Winner Group L", "3rd Group E/H/I/J/K"},
+	81:  {"Winner Group D", "3rd Group B"},
+	82:  {"Winner Group G", "3rd Group A/E/H/I/J"},
+	83:  {"Runner-up Group K", "Runner-up Group L"},
+	84:  {"Winner Group H", "Runner-up Group J"},
+	85:  {"Winner Group B", "3rd Group E/F/G/I/J"},
+	86:  {"Winner Group J", "Runner-up Group H"},
+	87:  {"Winner Group K", "3rd Group L"},
+	88:  {"Runner-up Group D", "Runner-up Group G"},
+	89:  {"Winner Match 74", "Winner Match 77"},
+	90:  {"Winner Match 73", "Winner Match 75"},
+	91:  {"Winner Match 76", "Winner Match 78"},
+	92:  {"Winner Match 79", "Winner Match 80"},
+	93:  {"Winner Match 83", "Winner Match 84"},
+	94:  {"Winner Match 81", "Winner Match 82"},
+	95:  {"Winner Match 86", "Winner Match 88"},
+	96:  {"Winner Match 85", "Winner Match 87"},
+	97:  {"Winner Match 89", "Winner Match 90"},
+	98:  {"Winner Match 93", "Winner Match 94"},
+	99:  {"Winner Match 91", "Winner Match 92"},
+	100: {"Winner Match 95", "Winner Match 96"},
+	101: {"Winner Match 97", "Winner Match 98"},
+	102: {"Winner Match 99", "Winner Match 100"},
+	103: {"", ""},
+	104: {"Winner Match 101", "Winner Match 102"},
+}
+
+func (s *SeedService) setKnockoutLabels() {
+	knocked := false
+	for id, labels := range koLabels {
+		homeLabel := labels[0]
+		awayLabel := labels[1]
+		if homeLabel == "" && awayLabel == "" {
+			continue
+		}
+		var curHome, curAway string
+		err := s.db.QueryRow("SELECT COALESCE(home_team_label,''), COALESCE(away_team_label,'') FROM matches WHERE id = $1", id).Scan(&curHome, &curAway)
+		if err != nil {
+			continue
+		}
+		newHome := curHome
+		newAway := curAway
+		if curHome == "" && homeLabel != "" {
+			newHome = homeLabel
+		}
+		if curAway == "" && awayLabel != "" {
+			newAway = awayLabel
+		}
+		if newHome != curHome || newAway != curAway {
+			s.db.Exec("UPDATE matches SET home_team_label = $1, away_team_label = $2 WHERE id = $3", newHome, newAway, id)
+			knocked = true
+		}
+	}
+	if knocked {
+		log.Printf("Knockout labels populated programmatically")
+	}
 }
 
 func (s *SeedService) seedTeams() error {
