@@ -75,9 +75,9 @@ func (s *BetService) GetUserBet(userID, matchID int64) (*models.Bet, error) {
 	bet := &models.Bet{}
 	var updatedAt sql.NullString
 	err := s.db.QueryRow(`
-		SELECT id, user_id, match_id, home_score, away_score, points, created_at, updated_at
+		SELECT id, user_id, match_id, home_score, away_score, COALESCE(advancing_team_id, 0), points, created_at, updated_at
 		FROM bets WHERE user_id = $1 AND match_id = $2
-	`, userID, matchID).Scan(&bet.ID, &bet.UserID, &bet.MatchID, &bet.HomeScore, &bet.AwayScore, &bet.Points, &bet.CreatedAt, &updatedAt)
+	`, userID, matchID).Scan(&bet.ID, &bet.UserID, &bet.MatchID, &bet.HomeScore, &bet.AwayScore, &bet.AdvancingTeamID, &bet.Points, &bet.CreatedAt, &updatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -89,7 +89,7 @@ func (s *BetService) GetUserBet(userID, matchID int64) (*models.Bet, error) {
 
 func (s *BetService) GetUserBets(userID int64) ([]models.Bet, error) {
 	rows, err := s.db.Query(`
-		SELECT b.id, b.user_id, b.match_id, b.home_score, b.away_score, b.points, b.created_at, b.updated_at,
+		SELECT b.id, b.user_id, b.match_id, b.home_score, b.away_score, COALESCE(b.advancing_team_id, 0), b.points, b.created_at, b.updated_at,
 			m.id, m.home_team_id, m.away_team_id, m.home_score, m.away_score, m.match_date, m.match_time, m.stage, m.group_name, m.stadium, m.status,
 			ht.id, ht.name, ht.fifa_code, ht.group_name, ht.flag_url,
 			at.id, at.name, at.fifa_code, at.group_name, at.flag_url
@@ -110,7 +110,7 @@ func (s *BetService) GetUserBets(userID int64) ([]models.Bet, error) {
 
 func (s *BetService) GetAllBetsForMatch(matchID int64) ([]models.Bet, error) {
 	rows, err := s.db.Query(`
-		SELECT b.id, b.user_id, b.match_id, b.home_score, b.away_score, b.points, b.created_at, b.updated_at,
+		SELECT b.id, b.user_id, b.match_id, b.home_score, b.away_score, COALESCE(b.advancing_team_id, 0), b.points, b.created_at, b.updated_at,
 			m.id, m.home_team_id, m.away_team_id, m.home_score, m.away_score, m.match_date, m.match_time, m.stage, m.group_name, m.stadium, m.status,
 			u.id, u.name
 		FROM bets b
@@ -134,7 +134,7 @@ func (s *BetService) GetAllBetsForMatch(matchID int64) ([]models.Bet, error) {
 		b.Match = &models.Match{}
 		b.User = &models.User{}
 
-		err := rows.Scan(&b.ID, &b.UserID, &b.MatchID, &b.HomeScore, &b.AwayScore, &b.Points, &b.CreatedAt, &updatedAt,
+		err := rows.Scan(&b.ID, &b.UserID, &b.MatchID, &b.HomeScore, &b.AwayScore, &b.AdvancingTeamID, &b.Points, &b.CreatedAt, &updatedAt,
 			&b.Match.ID, &b.Match.HomeTeamID, &b.Match.AwayTeamID, &homeScore, &awayScore,
 			&b.Match.MatchDate, &b.Match.MatchTime, &b.Match.Stage, &groupName, &stadium, &b.Match.Status,
 			&b.User.ID, &b.User.Name)
@@ -177,8 +177,19 @@ func (s *BetService) RecalculateMatchBets(matchID int64) error {
 		return err
 	}
 
+	isKnockout := match.Stage != "group"
+
 	for _, bet := range bets {
-		points := bet.CalculatePoints(match)
+		var points int
+		if isKnockout {
+			// Fetch advancing_team_id from match for knockout scoring
+			var realAdv int64
+			s.db.QueryRow("SELECT COALESCE(advancing_team_id, 0) FROM matches WHERE id = $1", matchID).Scan(&realAdv)
+			match.AdvancingTeamID = realAdv
+			points = bet.CalculateKnockoutPoints(match)
+		} else {
+			points = bet.CalculatePoints(match)
+		}
 		_, err := s.db.Exec("UPDATE bets SET points = $1 WHERE id = $2", points, bet.ID)
 		if err != nil {
 			return err
@@ -308,7 +319,7 @@ func scanBets(rows *sql.Rows) ([]models.Bet, error) {
 		b.Match.AwayTeam = &models.Team{}
 
 		err := rows.Scan(
-			&b.ID, &b.UserID, &b.MatchID, &b.HomeScore, &b.AwayScore, &b.Points, &b.CreatedAt, &updatedAt,
+			&b.ID, &b.UserID, &b.MatchID, &b.HomeScore, &b.AwayScore, &b.AdvancingTeamID, &b.Points, &b.CreatedAt, &updatedAt,
 			&b.Match.ID, &b.Match.HomeTeamID, &b.Match.AwayTeamID, &homeScore, &awayScore,
 			&b.Match.MatchDate, &b.Match.MatchTime, &b.Match.Stage, &groupName, &stadium, &b.Match.Status,
 			&b.Match.HomeTeam.ID, &b.Match.HomeTeam.Name, &b.Match.HomeTeam.FifaCode, &b.Match.HomeTeam.GroupName, &b.Match.HomeTeam.FlagURL,

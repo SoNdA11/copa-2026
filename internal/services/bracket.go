@@ -366,6 +366,54 @@ func (s *BracketService) GetRealAdvancingTeam(matchID int64) (int64, error) {
 	return 0, nil
 }
 
+// CalculateKnockoutMatchPoints computes points for a single knockout match.
+//
+// Rules:
+//   - Match decided in normal time (realHome != realAway):
+//     exact score = 5, correct winner = 3, nothing = 0
+//   - Match tied after 90' (realHome == realAway):
+//     exact score + correct advance = 8 (5+3)
+//     exact score only = 5
+//     correct advance only (but wrong score) = 5
+//     predicted draw (any draw score, wrong advance) = 1
+//     nothing = 0
+func CalculateKnockoutMatchPoints(betHome, betAway, realHome, realAway int, advTeamID, realAdv int64) int {
+	if realHome > realAway || realAway > realHome {
+		// Decided in normal time
+		if betHome == realHome && betAway == realAway {
+			return 5
+		}
+		if (realHome > realAway && betHome > betAway) ||
+			(realAway > realHome && betAway > betHome) {
+			return 3
+		}
+		return 0
+	}
+
+	// Tied after 90'
+	if realHome == realAway {
+		isDrawBet := betHome == betAway
+		isExact := isDrawBet && betHome == realHome && betAway == realAway
+		isCorrectAdvance := realAdv > 0 && advTeamID > 0 && advTeamID == realAdv
+
+		if isExact && isCorrectAdvance {
+			return 8
+		}
+		if isExact {
+			return 5
+		}
+		if isDrawBet && isCorrectAdvance {
+			return 5
+		}
+		if isDrawBet {
+			return 1
+		}
+		return 0
+	}
+
+	return 0
+}
+
 // CalculateUserStagePoints calculates the point breakdown for a user in a given stage
 func (s *BracketService) CalculateUserStagePoints(userID int64, stage string) error {
 	rows, err := s.db.Query(`
@@ -397,30 +445,12 @@ func (s *BracketService) CalculateUserStagePoints(userID int64, stage string) er
 		return nil
 	}
 
-	// Base points per stage
-	basePointsPerMatch := 0
-	switch stage {
-	case "r32":
-		basePointsPerMatch = 10
-	case "r16":
-		basePointsPerMatch = 15
-	case "qf":
-		basePointsPerMatch = 20
-	case "sf":
-		basePointsPerMatch = 30
-	case "final":
-		basePointsPerMatch = 50
-	case "third":
-		basePointsPerMatch = 20
-	}
-
 	commonPoints := 0
 	exactScoreBonus := 0
 	allFavoritesCorrect := true
 	hasFavorites := false
 
 	for _, matchID := range matchIDs {
-		// Fetch user's prediction
 		var betHome, betAway int
 		var advTeamID int64
 		var isFav int
@@ -429,7 +459,7 @@ func (s *BracketService) CalculateUserStagePoints(userID int64, stage string) er
 			FROM bets WHERE user_id = $1 AND match_id = $2
 		`, userID, matchID).Scan(&betHome, &betAway, &advTeamID, &isFav)
 		if err == sql.ErrNoRows {
-			continue // No prediction
+			continue
 		} else if err != nil {
 			return err
 		}
@@ -444,24 +474,12 @@ func (s *BracketService) CalculateUserStagePoints(userID int64, stage string) er
 
 		if isMatchFinished {
 			realAdv, _ := s.GetRealAdvancingTeam(matchID)
+			matchPoints := CalculateKnockoutMatchPoints(betHome, betAway, realHome, realAway, advTeamID, realAdv)
 
-			matchPoints := 0
-			// 1. Common points (Advancing team correct)
-			if realAdv > 0 && advTeamID == realAdv {
-				commonPoints += basePointsPerMatch
-				matchPoints += basePointsPerMatch
-			}
+			commonPoints += matchPoints
 
-			// 2. Exact score bonus (+5 pts)
-			if betHome == realHome && betAway == realAway {
-				exactScoreBonus += 5
-				matchPoints += 5
-			}
-
-			// Save to match bet points column
 			s.db.Exec(`UPDATE bets SET points = $1 WHERE user_id = $2 AND match_id = $3`, matchPoints, userID, matchID)
 
-			// 3. Check favorite
 			if isFav == 1 {
 				hasFavorites = true
 				if realAdv == 0 || advTeamID != realAdv {
@@ -471,7 +489,7 @@ func (s *BracketService) CalculateUserStagePoints(userID int64, stage string) er
 		} else {
 			if isFav == 1 {
 				hasFavorites = true
-				allFavoritesCorrect = false // Match not finished yet, so cannot claim favorites correct
+				allFavoritesCorrect = false
 			}
 		}
 	}
@@ -483,7 +501,6 @@ func (s *BracketService) CalculateUserStagePoints(userID int64, stage string) er
 
 	totalPoints := commonPoints + exactScoreBonus + favoritesBonus
 
-	// Save or update user_stage_points
 	_, err = s.db.Exec(`
 		INSERT INTO user_stage_points (user_id, stage, common_points, exact_score_bonus, favorites_bonus, total_points)
 		VALUES ($1, $2, $3, $4, $5, $6)
