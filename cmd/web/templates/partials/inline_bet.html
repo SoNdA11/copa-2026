@@ -32,6 +32,23 @@
                 {{end}}
             </div>
         </div>
+        {{if .Data.IsKnockout}}
+        <div class="flex items-center justify-center space-x-4 pt-1">
+            <span class="text-xs font-medium text-zinc-400">Desempate:</span>
+            <label class="flex items-center space-x-1.5 cursor-pointer">
+                <input type="radio" name="advancing_team_id" value="{{.Data.HomeTeam.ID}}"
+                    class="w-3.5 h-3.5 text-green-500 focus:ring-green-500/20 cursor-pointer"
+                    {{if $.Bet}}{{if eq $.Bet.AdvancingTeamID .Data.HomeTeam.ID}}checked{{end}}{{else}}checked{{end}}>
+                <span class="text-xs text-zinc-600 dark:text-zinc-400">{{.Data.HomeTeam.Name}}</span>
+            </label>
+            <label class="flex items-center space-x-1.5 cursor-pointer">
+                <input type="radio" name="advancing_team_id" value="{{.Data.AwayTeam.ID}}"
+                    class="w-3.5 h-3.5 text-green-500 focus:ring-green-500/20 cursor-pointer"
+                    {{if $.Bet}}{{if eq $.Bet.AdvancingTeamID .Data.AwayTeam.ID}}checked{{end}}{{end}}>
+                <span class="text-xs text-zinc-600 dark:text-zinc-400">{{.Data.AwayTeam.Name}}</span>
+            </label>
+        </div>
+        {{end}}
         <div class="flex items-center justify-center space-x-3 pt-1">
             <button type="submit" class="btn-primary text-white dark:text-zinc-900 font-bold px-6 py-2 rounded-xl text-xs transition-all hover:scale-105">
                 {{if .Bet}}Atualizar{{else}}Confirmar{{end}}

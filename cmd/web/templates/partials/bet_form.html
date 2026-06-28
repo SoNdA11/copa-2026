@@ -25,6 +25,23 @@
             </select>
         </div>
     </div>
+    {{if .Data.IsKnockout}}
+    <div class="flex items-center justify-center space-x-6 pt-1 pb-2">
+        <span class="text-xs font-medium text-zinc-400">Em caso de empate, quem avança:</span>
+        <label class="flex items-center space-x-1.5 cursor-pointer">
+            <input type="radio" name="advancing_team_id" value="{{.Data.HomeTeam.ID}}"
+                class="w-4 h-4 text-green-500 focus:ring-green-500/20 cursor-pointer"
+                {{if $.Bet}}{{if eq $.Bet.AdvancingTeamID .Data.HomeTeam.ID}}checked{{end}}{{else}}checked{{end}}>
+            <span class="text-sm text-zinc-600 dark:text-zinc-400">{{.Data.HomeTeam.Name}}</span>
+        </label>
+        <label class="flex items-center space-x-1.5 cursor-pointer">
+            <input type="radio" name="advancing_team_id" value="{{.Data.AwayTeam.ID}}"
+                class="w-4 h-4 text-green-500 focus:ring-green-500/20 cursor-pointer"
+                {{if $.Bet}}{{if eq $.Bet.AdvancingTeamID .Data.AwayTeam.ID}}checked{{end}}{{end}}>
+            <span class="text-sm text-zinc-600 dark:text-zinc-400">{{.Data.AwayTeam.Name}}</span>
+        </label>
+    </div>
+    {{end}}
     <div class="text-center pt-2">
         <button type="submit" class="btn-primary font-bold px-10 py-3 rounded-xl text-sm">
             {{if .Bet}}Atualizar palpite{{else}}Enviar palpite{{end}}

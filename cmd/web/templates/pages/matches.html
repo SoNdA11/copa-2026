@@ -27,6 +27,133 @@
     </div>
 </div>
 
+<div class="card-dashboard rounded-2xl p-5 mb-6 animate-fade-in">
+    <details class="group">
+        <summary class="flex items-center justify-between cursor-pointer list-none">
+            <h3 class="font-bold text-zinc-700 dark:text-zinc-300 text-sm">Como funciona a pontuação do Mata-Mata?</h3>
+            <svg class="w-4 h-4 text-zinc-400 dark:text-zinc-600 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </summary>
+        <div class="mt-4 space-y-4 text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+            <div class="bg-zinc-50/50 dark:bg-zinc-800/30 rounded-xl p-4">
+                <p class="font-semibold text-zinc-700 dark:text-zinc-300 mb-3">Jogo decidido no tempo normal (sem empate)</p>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs">
+                        <thead>
+                            <tr class="text-zinc-400 dark:text-zinc-600 border-b border-zinc-200/40 dark:border-zinc-700/30">
+                                <th class="text-left py-1.5 font-medium">Palpite</th>
+                                <th class="text-left py-1.5 font-medium">Real</th>
+                                <th class="text-center py-1.5 font-medium">Acertou</th>
+                                <th class="text-right py-1.5 font-medium">Pontos</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-zinc-200/20 dark:border-zinc-700/20">
+                                <td class="py-2 text-zinc-700 dark:text-zinc-300">Alemanha <span class="font-semibold">2×1</span> Paraguai</td>
+                                <td class="py-2 text-zinc-700 dark:text-zinc-300">Alemanha <span class="font-semibold">2×1</span> Paraguai</td>
+                                <td class="py-2 text-center text-green-600 dark:text-green-400">Placar exato ✅</td>
+                                <td class="py-2 text-right font-bold text-green-600 dark:text-green-400">5</td>
+                            </tr>
+                            <tr class="border-b border-zinc-200/20 dark:border-zinc-700/20">
+                                <td class="py-2 text-zinc-700 dark:text-zinc-300">Alemanha <span class="font-semibold">3×1</span> Paraguai</td>
+                                <td class="py-2 text-zinc-700 dark:text-zinc-300">Alemanha <span class="font-semibold">2×1</span> Paraguai</td>
+                                <td class="py-2 text-center text-green-600 dark:text-green-400">Vencedor ✅</td>
+                                <td class="py-2 text-right font-bold text-green-600 dark:text-green-400">3</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 text-zinc-700 dark:text-zinc-300">Paraguai <span class="font-semibold">1×0</span> Alemanha</td>
+                                <td class="py-2 text-zinc-700 dark:text-zinc-300">Alemanha <span class="font-semibold">2×1</span> Paraguai</td>
+                                <td class="py-2 text-center text-zinc-400">Nada ❌</td>
+                                <td class="py-2 text-right font-bold text-zinc-400">0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="mt-2 text-zinc-500 dark:text-zinc-500 italic">O seletor de desempate é ignorado, o vencedor é quem tem mais gols.</p>
+            </div>
+
+            <div class="bg-zinc-50/50 dark:bg-zinc-800/30 rounded-xl p-4">
+                <p class="font-semibold text-zinc-700 dark:text-zinc-300 mb-3">Jogo empatado nos 90' (prorrogação/pênaltis)</p>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs">
+                        <thead>
+                            <tr class="text-zinc-400 dark:text-zinc-600 border-b border-zinc-200/40 dark:border-zinc-700/30">
+                                <th class="text-left py-1.5 font-medium">Palpite</th>
+                                <th class="text-left py-1.5 font-medium">Real</th>
+                                <th class="text-center py-1.5 font-medium">Acertou</th>
+                                <th class="text-right py-1.5 font-medium">Pontos</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-zinc-200/20 dark:border-zinc-700/20">
+                                <td class="py-2 text-zinc-700 dark:text-zinc-300"><span class="font-semibold">1×1</span> + avança: <span class="font-semibold">Inglaterra</span></td>
+                                <td class="py-2 text-zinc-700 dark:text-zinc-300"><span class="font-semibold">1×1</span> → Inglaterra</td>
+                                <td class="py-2 text-center text-green-600 dark:text-green-400">Placar ✅ + Avanço ✅</td>
+                                <td class="py-2 text-right font-bold text-green-600 dark:text-green-400">8</td>
+                            </tr>
+                            <tr class="border-b border-zinc-200/20 dark:border-zinc-700/20">
+                                <td class="py-2 text-zinc-700 dark:text-zinc-300"><span class="font-semibold">1×1</span> + avança: <span class="font-semibold">Congo</span></td>
+                                <td class="py-2 text-zinc-700 dark:text-zinc-300"><span class="font-semibold">1×1</span> → Inglaterra</td>
+                                <td class="py-2 text-center text-green-600 dark:text-green-400">Placar ✅ + Avanço ❌</td>
+                                <td class="py-2 text-right font-bold text-green-600 dark:text-green-400">5</td>
+                            </tr>
+                            <tr class="border-b border-zinc-200/20 dark:border-zinc-700/20">
+                                <td class="py-2 text-zinc-700 dark:text-zinc-300"><span class="font-semibold">2×2</span> + avança: <span class="font-semibold">Inglaterra</span></td>
+                                <td class="py-2 text-zinc-700 dark:text-zinc-300"><span class="font-semibold">1×1</span> → Inglaterra</td>
+                                <td class="py-2 text-center text-green-600 dark:text-green-400">Empate ✅ + Avanço ✅</td>
+                                <td class="py-2 text-right font-bold text-green-600 dark:text-green-400">5</td>
+                            </tr>
+                            <tr class="border-b border-zinc-200/20 dark:border-zinc-700/20">
+                                <td class="py-2 text-zinc-700 dark:text-zinc-300"><span class="font-semibold">2×2</span> + avança: <span class="font-semibold">Congo</span></td>
+                                <td class="py-2 text-zinc-700 dark:text-zinc-300"><span class="font-semibold">1×1</span> → Inglaterra</td>
+                                <td class="py-2 text-center text-zinc-400">Empate ✅ + Avanço ❌</td>
+                                <td class="py-2 text-right font-bold text-orange-500 dark:text-orange-400">1</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 text-zinc-700 dark:text-zinc-300"><span class="font-semibold">3×1</span> Inglaterra (não previu empate)</td>
+                                <td class="py-2 text-zinc-700 dark:text-zinc-300"><span class="font-semibold">1×1</span> → Inglaterra</td>
+                                <td class="py-2 text-center text-zinc-400">Nada ❌</td>
+                                <td class="py-2 text-right font-bold text-zinc-400">0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="mt-2 text-zinc-500 dark:text-zinc-500 italic">Se colocar empate, é obrigatório escolher quem avança. Não dá pra deixar em branco.</p>
+            </div>
+
+            <div class="bg-zinc-50/50 dark:bg-zinc-800/30 rounded-xl px-4 py-3">
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-y-1.5 gap-x-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-zinc-500 dark:text-zinc-500">Placar exato</span>
+                        <span class="font-bold text-green-600 dark:text-green-400">5 pts</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-zinc-500 dark:text-zinc-500">Só vencedor (jogo normal)</span>
+                        <span class="font-bold text-green-600 dark:text-green-400">3 pts</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-zinc-500 dark:text-zinc-500">Só avanço (previu empate)</span>
+                        <span class="font-bold text-green-600 dark:text-green-400">5 pts</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-zinc-500 dark:text-zinc-500">Só previu empate</span>
+                        <span class="font-bold text-orange-500 dark:text-orange-400">1 pt</span>
+                    </div>
+                    <div class="flex items-center justify-between col-span-2 sm:col-span-2">
+                        <span class="text-zinc-700 dark:text-zinc-300 font-semibold">Placar exato + avanço 🎯</span>
+                        <span class="font-bold text-green-600 dark:text-green-400 text-sm">8 pts</span>
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t border-zinc-200/40 dark:border-zinc-700/30 text-center">
+                    <span class="text-zinc-500 dark:text-zinc-500">Máximo por jogo: </span>
+                    <span class="font-bold text-green-600 dark:text-green-400">8 pts</span>
+                </div>
+            </div>
+        </div>
+    </details>
+</div>
+
 {{if eq .Stage "group"}}
 <div class="space-y-6">
     {{range .Data}}
