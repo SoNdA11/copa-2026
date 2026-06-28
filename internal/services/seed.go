@@ -119,11 +119,20 @@ func (s *SeedService) updateMatchDetails() {
 		}
 
 		// Update home/away team IDs for all matches where seed has real team IDs
-		if sm.HomeTeamID != "" && sm.HomeTeamID != "0" {
-			s.db.Exec("UPDATE matches SET home_team_id = $1 WHERE id = $2", sm.HomeTeamID, sm.ID)
+		// If seed has "0", clear to NULL so ComputeAdvancement can resolve via label
+		if sm.HomeTeamID != "" {
+			if sm.HomeTeamID != "0" {
+				s.db.Exec("UPDATE matches SET home_team_id = $1 WHERE id = $2", sm.HomeTeamID, sm.ID)
+			} else {
+				s.db.Exec("UPDATE matches SET home_team_id = NULL WHERE id = $1", sm.ID)
+			}
 		}
-		if sm.AwayTeamID != "" && sm.AwayTeamID != "0" {
-			s.db.Exec("UPDATE matches SET away_team_id = $1 WHERE id = $2", sm.AwayTeamID, sm.ID)
+		if sm.AwayTeamID != "" {
+			if sm.AwayTeamID != "0" {
+				s.db.Exec("UPDATE matches SET away_team_id = $1 WHERE id = $2", sm.AwayTeamID, sm.ID)
+			} else {
+				s.db.Exec("UPDATE matches SET away_team_id = NULL WHERE id = $1", sm.ID)
+			}
 		}
 	}
 	if count > 0 {
@@ -194,6 +203,8 @@ func (s *SeedService) setKnockoutLabels() {
 			s.db.Exec("UPDATE matches SET home_team_label = $1, away_team_label = $2 WHERE id = $3", newHome, newAway, id)
 			knocked = true
 		}
+		// Clear team IDs so ComputeAdvancement resolves via labels (fixes seed data errors)
+		s.db.Exec("UPDATE matches SET home_team_id = NULL, away_team_id = NULL WHERE id = $1", id)
 	}
 	if knocked {
 		log.Printf("Knockout labels populated programmatically")
