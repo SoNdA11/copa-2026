@@ -55,6 +55,7 @@ func (s *SeedService) SeedFromFiles() error {
 	}
 	if count > 0 {
 		log.Printf("Database already has %d teams, skipping seed", count)
+		s.ensureMatches()
 		s.updateMatchDetails()
 		return nil
 	}
@@ -68,6 +69,61 @@ func (s *SeedService) SeedFromFiles() error {
 	}
 
 	return nil
+}
+
+func (s *SeedService) ensureMatches() {
+	s.db.Exec(`
+		INSERT INTO teams (id, name, fifa_code, group_name, flag_url)
+		VALUES (0, 'TBD', 'tbd', '', '')
+		ON CONFLICT (id) DO NOTHING
+	`)
+
+	var count int
+	s.db.QueryRow("SELECT COUNT(*) FROM matches").Scan(&count)
+	if count >= 104 {
+		return
+	}
+
+	data, err := os.ReadFile("data/seed/football.matches.json")
+	if err != nil {
+		log.Printf("Could not read matches for ensure: %v", err)
+		return
+	}
+
+	var seedMatches []SeedMatch
+	if err := json.Unmarshal(data, &seedMatches); err != nil {
+		log.Printf("Could not parse matches for ensure: %v", err)
+		return
+	}
+
+	inserted := 0
+	for _, m := range seedMatches {
+		var exists int
+		s.db.QueryRow("SELECT 1 FROM matches WHERE id = $1", m.ID).Scan(&exists)
+		if exists == 1 {
+			continue
+		}
+
+		date, matchTime := "", ""
+		stadiums := s.loadStadiums()
+		cityName := stadiumCity(stadiums, m.StadiumID)
+		if cityName != "" {
+			date, matchTime = s.toBrasiliaTime(m.LocalDate, stadiumOffset(cityName))
+		}
+		if date == "" {
+			date = "2026-01-01"
+		}
+
+		s.db.Exec(`
+			INSERT INTO matches (id, home_team_id, away_team_id, match_date, match_time, stage, group_name, stadium, status)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'upcoming')
+			ON CONFLICT (id) DO NOTHING
+		`, m.ID, m.HomeTeamID, m.AwayTeamID, date, matchTime, m.Type, m.Group, cityName)
+		inserted++
+	}
+	if inserted > 0 {
+		log.Printf("Inserted %d missing matches from seed", inserted)
+	}
 }
 
 func (s *SeedService) updateMatchDetails() {
@@ -124,20 +180,11 @@ func (s *SeedService) updateMatchDetails() {
 		}
 
 		// Update home/away team IDs for all matches where seed has real team IDs
-		// If seed has "0", clear to NULL so ComputeAdvancement can resolve via label
-		if sm.HomeTeamID != "" {
-			if sm.HomeTeamID != "0" {
-				s.db.Exec("UPDATE matches SET home_team_id = $1 WHERE id = $2", sm.HomeTeamID, sm.ID)
-			} else {
-				s.db.Exec("UPDATE matches SET home_team_id = NULL WHERE id = $1", sm.ID)
-			}
+		if sm.HomeTeamID != "" && sm.HomeTeamID != "0" {
+			s.db.Exec("UPDATE matches SET home_team_id = $1 WHERE id = $2", sm.HomeTeamID, sm.ID)
 		}
-		if sm.AwayTeamID != "" {
-			if sm.AwayTeamID != "0" {
-				s.db.Exec("UPDATE matches SET away_team_id = $1 WHERE id = $2", sm.AwayTeamID, sm.ID)
-			} else {
-				s.db.Exec("UPDATE matches SET away_team_id = NULL WHERE id = $1", sm.ID)
-			}
+		if sm.AwayTeamID != "" && sm.AwayTeamID != "0" {
+			s.db.Exec("UPDATE matches SET away_team_id = $1 WHERE id = $2", sm.AwayTeamID, sm.ID)
 		}
 	}
 	if count > 0 {
@@ -179,7 +226,7 @@ var koLabels = map[int64][2]string{
 	100: {"Winner Match 95", "Winner Match 96"},
 	101: {"Winner Match 97", "Winner Match 98"},
 	102: {"Winner Match 99", "Winner Match 100"},
-	103: {"", ""},
+	103: {"Loser Match 101", "Loser Match 102"},
 	104: {"Winner Match 101", "Winner Match 102"},
 }
 
@@ -208,8 +255,6 @@ func (s *SeedService) setKnockoutLabels() {
 			s.db.Exec("UPDATE matches SET home_team_label = $1, away_team_label = $2 WHERE id = $3", newHome, newAway, id)
 			knocked = true
 		}
-		// Clear team IDs so ComputeAdvancement resolves via labels (fixes seed data errors)
-		s.db.Exec("UPDATE matches SET home_team_id = NULL, away_team_id = NULL WHERE id = $1", id)
 	}
 	if knocked {
 		log.Printf("Knockout labels populated programmatically")
@@ -226,6 +271,13 @@ func (s *SeedService) seedTeams() error {
 	if err := json.Unmarshal(data, &teams); err != nil {
 		return fmt.Errorf("parse teams: %w", err)
 	}
+
+	// Insert TBD placeholder for knockout matches without defined teams
+	s.db.Exec(`
+		INSERT INTO teams (id, name, fifa_code, group_name, flag_url)
+		VALUES (0, 'TBD', 'tbd', '', '')
+		ON CONFLICT (id) DO NOTHING
+	`)
 
 	for _, t := range teams {
 		flagURL := t.Flag

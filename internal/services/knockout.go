@@ -292,7 +292,7 @@ func (s *KnockoutService) resolveTeamID(label string, labelToTeam map[string]int
 }
 
 func (s *KnockoutService) propagateWinners() error {
-	stages := []string{"r32", "r16", "qf", "sf"}
+	stages := []string{"r32", "r16", "qf", "sf", "third"}
 
 	for _, stage := range stages {
 		rows, err := s.db.Query(`
@@ -333,7 +333,13 @@ func (s *KnockoutService) propagateWinners() error {
 			homeLabel := homeLabels[i]
 			awayLabel := awayLabels[i]
 			homeWinner := s.getWinnerFromLabel(homeLabel)
+			if homeWinner == 0 {
+				homeWinner = s.getLoserFromLabel(homeLabel)
+			}
 			awayWinner := s.getWinnerFromLabel(awayLabel)
+			if awayWinner == 0 {
+				awayWinner = s.getLoserFromLabel(awayLabel)
+			}
 
 			if homeWinner > 0 && currentHomeID == 0 {
 				s.db.Exec(`UPDATE matches SET home_team_id = $1 WHERE id = $2`, homeWinner, matchID)
@@ -370,6 +376,37 @@ func (s *KnockoutService) getWinnerFromLabel(label string) int64 {
 		s.db.QueryRow("SELECT home_team_id FROM matches WHERE id = $1", matchID).Scan(&homeID)
 		return homeID
 	} else if awayScore.Int64 > homeScore.Int64 {
+		var awayID int64
+		s.db.QueryRow("SELECT away_team_id FROM matches WHERE id = $1", matchID).Scan(&awayID)
+		return awayID
+	}
+
+	return 0
+}
+
+func (s *KnockoutService) getLoserFromLabel(label string) int64 {
+	if !strings.HasPrefix(label, "Loser Match ") {
+		return 0
+	}
+
+	var matchID int64
+	if _, err := fmt.Sscanf(label, "Loser Match %d", &matchID); err != nil {
+		return 0
+	}
+
+	var homeScore, awayScore sql.NullInt64
+	err := s.db.QueryRow(
+		"SELECT home_score, away_score FROM matches WHERE id = $1", matchID,
+	).Scan(&homeScore, &awayScore)
+	if err != nil || !homeScore.Valid || !awayScore.Valid {
+		return 0
+	}
+
+	if homeScore.Int64 < awayScore.Int64 {
+		var homeID int64
+		s.db.QueryRow("SELECT home_team_id FROM matches WHERE id = $1", matchID).Scan(&homeID)
+		return homeID
+	} else if awayScore.Int64 < homeScore.Int64 {
 		var awayID int64
 		s.db.QueryRow("SELECT away_team_id FROM matches WHERE id = $1", matchID).Scan(&awayID)
 		return awayID
