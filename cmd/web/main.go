@@ -173,6 +173,8 @@ func main() {
 		r.Post("/admin/update-match", adminHandler.UpdateMatch)
 		r.Get("/admin/match-bets", adminHandler.MatchBetsPage)
 		r.Post("/admin/sync", adminHandler.ForceSync)
+		r.Post("/admin/recalculate-knockout", adminHandler.RecalculateKnockout)
+		r.Post("/admin/reseed-labels", adminHandler.ReseedLabels)
 	})
 
 	// Stats API

@@ -340,6 +340,30 @@ func (h *AdminHandler) ForceSync(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/admin/matches?flash=sync+iniciado", http.StatusSeeOther)
 }
 
+func (h *AdminHandler) RecalculateKnockout(w http.ResponseWriter, r *http.Request) {
+	go func() {
+		log.Println("[Admin] Recalculating knockout advancement...")
+		h.knockoutSvc.RecalculateAll()
+		h.betSvc.RecalculateAllFinishedMatches()
+		log.Println("[Admin] Knockout recalculation complete.")
+	}()
+	http.Redirect(w, r, "/admin/matches?flash=knockout+recalculado", http.StatusSeeOther)
+}
+
+func (h *AdminHandler) ReseedLabels(w http.ResponseWriter, r *http.Request) {
+	go func() {
+		log.Println("[Admin] Re-seeding knockout labels...")
+		seedSvc := services.NewSeedService(h.db)
+		if err := seedSvc.SeedFromFiles(); err != nil {
+			log.Printf("[Admin] Seed error: %v", err)
+		}
+		h.knockoutSvc.RecalculateAll()
+		h.betSvc.RecalculateAllFinishedMatches()
+		log.Println("[Admin] Re-seed complete.")
+	}()
+	http.Redirect(w, r, "/admin/matches?flash=labels+reatualizadas", http.StatusSeeOther)
+}
+
 func (h *AdminHandler) MatchBetsPage(w http.ResponseWriter, r *http.Request) {
 	user := GetUserFromSession(r)
 	if user == nil {

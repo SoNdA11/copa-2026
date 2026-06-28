@@ -650,6 +650,7 @@ func (h *MatchHandler) Bracket(w http.ResponseWriter, r *http.Request) {
 			ORDER BY m.id
 		`, stage)
 		if err != nil {
+			log.Printf("Bracket loadAll(%s) query error: %v", stage, err)
 			return nil
 		}
 		defer rows.Close()
@@ -667,6 +668,7 @@ func (h *MatchHandler) Bracket(w http.ResponseWriter, r *http.Request) {
 				&m.HomeTeamLabel, &m.AwayTeamLabel,
 			)
 			if err != nil {
+				log.Printf("Bracket loadAll scan error (stage=%s, matchID=%d): %v", stage, m.ID, err)
 				continue
 			}
 			if homeScore.Valid {
