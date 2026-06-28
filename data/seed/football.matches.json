@@ -933,8 +933,8 @@
     "matchday": "3",
     "local_date": "06/27/2026 17:00",
     "stadium_id": "11",
-    "finished": "TRUE",
-    "time_elapsed": "finished",
+    "finished": "FALSE",
+    "time_elapsed": "live",
     "type": "group"
   },
   {
@@ -947,64 +947,64 @@
     "matchday": "3",
     "local_date": "06/27/2026 17:00",
     "stadium_id": "10",
-    "finished": "TRUE",
-    "time_elapsed": "finished",
+    "finished": "FALSE",
+    "time_elapsed": "live",
     "type": "group"
   },
   {
     "id": "69",
     "home_team_id": "38",
     "away_team_id": "39",
-    "home_score": "1",
-    "away_score": "1",
+    "home_score": "null",
+    "away_score": "null",
     "group": "J",
     "matchday": "3",
     "local_date": "06/27/2026 21:00",
     "stadium_id": "6",
-    "finished": "TRUE",
-    "time_elapsed": "finished",
+    "finished": "FALSE",
+    "time_elapsed": "notstarted",
     "type": "group"
   },
   {
     "id": "70",
     "home_team_id": "40",
     "away_team_id": "37",
-    "home_score": "0",
-    "away_score": "3",
+    "home_score": "null",
+    "away_score": "null",
     "group": "J",
     "matchday": "3",
     "local_date": "06/27/2026 21:00",
     "stadium_id": "4",
-    "finished": "TRUE",
-    "time_elapsed": "finished",
+    "finished": "FALSE",
+    "time_elapsed": "notstarted",
     "type": "group"
   },
   {
     "id": "71",
     "home_team_id": "44",
     "away_team_id": "41",
-    "home_score": "2",
-    "away_score": "1",
+    "home_score": "null",
+    "away_score": "null",
     "group": "K",
     "matchday": "3",
     "local_date": "06/27/2026 19:30",
     "stadium_id": "8",
-    "finished": "TRUE",
-    "time_elapsed": "finished",
+    "finished": "FALSE",
+    "time_elapsed": "notstarted",
     "type": "group"
   },
   {
     "id": "72",
     "home_team_id": "42",
     "away_team_id": "43",
-    "home_score": "0",
-    "away_score": "0",
+    "home_score": "null",
+    "away_score": "null",
     "group": "K",
     "matchday": "3",
     "local_date": "06/27/2026 19:30",
     "stadium_id": "7",
-    "finished": "TRUE",
-    "time_elapsed": "finished",
+    "finished": "FALSE",
+    "time_elapsed": "notstarted",
     "type": "group"
   },
   {
@@ -1019,9 +1019,7 @@
     "stadium_id": "16",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "r32",
-    "home_team_label": "Runner-up Group A",
-    "away_team_label": "Runner-up Group B"
+    "type": "r32"
   },
   {
     "id": "74",
@@ -1035,9 +1033,7 @@
     "stadium_id": "9",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "r32",
-    "home_team_label": "Winner Group E",
-    "away_team_label": "Runner-up Group D"
+    "type": "r32"
   },
   {
     "id": "75",
@@ -1051,9 +1047,7 @@
     "stadium_id": "3",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "r32",
-    "home_team_label": "Winner Group F",
-    "away_team_label": "Runner-up Group C"
+    "type": "r32"
   },
   {
     "id": "76",
@@ -1067,14 +1061,12 @@
     "stadium_id": "5",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "r32",
-    "home_team_label": "Winner Group C",
-    "away_team_label": "Runner-up Group F"
+    "type": "r32"
   },
   {
     "id": "77",
     "home_team_id": "33",
-    "away_team_id": "23",
+    "away_team_id": "0",
     "home_score": "0",
     "away_score": "0",
     "group": "R32",
@@ -1083,9 +1075,7 @@
     "stadium_id": "11",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "r32",
-    "home_team_label": "Winner Group I",
-    "away_team_label": "3rd Group F"
+    "type": "r32"
   },
   {
     "id": "78",
@@ -1099,14 +1089,12 @@
     "stadium_id": "4",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "r32",
-    "home_team_label": "Runner-up Group E",
-    "away_team_label": "3rd Group I"
+    "type": "r32"
   },
   {
     "id": "79",
     "home_team_id": "1",
-    "away_team_id": "20",
+    "away_team_id": "0",
     "home_score": "0",
     "away_score": "0",
     "group": "R32",
@@ -1115,13 +1103,11 @@
     "stadium_id": "1",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "r32",
-    "home_team_label": "Winner Group A",
-    "away_team_label": "3rd Group E"
+    "type": "r32"
   },
   {
     "id": "80",
-    "home_team_id": "45",
+    "home_team_id": "25",
     "away_team_id": "0",
     "home_score": "0",
     "away_score": "0",
@@ -1131,9 +1117,7 @@
     "stadium_id": "7",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "r32",
-    "home_team_label": "Winner Group L",
-    "away_team_label": "3rd Group E/H/I/J/K"
+    "type": "r32"
   },
   {
     "id": "81",
@@ -1147,13 +1131,11 @@
     "stadium_id": "15",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "r32",
-    "home_team_label": "Winner Group D",
-    "away_team_label": "3rd Group B"
+    "type": "r32"
   },
   {
     "id": "82",
-    "home_team_id": "25",
+    "home_team_id": "0",
     "away_team_id": "0",
     "home_score": "0",
     "away_score": "0",
@@ -1163,9 +1145,7 @@
     "stadium_id": "14",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "r32",
-    "home_team_label": "Winner Group G",
-    "away_team_label": "3rd Group A/E/H/I/J"
+    "type": "r32"
   },
   {
     "id": "83",
@@ -1179,9 +1159,7 @@
     "stadium_id": "12",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "r32",
-    "home_team_label": "Runner-up Group K",
-    "away_team_label": "Runner-up Group L"
+    "type": "r32"
   },
   {
     "id": "84",
@@ -1195,9 +1173,7 @@
     "stadium_id": "16",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "r32",
-    "home_team_label": "Winner Group H",
-    "away_team_label": "Runner-up Group J"
+    "type": "r32"
   },
   {
     "id": "85",
@@ -1211,9 +1187,7 @@
     "stadium_id": "13",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "r32",
-    "home_team_label": "Winner Group B",
-    "away_team_label": "3rd Group E/F/G/I/J"
+    "type": "r32"
   },
   {
     "id": "86",
@@ -1227,9 +1201,7 @@
     "stadium_id": "8",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "r32",
-    "home_team_label": "Winner Group J",
-    "away_team_label": "Runner-up Group H"
+    "type": "r32"
   },
   {
     "id": "87",
@@ -1243,9 +1215,7 @@
     "stadium_id": "6",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "r32",
-    "home_team_label": "Winner Group K",
-    "away_team_label": "3rd Group L"
+    "type": "r32"
   },
   {
     "id": "88",
@@ -1259,9 +1229,7 @@
     "stadium_id": "4",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "r32",
-    "home_team_label": "Runner-up Group D",
-    "away_team_label": "Runner-up Group G"
+    "type": "r32"
   },
   {
     "id": "89",
@@ -1275,9 +1243,7 @@
     "stadium_id": "10",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "r16",
-    "home_team_label": "Winner Match 74",
-    "away_team_label": "Winner Match 77"
+    "type": "r16"
   },
   {
     "id": "90",
@@ -1291,9 +1257,7 @@
     "stadium_id": "5",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "r16",
-    "home_team_label": "Winner Match 73",
-    "away_team_label": "Winner Match 75"
+    "type": "r16"
   },
   {
     "id": "91",
@@ -1307,9 +1271,7 @@
     "stadium_id": "11",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "r16",
-    "home_team_label": "Winner Match 76",
-    "away_team_label": "Winner Match 78"
+    "type": "r16"
   },
   {
     "id": "92",
@@ -1323,9 +1285,7 @@
     "stadium_id": "1",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "r16",
-    "home_team_label": "Winner Match 79",
-    "away_team_label": "Winner Match 80"
+    "type": "r16"
   },
   {
     "id": "93",
@@ -1339,9 +1299,7 @@
     "stadium_id": "4",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "r16",
-    "home_team_label": "Winner Match 83",
-    "away_team_label": "Winner Match 84"
+    "type": "r16"
   },
   {
     "id": "94",
@@ -1355,9 +1313,7 @@
     "stadium_id": "14",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "r16",
-    "home_team_label": "Winner Match 81",
-    "away_team_label": "Winner Match 82"
+    "type": "r16"
   },
   {
     "id": "95",
@@ -1371,9 +1327,7 @@
     "stadium_id": "7",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "r16",
-    "home_team_label": "Winner Match 86",
-    "away_team_label": "Winner Match 88"
+    "type": "r16"
   },
   {
     "id": "96",
@@ -1387,9 +1341,7 @@
     "stadium_id": "13",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "r16",
-    "home_team_label": "Winner Match 85",
-    "away_team_label": "Winner Match 87"
+    "type": "r16"
   },
   {
     "id": "97",
@@ -1403,9 +1355,7 @@
     "stadium_id": "9",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "qf",
-    "home_team_label": "Winner Match 89",
-    "away_team_label": "Winner Match 90"
+    "type": "qf"
   },
   {
     "id": "98",
@@ -1419,9 +1369,7 @@
     "stadium_id": "16",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "qf",
-    "home_team_label": "Winner Match 93",
-    "away_team_label": "Winner Match 94"
+    "type": "qf"
   },
   {
     "id": "99",
@@ -1435,9 +1383,7 @@
     "stadium_id": "8",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "qf",
-    "home_team_label": "Winner Match 91",
-    "away_team_label": "Winner Match 92"
+    "type": "qf"
   },
   {
     "id": "100",
@@ -1451,9 +1397,7 @@
     "stadium_id": "6",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "qf",
-    "home_team_label": "Winner Match 95",
-    "away_team_label": "Winner Match 96"
+    "type": "qf"
   },
   {
     "id": "101",
@@ -1467,9 +1411,7 @@
     "stadium_id": "4",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "sf",
-    "home_team_label": "Winner Match 97",
-    "away_team_label": "Winner Match 98"
+    "type": "sf"
   },
   {
     "id": "102",
@@ -1483,9 +1425,7 @@
     "stadium_id": "7",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "sf",
-    "home_team_label": "Winner Match 99",
-    "away_team_label": "Winner Match 100"
+    "type": "sf"
   },
   {
     "id": "103",
@@ -1499,9 +1439,7 @@
     "stadium_id": "8",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "third",
-    "home_team_label": "",
-    "away_team_label": ""
+    "type": "third"
   },
   {
     "id": "104",
@@ -1515,8 +1453,6 @@
     "stadium_id": "11",
     "finished": "FALSE",
     "time_elapsed": "notstarted",
-    "type": "final",
-    "home_team_label": "Winner Match 101",
-    "away_team_label": "Winner Match 102"
+    "type": "final"
   }
 ]

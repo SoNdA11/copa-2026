@@ -28,20 +28,18 @@ type SeedTeam struct {
 }
 
 type SeedMatch struct {
-	ID             string `json:"id"`
-	HomeTeamID     string `json:"home_team_id"`
-	AwayTeamID     string `json:"away_team_id"`
-	HomeScore      string `json:"home_score"`
-	AwayScore      string `json:"away_score"`
-	Group          string `json:"group"`
-	Matchday       string `json:"matchday"`
-	LocalDate      string `json:"local_date"`
-	StadiumID      string `json:"stadium_id"`
-	Finished       string `json:"finished"`
-	TimeElapsed    string `json:"time_elapsed"`
-	Type           string `json:"type"`
-	HomeTeamLabel  string `json:"home_team_label,omitempty"`
-	AwayTeamLabel  string `json:"away_team_label,omitempty"`
+	ID          string `json:"id"`
+	HomeTeamID  string `json:"home_team_id"`
+	AwayTeamID  string `json:"away_team_id"`
+	HomeScore   string `json:"home_score"`
+	AwayScore   string `json:"away_score"`
+	Group       string `json:"group"`
+	Matchday    string `json:"matchday"`
+	LocalDate   string `json:"local_date"`
+	StadiumID   string `json:"stadium_id"`
+	Finished    string `json:"finished"`
+	TimeElapsed string `json:"time_elapsed"`
+	Type        string `json:"type"`
 }
 
 type SeedStadium struct {
@@ -127,17 +125,10 @@ func (s *SeedService) updateMatchDetails() {
 		if sm.AwayTeamID != "" && sm.AwayTeamID != "0" {
 			s.db.Exec("UPDATE matches SET away_team_id = $1 WHERE id = $2", sm.AwayTeamID, sm.ID)
 		}
-
-		// Update home/away team labels for knockout matches
-		if sm.HomeTeamLabel != "" || sm.AwayTeamLabel != "" {
-			s.db.Exec("UPDATE matches SET home_team_label = $1, away_team_label = $2 WHERE id = $3",
-				sm.HomeTeamLabel, sm.AwayTeamLabel, sm.ID)
-		}
 	}
 	if count > 0 {
 		log.Printf("Updated %d matches with Brasília time and results", count)
 	}
-	log.Printf("Knockout labels populated from seed file")
 }
 
 func (s *SeedService) seedTeams() error {
@@ -187,20 +178,11 @@ func (s *SeedService) seedMatches() error {
 		date, time := s.toBrasiliaTime(m.LocalDate, stadiumOffset(stadiumCity(stadiums, m.StadiumID)))
 		cityName := stadiumCity(stadiums, m.StadiumID)
 
-		// Treat '0' or '' as NULL for team IDs (FK constraint requires valid team or NULL)
-		var homeTeamID, awayTeamID interface{}
-		if m.HomeTeamID != "" && m.HomeTeamID != "0" {
-			homeTeamID = m.HomeTeamID
-		}
-		if m.AwayTeamID != "" && m.AwayTeamID != "0" {
-			awayTeamID = m.AwayTeamID
-		}
-
 		_, err := s.db.Exec(`
-			INSERT INTO matches (id, home_team_id, away_team_id, match_date, match_time, stage, group_name, stadium, status, home_team_label, away_team_label)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'upcoming', $9, $10)
+			INSERT INTO matches (id, home_team_id, away_team_id, match_date, match_time, stage, group_name, stadium, status)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'upcoming')
 			ON CONFLICT (id) DO NOTHING
-		`, m.ID, homeTeamID, awayTeamID, date, time, m.Type, m.Group, cityName, m.HomeTeamLabel, m.AwayTeamLabel)
+		`, m.ID, m.HomeTeamID, m.AwayTeamID, date, time, m.Type, m.Group, cityName)
 		if err != nil {
 			return fmt.Errorf("insert match %s: %w", m.ID, err)
 		}
