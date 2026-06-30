@@ -110,6 +110,35 @@ func (s *AuthService) ChangeName(userID int64, newName string, groupID int64) er
 	return err
 }
 
+func (s *AuthService) ResetPassword(userID int64, newPassword string) error {
+	hash, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	_, err = s.db.Exec("UPDATE users SET password_hash = $1 WHERE id = $2", string(hash), userID)
+	return err
+}
+
+func (s *AuthService) ChangePassword(userID int64, currentPassword, newPassword string) error {
+	var hash string
+	err := s.db.QueryRow("SELECT password_hash FROM users WHERE id = $1", userID).Scan(&hash)
+	if err != nil {
+		return errors.New("usuário não encontrado")
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(currentPassword)); err != nil {
+		return errors.New("senha atual incorreta")
+	}
+
+	newHash, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.db.Exec("UPDATE users SET password_hash = $1 WHERE id = $2", string(newHash), userID)
+	return err
+}
+
 func (s *AuthService) GetGroups() ([]models.Group, error) {
 	rows, err := s.db.Query("SELECT id, name, slug FROM groups ORDER BY id")
 	if err != nil {

@@ -29,11 +29,13 @@ func (h *SettingsHandler) Page(w http.ResponseWriter, r *http.Request) {
 	}
 
 	errMsg := r.URL.Query().Get("error")
+	flashMsg := r.URL.Query().Get("flash")
 
 	data := PageData{
 		Title: "Configurações",
 		User:  user,
 		Error: errMsg,
+		Flash: flashMsg,
 	}
 
 	h.renderer.Render(w, "cmd/web/templates/pages/settings.html", data)
@@ -114,6 +116,43 @@ func (h *SettingsHandler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)
+}
+
+func (h *SettingsHandler) UpdatePassword(w http.ResponseWriter, r *http.Request) {
+	user := GetUserFromSession(r)
+	if user == nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Redirect(w, r, "/settings?error=Erro+ao+processar+formul%C3%A1rio", http.StatusSeeOther)
+		return
+	}
+
+	current := r.FormValue("current_password")
+	newPass := r.FormValue("new_password")
+	confirm := r.FormValue("confirm_password")
+
+	if current == "" || newPass == "" || confirm == "" {
+		http.Redirect(w, r, "/settings?error=Preencha+todos+os+campos", http.StatusSeeOther)
+		return
+	}
+	if newPass != confirm {
+		http.Redirect(w, r, "/settings?error=Senhas+n%C3%A3o+conferem", http.StatusSeeOther)
+		return
+	}
+	if len(newPass) < 4 {
+		http.Redirect(w, r, "/settings?error=Senha+deve+ter+pelo+menos+4+caracteres", http.StatusSeeOther)
+		return
+	}
+
+	if err := h.authService.ChangePassword(user.ID, current, newPass); err != nil {
+		http.Redirect(w, r, "/settings?error="+url.QueryEscape(err.Error()), http.StatusSeeOther)
+		return
+	}
+
+	http.Redirect(w, r, "/settings?flash=Senha+alterada+com+sucesso", http.StatusSeeOther)
 }
 
 func (h *SettingsHandler) RemoveAvatar(w http.ResponseWriter, r *http.Request) {

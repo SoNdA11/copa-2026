@@ -73,7 +73,7 @@ func main() {
 	rankingHandler := handlers.NewRankingHandler(rankingSvc, renderer)
 	specialBetHandler := handlers.NewSpecialBetHandler(db, renderer)
 	settingsHandler := handlers.NewSettingsHandler(db, renderer, authSvc)
-	adminHandler := handlers.NewAdminHandler(db, betSvc, syncSvc, knockoutSvc, renderer)
+	adminHandler := handlers.NewAdminHandler(db, betSvc, syncSvc, knockoutSvc, authSvc, renderer)
 	profileHandler := handlers.NewProfileHandler(betSvc, rankingSvc, db, renderer)
 	statsHandler := handlers.NewStatsHandler(statsSvc, renderer)
 
@@ -155,6 +155,7 @@ func main() {
 		r.Post("/settings/delete", settingsHandler.DeleteAccount)
 		r.Post("/settings/avatar", settingsHandler.UploadAvatar)
 		r.Post("/settings/avatar/remove", settingsHandler.RemoveAvatar)
+		r.Post("/settings/password", settingsHandler.UpdatePassword)
 	})
 
 	// Static files
@@ -173,6 +174,7 @@ func main() {
 		r.Post("/admin/update-match", adminHandler.UpdateMatch)
 		r.Get("/admin/match-bets", adminHandler.MatchBetsPage)
 		r.Post("/admin/sync", adminHandler.ForceSync)
+		r.Post("/admin/reset-password", adminHandler.ResetPassword)
 	})
 
 	// Stats API

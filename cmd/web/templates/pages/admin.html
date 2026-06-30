@@ -42,14 +42,25 @@
                             </form>
                         </td>
                         <td class="px-5 py-3 font-bold text-zinc-800 dark:text-zinc-200">{{.Total}}</td>
-                        <td class="px-5 py-3 text-right">
-                            <form method="POST" action="/admin/delete-user" onsubmit="return confirm('Excluir {{.Name}}? Esta ação não pode ser desfeita.')">
-                                <input type="hidden" name="user_id" value="{{.ID}}">
-                                <button type="submit" class="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 text-xs font-medium transition-colors">
-                                    Excluir
-                                </button>
-                            </form>
-                        </td>
+						<td class="px-5 py-3 text-right">
+							<div class="flex items-center justify-end space-x-2">
+								<form method="POST" action="/admin/reset-password" class="inline-flex items-center space-x-1">
+									<input type="hidden" name="user_id" value="{{.ID}}">
+									<input type="password" name="new_password" placeholder="Nova senha"
+										class="w-24 bg-zinc-100/70 dark:bg-zinc-800/50 border border-zinc-200/60 dark:border-zinc-700/50 rounded-xl px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 dark:focus:border-green-600 text-zinc-700 dark:text-zinc-300 transition-all"
+										required minlength="4">
+									<button type="submit" class="text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 text-xs font-semibold transition-colors">
+										Redefinir
+									</button>
+								</form>
+								<form method="POST" action="/admin/delete-user" onsubmit="return confirm('Excluir {{.Name}}? Esta ação não pode ser desfeita.')">
+									<input type="hidden" name="user_id" value="{{.ID}}">
+									<button type="submit" class="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 text-xs font-medium transition-colors">
+										Excluir
+									</button>
+								</form>
+							</div>
+						</td>
                     </tr>
                     {{else}}
                     <tr>

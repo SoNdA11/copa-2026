@@ -15,11 +15,12 @@ type AdminHandler struct {
 	betSvc      *services.BetService
 	syncSvc     *services.SyncService
 	knockoutSvc *services.KnockoutService
+	authSvc     *services.AuthService
 	renderer    *Renderer
 }
 
-func NewAdminHandler(db *sql.DB, betSvc *services.BetService, syncSvc *services.SyncService, knockoutSvc *services.KnockoutService, renderer *Renderer) *AdminHandler {
-	return &AdminHandler{db: db, betSvc: betSvc, syncSvc: syncSvc, knockoutSvc: knockoutSvc, renderer: renderer}
+func NewAdminHandler(db *sql.DB, betSvc *services.BetService, syncSvc *services.SyncService, knockoutSvc *services.KnockoutService, authSvc *services.AuthService, renderer *Renderer) *AdminHandler {
+	return &AdminHandler{db: db, betSvc: betSvc, syncSvc: syncSvc, knockoutSvc: knockoutSvc, authSvc: authSvc, renderer: renderer}
 }
 
 type adminUserRow struct {
@@ -338,6 +339,35 @@ func (h *AdminHandler) ForceSync(w http.ResponseWriter, r *http.Request) {
 		log.Println("[Admin] Sync complete.")
 	}()
 	http.Redirect(w, r, "/admin/matches?flash=sync+iniciado", http.StatusSeeOther)
+}
+
+func (h *AdminHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
+	admin := GetUserFromSession(r)
+	if admin == nil {
+		http.Error(w, "Não autorizado", http.StatusUnauthorized)
+		return
+	}
+
+	userID, _ := strconv.ParseInt(r.FormValue("user_id"), 10, 64)
+	newPass := r.FormValue("new_password")
+	if userID == 0 || len(newPass) < 4 {
+		http.Redirect(w, r, "/admin?flash=senha+deve+ter+pelo+menos+4+caracteres", http.StatusSeeOther)
+		return
+	}
+
+	var targetGroupID int64
+	err := h.db.QueryRow("SELECT group_id FROM users WHERE id = $1", userID).Scan(&targetGroupID)
+	if err != nil || targetGroupID != admin.GroupID {
+		http.Error(w, "Usuário não encontrado", http.StatusNotFound)
+		return
+	}
+
+	if err := h.authSvc.ResetPassword(userID, newPass); err != nil {
+		http.Error(w, "Erro ao redefinir senha", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/admin?flash=senha+redefinida", http.StatusSeeOther)
 }
 
 func (h *AdminHandler) MatchBetsPage(w http.ResponseWriter, r *http.Request) {
