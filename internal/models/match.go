@@ -15,15 +15,16 @@ type Match struct {
 
 	HomeTeam   *Team `json:"home_team,omitempty"`
 	AwayTeam   *Team `json:"away_team,omitempty"`
-	HasUserBet   bool `json:"-"`
-	BetHomeScore int  `json:"-"`
-	BetAwayScore int  `json:"-"`
-	IsToday      bool `json:"-"`
-	IsPast       bool `json:"-"`
-	HomeTeamLabel   string `json:"home_team_label"`
-	AwayTeamLabel   string `json:"away_team_label"`
-	AdvancingTeamID int64  `json:"-"`
-	IsFavorite      bool   `json:"-"`
+	HasUserBet         bool  `json:"-"`
+	BetHomeScore       int   `json:"-"`
+	BetAwayScore       int   `json:"-"`
+	BetAdvancingTeamID int64 `json:"-"`
+	IsToday            bool  `json:"-"`
+	IsPast             bool  `json:"-"`
+	HomeTeamLabel      string `json:"home_team_label"`
+	AwayTeamLabel      string `json:"away_team_label"`
+	AdvancingTeamID    int64  `json:"-"`
+	IsFavorite         bool   `json:"-"`
 }
 
 func (m *Match) StageLabel() string {

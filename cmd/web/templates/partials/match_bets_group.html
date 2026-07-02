@@ -15,6 +15,11 @@
                     <span class="font-bold text-sm {{if $g.IsUserBet}}text-green-600 dark:text-green-400{{else}}text-zinc-700 dark:text-zinc-300{{end}}">
                         {{$g.HomeScore}}x{{$g.AwayScore}}
                     </span>
+                    {{if $g.AdvancingTeamName}}
+                    <span class="text-[11px] font-semibold text-green-500 dark:text-green-400">
+                        D: {{$g.AdvancingTeamName}}
+                    </span>
+                    {{end}}
                     <span class="text-xs font-medium text-zinc-400 dark:text-zinc-500">
                         ({{$g.Count}} {{if eq $g.Count 1}}palpite{{else}}palpites{{end}})
                     </span>
@@ -35,6 +40,9 @@
                         <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/avatar:block z-10">
                             <div class="bg-zinc-800 dark:bg-zinc-200 text-white dark:text-zinc-800 text-xs font-medium px-2 py-1 rounded-lg whitespace-nowrap shadow-lg">
                                 {{$u.UserName}} {{if $u.IsCurrent}}(você){{end}}
+                                {{if $u.AdvancingTeamName}}
+                                <span class="block text-[10px] font-semibold text-green-400">D: {{$u.AdvancingTeamName}}</span>
+                                {{end}}
                                 <span class="block text-[10px] font-semibold">{{$u.TotalPoints}} pts</span>
                                 <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-0.5 border-4 border-transparent border-t-zinc-800 dark:border-t-zinc-200"></div>
                             </div>

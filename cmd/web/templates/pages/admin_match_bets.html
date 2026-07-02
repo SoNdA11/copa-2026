@@ -22,6 +22,7 @@
                     <tr class="bg-zinc-100/30 dark:bg-zinc-800/20 text-left text-xs text-zinc-500 dark:text-zinc-500">
                         <th class="px-5 py-3 font-semibold">Usuário</th>
                         <th class="px-5 py-3 font-semibold">Palpite</th>
+                        <th class="px-5 py-3 font-semibold">Desempate</th>
                         <th class="px-5 py-3 font-semibold">Criado em</th>
                         <th class="px-5 py-3 font-semibold">Atualizado em</th>
                         <th class="px-5 py-3 font-semibold">Pontos</th>
@@ -32,6 +33,17 @@
                     <tr class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20 transition-colors">
                         <td class="px-5 py-3 font-medium text-zinc-700 dark:text-zinc-300">{{.User.Name}}</td>
                         <td class="px-5 py-3 font-bold text-zinc-700 dark:text-zinc-300">{{.HomeScore}}x{{.AwayScore}}</td>
+                        <td class="px-5 py-3 text-zinc-500 dark:text-zinc-500 text-xs">
+                            {{if and (gt .AdvancingTeamID 0) .Match .Match.HomeTeam .Match.AwayTeam}}
+                                {{if eq .AdvancingTeamID .Match.HomeTeam.ID}}
+                                <span class="text-green-600 dark:text-green-400 font-semibold">{{.Match.HomeTeam.Name}}</span>
+                                {{else if eq .AdvancingTeamID .Match.AwayTeam.ID}}
+                                <span class="text-green-600 dark:text-green-400 font-semibold">{{.Match.AwayTeam.Name}}</span>
+                                {{end}}
+                            {{else}}
+                            <span class="text-zinc-300 dark:text-zinc-700">-</span>
+                            {{end}}
+                        </td>
                         <td class="px-5 py-3 text-zinc-500 dark:text-zinc-500 text-xs">{{toBRT .CreatedAt}}</td>
                         <td class="px-5 py-3 text-zinc-500 dark:text-zinc-500 text-xs">{{if .UpdatedAt}}{{toBRT .UpdatedAt}}{{else}}-{{end}}</td>
                         <td class="px-5 py-3">
@@ -44,7 +56,7 @@
                     </tr>
                     {{else}}
                     <tr>
-                        <td colspan="5" class="px-5 py-8 text-center text-zinc-400 dark:text-zinc-600 text-sm">
+                        <td colspan="6" class="px-5 py-8 text-center text-zinc-400 dark:text-zinc-600 text-sm">
                             Nenhum palpite para esta partida
                         </td>
                     </tr>

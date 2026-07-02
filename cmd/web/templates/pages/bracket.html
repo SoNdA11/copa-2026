@@ -40,6 +40,11 @@
       {{if .HasUserBet}}
       <span class="text-[7px] text-zinc-500 font-extrabold">({{.BetHome}})</span>
       {{end}}
+      {{if and .HasUserBet (gt .Match.BetAdvancingTeamID 0) (ne .Match.Stage "group")}}
+        {{if eq .Match.BetAdvancingTeamID .Match.HomeTeam.ID}}
+        <span class="text-[6px] text-green-500/70 font-bold ml-0.5" title="Desempate">D</span>
+        {{end}}
+      {{end}}
       {{if .Match.HomeScore}}
       <span class="text-[11px] font-black text-right min-w-[8px] {{if $homeWon}}text-green-400 bg-green-950/40 px-1.5 py-0.5 rounded border border-green-900/30{{else}}text-zinc-400{{end}}">
         {{.Match.HomeScore}}
@@ -72,6 +77,11 @@
     <div class="flex items-center space-x-1.5 flex-shrink-0 ml-1.5">
       {{if .HasUserBet}}
       <span class="text-[7.5px] text-zinc-500 font-extrabold">({{.BetAway}})</span>
+      {{end}}
+      {{if and .HasUserBet (gt .Match.BetAdvancingTeamID 0) (ne .Match.Stage "group")}}
+        {{if eq .Match.BetAdvancingTeamID .Match.AwayTeam.ID}}
+        <span class="text-[6px] text-green-500/70 font-bold ml-0.5" title="Desempate">D</span>
+        {{end}}
       {{end}}
       {{if .Match.AwayScore}}
       <span class="text-[11px] font-black text-right min-w-[8px] {{if $awayWon}}text-green-400 bg-green-950/40 px-1.5 py-0.5 rounded border border-green-900/30{{else}}text-zinc-400{{end}}">

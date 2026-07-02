@@ -83,6 +83,7 @@ func (h *MatchHandler) InlineBetForm(w http.ResponseWriter, r *http.Request) {
 				match.HasUserBet = true
 				match.BetHomeScore = bet.HomeScore
 				match.BetAwayScore = bet.AwayScore
+				match.BetAdvancingTeamID = bet.AdvancingTeamID
 			}
 		}
 		tmpl, err := LoadPageTemplate("cmd/web/templates/partials/match_row.html")
@@ -101,6 +102,7 @@ func (h *MatchHandler) InlineBetForm(w http.ResponseWriter, r *http.Request) {
 		match.HasUserBet = true
 		match.BetHomeScore = bet.HomeScore
 		match.BetAwayScore = bet.AwayScore
+		match.BetAdvancingTeamID = bet.AdvancingTeamID
 	}
 
 	data := PageData{
@@ -128,19 +130,20 @@ func (h *MatchHandler) List(w http.ResponseWriter, r *http.Request) {
 	user := GetUserFromSession(r)
 
 	type userBet struct {
-		MatchID      int64
-		HomeScore    int
-		AwayScore    int
+		MatchID          int64
+		HomeScore        int
+		AwayScore        int
+		AdvancingTeamID  int64
 	}
 
 	userBets := make(map[int64]userBet)
 	if user != nil {
-		rows, err := h.db.Query("SELECT match_id, home_score, away_score FROM bets WHERE user_id = $1", user.ID)
+		rows, err := h.db.Query("SELECT match_id, home_score, away_score, COALESCE(advancing_team_id, 0) FROM bets WHERE user_id = $1", user.ID)
 		if err == nil {
 			defer rows.Close()
 			for rows.Next() {
 				var ub userBet
-				if rows.Scan(&ub.MatchID, &ub.HomeScore, &ub.AwayScore) == nil {
+				if rows.Scan(&ub.MatchID, &ub.HomeScore, &ub.AwayScore, &ub.AdvancingTeamID) == nil {
 					userBets[ub.MatchID] = ub
 				}
 			}
@@ -162,6 +165,7 @@ func (h *MatchHandler) List(w http.ResponseWriter, r *http.Request) {
 					m.HasUserBet = true
 					m.BetHomeScore = ub.HomeScore
 					m.BetAwayScore = ub.AwayScore
+					m.BetAdvancingTeamID = ub.AdvancingTeamID
 				}
 				m.IsToday = m.MatchDate == todayStr
 				m.IsPast = m.MatchDate < todayStr
@@ -191,6 +195,7 @@ func (h *MatchHandler) List(w http.ResponseWriter, r *http.Request) {
 			m.HasUserBet = true
 			m.BetHomeScore = ub.HomeScore
 			m.BetAwayScore = ub.AwayScore
+			m.BetAdvancingTeamID = ub.AdvancingTeamID
 		}
 		m.IsToday = m.MatchDate == todayStr
 		m.IsPast = m.MatchDate < todayStr
@@ -469,28 +474,32 @@ func (h *MatchHandler) getMatchDetail(id int64) (*models.Match, error) {
 }
 
 type MatchGroupBet struct {
-	UserName    string
-	UserID      int64
-	HomeScore   int
-	AwayScore   int
-	TotalPoints int
-	AvatarURL   string
+	UserName         string
+	UserID           int64
+	HomeScore        int
+	AwayScore        int
+	AdvancingTeamID  int64
+	AdvancingTeamName string
+	TotalPoints      int
+	AvatarURL        string
 }
 
 type GroupedBetUser struct {
-	UserID      int64
-	UserName    string
-	AvatarURL   string
-	TotalPoints int
-	IsCurrent   bool
+	UserID           int64
+	UserName         string
+	AvatarURL        string
+	TotalPoints      int
+	IsCurrent        bool
+	AdvancingTeamName string
 }
 
 type GroupedBet struct {
-	HomeScore int
-	AwayScore int
-	Users     []GroupedBetUser
-	Count     int
-	IsUserBet bool
+	HomeScore        int
+	AwayScore        int
+	AdvancingTeamName string
+	Users            []GroupedBetUser
+	Count            int
+	IsUserBet        bool
 }
 
 func (h *MatchHandler) GroupBets(w http.ResponseWriter, r *http.Request) {
@@ -507,8 +516,15 @@ func (h *MatchHandler) GroupBets(w http.ResponseWriter, r *http.Request) {
 		groupID = user.GroupID
 	}
 
+	// Load match to get team names for advancing team display
+	match, err := h.getMatchDetail(id)
+	if err != nil {
+		http.Error(w, "Jogo não encontrado", http.StatusNotFound)
+		return
+	}
+
 	rows, err := h.db.Query(`
-		SELECT u.name, u.id, b.home_score, b.away_score,
+		SELECT u.name, u.id, b.home_score, b.away_score, COALESCE(b.advancing_team_id, 0),
 			COALESCE((SELECT SUM(points) FROM bets WHERE user_id = u.id), 0) +
 			COALESCE((SELECT SUM(points) FROM special_bets WHERE user_id = u.id), 0) +
 			COALESCE(u.points_adjustment, 0) as total_points,
@@ -527,30 +543,47 @@ func (h *MatchHandler) GroupBets(w http.ResponseWriter, r *http.Request) {
 	var bets []MatchGroupBet
 	for rows.Next() {
 		var b MatchGroupBet
-		if err := rows.Scan(&b.UserName, &b.UserID, &b.HomeScore, &b.AwayScore, &b.TotalPoints, &b.AvatarURL); err != nil {
+		if err := rows.Scan(&b.UserName, &b.UserID, &b.HomeScore, &b.AwayScore, &b.AdvancingTeamID, &b.TotalPoints, &b.AvatarURL); err != nil {
 			continue
+		}
+		// Compute advancing team name
+		if b.AdvancingTeamID > 0 && match.HomeTeam != nil && match.AwayTeam != nil {
+			if b.AdvancingTeamID == match.HomeTeam.ID {
+				b.AdvancingTeamName = match.HomeTeam.Name
+			} else if b.AdvancingTeamID == match.AwayTeam.ID {
+				b.AdvancingTeamName = match.AwayTeam.Name
+			}
 		}
 		bets = append(bets, b)
 	}
 
 	groupMap := make(map[string]*GroupedBet)
 	for _, b := range bets {
+		isKnockout := isKnockoutStage(match.Stage)
+		// Include advancing team in group key for knockout matches
 		key := fmt.Sprintf("%d-%d", b.HomeScore, b.AwayScore)
+		if isKnockout && b.AdvancingTeamID > 0 {
+			key += fmt.Sprintf("-%d", b.AdvancingTeamID)
+		}
 		gb, ok := groupMap[key]
 		if !ok {
 			gb = &GroupedBet{
 				HomeScore: b.HomeScore,
 				AwayScore: b.AwayScore,
 			}
+			if isKnockout {
+				gb.AdvancingTeamName = b.AdvancingTeamName
+			}
 			groupMap[key] = gb
 		}
 		userBet := user != nil && b.UserID == user.ID
 		gb.Users = append(gb.Users, GroupedBetUser{
-			UserID:      b.UserID,
-			UserName:    b.UserName,
-			AvatarURL:   b.AvatarURL,
-			TotalPoints: b.TotalPoints,
-			IsCurrent:   userBet,
+			UserID:           b.UserID,
+			UserName:         b.UserName,
+			AvatarURL:        b.AvatarURL,
+			TotalPoints:      b.TotalPoints,
+			IsCurrent:        userBet,
+			AdvancingTeamName: b.AdvancingTeamName,
 		})
 		if userBet {
 			gb.IsUserBet = true
@@ -619,16 +652,17 @@ type RoundHeader struct {
 func (h *MatchHandler) Bracket(w http.ResponseWriter, r *http.Request) {
 	user := GetUserFromSession(r)
 
-	userBets := make(map[int64]struct{ home, away int })
+	userBets := make(map[int64]struct{ home, away int; adv int64 })
 	if user != nil {
-		rows, err := h.db.Query("SELECT match_id, home_score, away_score FROM bets WHERE user_id = $1", user.ID)
+		rows, err := h.db.Query("SELECT match_id, home_score, away_score, COALESCE(advancing_team_id, 0) FROM bets WHERE user_id = $1", user.ID)
 		if err == nil {
 			defer rows.Close()
 			for rows.Next() {
 				var mid int64
 				var hs, as int
-				if rows.Scan(&mid, &hs, &as) == nil {
-					userBets[mid] = struct{ home, away int }{hs, as}
+				var adv int64
+				if rows.Scan(&mid, &hs, &as, &adv) == nil {
+					userBets[mid] = struct{ home, away int; adv int64 }{hs, as, adv}
 				}
 			}
 		}
@@ -719,6 +753,7 @@ func (h *MatchHandler) Bracket(w http.ResponseWriter, r *http.Request) {
 		if ub, ok := userBets[m.ID]; ok {
 			pm.HasUserBet = true
 			pm.BetHome, pm.BetAway = ub.home, ub.away
+			pm.Match.BetAdvancingTeamID = ub.adv
 		}
 		return pm
 	}

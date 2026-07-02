@@ -83,6 +83,16 @@
                             <span class="text-zinc-300 dark:text-zinc-700 mx-1">x</span>
                             <span class="text-green-600 dark:text-green-400">{{.AwayScore}}</span>
                         </span>
+                        {{if and (gt .AdvancingTeamID 0) (isKnockoutStage .Match.Stage)}}
+                        <span class="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
+                            D:
+                            {{if eq .AdvancingTeamID .Match.HomeTeam.ID}}
+                            <span class="text-green-600 dark:text-green-400 font-bold">{{.Match.HomeTeam.Name}}</span>
+                            {{else if eq .AdvancingTeamID .Match.AwayTeam.ID}}
+                            <span class="text-green-600 dark:text-green-400 font-bold">{{.Match.AwayTeam.Name}}</span>
+                            {{end}}
+                        </span>
+                        {{end}}
                         <span class="font-medium text-zinc-700 dark:text-zinc-300 text-sm">{{.Match.AwayTeam.Name}}</span>
                     </div>
                 </div>

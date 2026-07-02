@@ -100,6 +100,7 @@ func (h *BetHandler) Place(w http.ResponseWriter, r *http.Request) {
 		match.HasUserBet = true
 		match.BetHomeScore = bet.HomeScore
 		match.BetAwayScore = bet.AwayScore
+		match.BetAdvancingTeamID = bet.AdvancingTeamID
 		loc, _ := time.LoadLocation("America/Sao_Paulo")
 		todayStr := time.Now().In(loc).Format("2006-01-02")
 		match.IsToday = match.MatchDate == todayStr
