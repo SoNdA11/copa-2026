@@ -32,16 +32,19 @@ type adminUserRow struct {
 }
 
 type adminMatchRow struct {
-	ID         int64
-	HomeTeam   string
-	AwayTeam   string
-	HomeScore  *int
-	AwayScore  *int
-	MatchDate  string
-	MatchTime  string
-	Stage      string
-	GroupName  string
-	Status     string
+	ID               int64
+	HomeTeam         string
+	AwayTeam         string
+	HomeScore        *int
+	AwayScore        *int
+	MatchDate        string
+	MatchTime        string
+	Stage            string
+	GroupName        string
+	Status           string
+	HomeTeamID       int64
+	AwayTeamID       int64
+	AdvancingTeamID  int64
 }
 
 type adminMatchPageData struct {
@@ -206,7 +209,8 @@ func (h *AdminHandler) MatchesPage(w http.ResponseWriter, r *http.Request) {
 	stage := r.URL.Query().Get("stage")
 	query := `
 		SELECT m.id, COALESCE(ht.name, 'TBD'), COALESCE(at.name, 'TBD'),
-			m.home_score, m.away_score, m.match_date, m.match_time, m.stage, m.group_name, m.status
+			m.home_score, m.away_score, m.match_date, m.match_time, m.stage, m.group_name, m.status,
+			COALESCE(m.home_team_id, 0), COALESCE(m.away_team_id, 0), COALESCE(m.advancing_team_id, 0)
 		FROM matches m
 		LEFT JOIN teams ht ON ht.id = m.home_team_id
 		LEFT JOIN teams at ON at.id = m.away_team_id
@@ -236,7 +240,7 @@ func (h *AdminHandler) MatchesPage(w http.ResponseWriter, r *http.Request) {
 		var m adminMatchRow
 		var homeScore, awayScore sql.NullInt64
 		var groupName sql.NullString
-		if err := rows.Scan(&m.ID, &m.HomeTeam, &m.AwayTeam, &homeScore, &awayScore, &m.MatchDate, &m.MatchTime, &m.Stage, &groupName, &m.Status); err != nil {
+		if err := rows.Scan(&m.ID, &m.HomeTeam, &m.AwayTeam, &homeScore, &awayScore, &m.MatchDate, &m.MatchTime, &m.Stage, &groupName, &m.Status, &m.HomeTeamID, &m.AwayTeamID, &m.AdvancingTeamID); err != nil {
 			continue
 		}
 		if homeScore.Valid {
@@ -296,6 +300,8 @@ func (h *AdminHandler) UpdateMatch(w http.ResponseWriter, r *http.Request) {
 	homeScore = nil
 	awayScore = nil
 
+	var advancingTeamID int64
+
 	if status == "finished" {
 		hs, err := strconv.Atoi(homeScoreStr)
 		if err != nil {
@@ -309,11 +315,28 @@ func (h *AdminHandler) UpdateMatch(w http.ResponseWriter, r *http.Request) {
 		}
 		homeScore = hs
 		awayScore = as
+
+		// Auto-derive advancing team from score when scores differ
+		if hs > as {
+			var homeID int64
+			h.db.QueryRow("SELECT home_team_id FROM matches WHERE id = $1", matchID).Scan(&homeID)
+			advancingTeamID = homeID
+		} else if as > hs {
+			var awayID int64
+			h.db.QueryRow("SELECT away_team_id FROM matches WHERE id = $1", matchID).Scan(&awayID)
+			advancingTeamID = awayID
+		} else {
+			// Draw: use admin's manual selection (0 if not provided)
+			v := r.FormValue("advancing_team_id")
+			if v != "" {
+				advancingTeamID, _ = strconv.ParseInt(v, 10, 64)
+			}
+		}
 	}
 
 	_, err = h.db.Exec(`
-		UPDATE matches SET status = $1, home_score = $2, away_score = $3 WHERE id = $4
-	`, status, homeScore, awayScore, matchID)
+		UPDATE matches SET status = $1, home_score = $2, away_score = $3, advancing_team_id = $4 WHERE id = $5
+	`, status, homeScore, awayScore, advancingTeamID, matchID)
 	if err != nil {
 		http.Error(w, "Erro ao atualizar jogo", http.StatusInternalServerError)
 		return

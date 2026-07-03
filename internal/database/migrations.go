@@ -160,6 +160,10 @@ func RunMigrations(db *sql.DB) error {
 				FOREIGN KEY (user_id) REFERENCES users(id)
 			)`,
 		},
+		{
+			name: "add_advancing_team_id_to_matches",
+			sql:  `ALTER TABLE matches ADD COLUMN IF NOT EXISTS advancing_team_id INTEGER DEFAULT 0`,
+		},
 	}
 
 	for _, m := range migrations {
