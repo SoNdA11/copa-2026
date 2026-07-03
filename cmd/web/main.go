@@ -116,7 +116,9 @@ func main() {
 
 	// Matches
 	r.Get("/matches", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Cache-Control", "no-cache, must-revalidate")
+		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+		w.Header().Set("Pragma", "no-cache")
+		w.Header().Set("Expires", "0")
 		matchHandler.List(w, r)
 	})
 	r.Get("/matches/{id}", matchHandler.Detail)
