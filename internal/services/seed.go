@@ -174,7 +174,7 @@ func (s *SeedService) updateMatchDetails() {
 			}
 		} else if sm.TimeElapsed == "notstarted" {
 			s.db.Exec(
-				"UPDATE matches SET status = 'notstarted', home_score = NULL, away_score = NULL WHERE id = $1 AND (status IS DISTINCT FROM 'notstarted' OR home_score IS NOT NULL OR away_score IS NOT NULL)",
+				"UPDATE matches SET status = 'upcoming', home_score = NULL, away_score = NULL WHERE id = $1 AND (status IS DISTINCT FROM 'upcoming' OR home_score IS NOT NULL OR away_score IS NOT NULL)",
 				sm.ID,
 			)
 		}
