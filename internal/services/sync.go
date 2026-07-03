@@ -158,7 +158,7 @@ func (s *SyncService) updateMatch(apiMatch APIMatch) error {
 		return err
 	}
 
-	if currentStatus == "finished" && apiMatch.Finished != "TRUE" && apiMatch.TimeElapsed != "finished" {
+	if currentStatus == "finished" {
 		return nil
 	}
 
