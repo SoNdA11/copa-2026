@@ -162,21 +162,17 @@ func (s *SeedService) updateMatchDetails() {
 			count++
 		}
 
-		// Sync status/scores with seed: finished → set scores, notstarted → clear fabricated data
+		// Sync status/scores with seed: only set finished when seed has valid scores
+		// Never downgrade matches that are already processed (have points awarded)
 		if sm.Finished == "TRUE" || sm.TimeElapsed == "finished" {
 			hs, err1 := strconv.Atoi(sm.HomeScore)
 			as, err2 := strconv.Atoi(sm.AwayScore)
 			if err1 == nil && err2 == nil {
 				s.db.Exec(
-					"UPDATE matches SET status = 'finished', home_score = $1, away_score = $2 WHERE id = $3 AND status != 'finished'",
+					"UPDATE matches SET status = 'finished', home_score = $1, away_score = $2 WHERE id = $3 AND (status != 'finished' OR home_score IS NULL)",
 					hs, as, sm.ID,
 				)
 			}
-		} else if sm.TimeElapsed == "notstarted" {
-			s.db.Exec(
-				"UPDATE matches SET status = 'upcoming', home_score = NULL, away_score = NULL WHERE id = $1 AND status != 'finished' AND (status IS DISTINCT FROM 'upcoming' OR home_score IS NOT NULL OR away_score IS NOT NULL)",
-				sm.ID,
-			)
 		}
 
 		// Update home/away team IDs for all matches where seed has real team IDs

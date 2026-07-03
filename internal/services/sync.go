@@ -208,10 +208,19 @@ func (s *SyncService) updateMatch(apiMatch APIMatch) error {
 	}
 
 	_, err = s.db.Exec(`
-		UPDATE matches SET home_score = $1, away_score = $2, status = $3, home_team_id = $4, away_team_id = $5 WHERE id = $6
-	`, homeScore, awayScore, status, newHomeTeamID, newAwayTeamID, matchID)
+		UPDATE matches SET status = $1, home_team_id = $2, away_team_id = $3 WHERE id = $4
+	`, status, newHomeTeamID, newAwayTeamID, matchID)
 	if err != nil {
 		return err
+	}
+
+	if homeScore != nil && awayScore != nil {
+		_, err = s.db.Exec(`
+			UPDATE matches SET home_score = $1, away_score = $2 WHERE id = $3
+		`, homeScore, awayScore, matchID)
+		if err != nil {
+			return err
+		}
 	}
 
 	if status == "finished" {
