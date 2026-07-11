@@ -147,10 +147,10 @@ func (s *SyncService) updateMatch(apiMatch APIMatch) error {
 		return fmt.Errorf("invalid match ID %s: %w", apiMatch.ID, err)
 	}
 
-	var currentStatus, stage string
+	var currentStatus, stage, matchDate, matchTime string
 	var currentHomeScore, currentAwayScore sql.NullInt64
 	var currentHomeTeamID, currentAwayTeamID int64
-	err = s.db.QueryRow("SELECT status, home_score, away_score, home_team_id, away_team_id, stage FROM matches WHERE id = $1", matchID).Scan(&currentStatus, &currentHomeScore, &currentAwayScore, &currentHomeTeamID, &currentAwayTeamID, &stage)
+	err = s.db.QueryRow("SELECT status, home_score, away_score, home_team_id, away_team_id, stage, match_date, match_time FROM matches WHERE id = $1", matchID).Scan(&currentStatus, &currentHomeScore, &currentAwayScore, &currentHomeTeamID, &currentAwayTeamID, &stage, &matchDate, &matchTime)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil
@@ -167,14 +167,28 @@ func (s *SyncService) updateMatch(apiMatch APIMatch) error {
 	homeScore = nil
 	awayScore = nil
 
+	loc, _ := time.LoadLocation("America/Sao_Paulo")
+	now := time.Now().In(loc)
+
 	if apiMatch.Finished == "TRUE" || apiMatch.TimeElapsed == "finished" {
 		status = "finished"
 		homeScore = parseInt(apiMatch.HomeScore)
 		awayScore = parseInt(apiMatch.AwayScore)
 	} else if apiMatch.TimeElapsed != "notstarted" && apiMatch.TimeElapsed != "" {
-		status = "live"
-		homeScore = parseInt(apiMatch.HomeScore)
-		awayScore = parseInt(apiMatch.AwayScore)
+		if matchDate != "" && matchTime != "" {
+			matchStart, err := time.ParseInLocation("2006-01-02 15:04", matchDate+" "+matchTime, loc)
+			if err == nil && now.Before(matchStart) {
+				status = "upcoming"
+			} else {
+				status = "live"
+				homeScore = parseInt(apiMatch.HomeScore)
+				awayScore = parseInt(apiMatch.AwayScore)
+			}
+		} else {
+			status = "live"
+			homeScore = parseInt(apiMatch.HomeScore)
+			awayScore = parseInt(apiMatch.AwayScore)
+		}
 	}
 
 	apiHomeTeamID := parseInt(apiMatch.HomeTeamID)
