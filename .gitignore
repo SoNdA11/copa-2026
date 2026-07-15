@@ -8,6 +8,8 @@ data/copa.db
 data/copa.db-shm
 data/copa.db-wal
 
+dump_copa_2026.sql
+
 # Ambiente
 .env
 .env.local

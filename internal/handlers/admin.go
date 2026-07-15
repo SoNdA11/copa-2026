@@ -346,6 +346,9 @@ func (h *AdminHandler) UpdateMatch(w http.ResponseWriter, r *http.Request) {
 		if err := h.betSvc.RecalculateMatchBets(matchID); err != nil {
 			log.Printf("Error recalculating bets for match %d: %v", matchID, err)
 		}
+		if err := h.knockoutSvc.ComputeAdvancement(); err != nil {
+			log.Printf("Error propagating knockout after admin update: %v", err)
+		}
 	}
 
 	http.Redirect(w, r, "/admin/matches?flash=jogo+atualizado", http.StatusSeeOther)

@@ -292,7 +292,7 @@ func (s *KnockoutService) resolveTeamID(label string, labelToTeam map[string]int
 }
 
 func (s *KnockoutService) propagateWinners() error {
-	stages := []string{"r32", "r16", "qf", "sf", "third"}
+	stages := []string{"r32", "r16", "qf", "sf", "third", "final"}
 
 	for _, stage := range stages {
 		rows, err := s.db.Query(`
@@ -302,7 +302,7 @@ func (s *KnockoutService) propagateWinners() error {
 			return err
 		}
 
-		var matchIDs, homeIDs, awayIDs []int64
+		var matchIDs []int64
 		var homeLabels, awayLabels []string
 
 		for rows.Next() {
@@ -312,8 +312,6 @@ func (s *KnockoutService) propagateWinners() error {
 				continue
 			}
 			matchIDs = append(matchIDs, matchID)
-			homeIDs = append(homeIDs, homeID)
-			awayIDs = append(awayIDs, awayID)
 			homeLabels = append(homeLabels, homeLabel)
 			awayLabels = append(awayLabels, awayLabel)
 		}
@@ -323,29 +321,24 @@ func (s *KnockoutService) propagateWinners() error {
 		}
 
 		for i, matchID := range matchIDs {
-			currentHomeID := homeIDs[i]
-			currentAwayID := awayIDs[i]
-
-			if currentHomeID > 0 && currentAwayID > 0 {
-				continue
-			}
-
 			homeLabel := homeLabels[i]
 			awayLabel := awayLabels[i]
-			homeWinner := s.getWinnerFromLabel(homeLabel)
-			if homeWinner == 0 {
-				homeWinner = s.getLoserFromLabel(homeLabel)
+
+			var homeTeamID, awayTeamID int64
+			homeTeamID = s.getWinnerFromLabel(homeLabel)
+			if homeTeamID == 0 {
+				homeTeamID = s.getLoserFromLabel(homeLabel)
 			}
-			awayWinner := s.getWinnerFromLabel(awayLabel)
-			if awayWinner == 0 {
-				awayWinner = s.getLoserFromLabel(awayLabel)
+			awayTeamID = s.getWinnerFromLabel(awayLabel)
+			if awayTeamID == 0 {
+				awayTeamID = s.getLoserFromLabel(awayLabel)
 			}
 
-			if homeWinner > 0 && currentHomeID == 0 {
-				s.db.Exec(`UPDATE matches SET home_team_id = $1 WHERE id = $2`, homeWinner, matchID)
+			if homeTeamID > 0 {
+				s.db.Exec(`UPDATE matches SET home_team_id = $1 WHERE id = $2`, homeTeamID, matchID)
 			}
-			if awayWinner > 0 && currentAwayID == 0 {
-				s.db.Exec(`UPDATE matches SET away_team_id = $1 WHERE id = $2`, awayWinner, matchID)
+			if awayTeamID > 0 {
+				s.db.Exec(`UPDATE matches SET away_team_id = $1 WHERE id = $2`, awayTeamID, matchID)
 			}
 		}
 	}
