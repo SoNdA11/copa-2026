@@ -218,7 +218,7 @@ func (s *BetService) RecalculateAllFinishedMatches() {
 	}
 }
 
-func (s *BetService) ResolveSpecialBet(betType string, correctValue string) error {
+func (s *BetService) ResolveSpecialBet(betType string, correctUserIDs []int64) error {
 	points, ok := models.SpecialBetPoints[betType]
 	if !ok {
 		return fmt.Errorf("tipo de aposta inválido: %s", betType)
@@ -233,8 +233,10 @@ func (s *BetService) ResolveSpecialBet(betType string, correctValue string) erro
 	if _, err := tx.Exec("UPDATE special_bets SET points = 0 WHERE bet_type = $1", betType); err != nil {
 		return err
 	}
-	if _, err := tx.Exec("UPDATE special_bets SET points = $1 WHERE bet_type = $2 AND value = $3", points, betType, correctValue); err != nil {
-		return err
+	for _, uid := range correctUserIDs {
+		if _, err := tx.Exec("UPDATE special_bets SET points = $1 WHERE bet_type = $2 AND user_id = $3", points, betType, uid); err != nil {
+			return err
+		}
 	}
 
 	return tx.Commit()

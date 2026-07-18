@@ -33,6 +33,9 @@
                     <a href="/admin/matches" class="nav-link text-zinc-500 dark:text-zinc-500 hover:text-green-600 dark:hover:text-green-400 px-3 py-2 text-sm font-medium transition-colors rounded-xl hover:bg-green-50/50 dark:hover:bg-green-950/20">
                         Jogos
                     </a>
+                    <a href="/admin/special" class="nav-link text-zinc-500 dark:text-zinc-500 hover:text-green-600 dark:hover:text-green-400 px-3 py-2 text-sm font-medium transition-colors rounded-xl hover:bg-green-50/50 dark:hover:bg-green-950/20">
+                        Especiais
+                    </a>
                     {{end}}
                     {{end}}
                 </div>
@@ -115,6 +118,7 @@
             {{if .User.IsAdmin}}
             <a href="/admin" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50/50 dark:hover:bg-green-950/20 rounded-xl">Admin</a>
             <a href="/admin/matches" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50/50 dark:hover:bg-green-950/20 rounded-xl">Jogos (Admin)</a>
+            <a href="/admin/special" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50/50 dark:hover:bg-green-950/20 rounded-xl">Especiais (Admin)</a>
             {{end}}
             <a href="/settings" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50/50 dark:hover:bg-green-950/20 rounded-xl">Configurações</a>
             {{else}}

@@ -2,7 +2,7 @@
 <div class="max-w-6xl mx-auto animate-fade-in">
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-zinc-800 dark:text-zinc-100">Admin - Palpites Especiais</h1>
-        <p class="text-zinc-500 dark:text-zinc-500 mt-1 text-sm">Gerenciar e resolver palpites especiais dos usuários</p>
+        <p class="text-zinc-500 dark:text-zinc-500 mt-1 text-sm">Marque os usuários que acertaram cada categoria e clique em Resolver</p>
     </div>
 
     {{if .Data.Flash}}
@@ -18,51 +18,55 @@
             <span class="text-xs font-medium text-zinc-400 dark:text-zinc-600">Máx: {{.MaxPoints}} pts</span>
         </div>
         <div class="p-5">
-            <form method="POST" action="/admin/special/resolve" class="flex items-center space-x-3 mb-4">
-                <input type="hidden" name="bet_type" value="{{.Key}}">
-                {{if eq .Key "champion"}}
-                <select name="correct_value" class="bg-zinc-100/70 dark:bg-zinc-800/50 border border-zinc-200/60 dark:border-zinc-700/50 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 dark:focus:border-green-600 text-zinc-700 dark:text-zinc-300 min-w-[200px]">
-                    <option value="">Selecione o campeão</option>
-                    {{range $.Data.Teams}}
-                    <option value="{{.Name}}">{{.Name}}</option>
-                    {{end}}
-                </select>
-                {{else}}
-                <input type="text" name="correct_value" placeholder="Nome do jogador..."
-                    class="bg-zinc-100/70 dark:bg-zinc-800/50 border border-zinc-200/60 dark:border-zinc-700/50 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 dark:focus:border-green-600 text-zinc-700 dark:text-zinc-300 min-w-[250px]">
-                {{end}}
-                <button type="submit" class="bg-green-500 hover:bg-green-600 text-white dark:text-zinc-900 font-semibold px-4 py-2 rounded-xl text-sm transition-colors">
-                    Resolver
-                </button>
-            </form>
-
             {{if .Bets}}
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm">
-                    <thead>
-                        <tr class="bg-zinc-100/30 dark:bg-zinc-800/20 text-left text-xs text-zinc-500 dark:text-zinc-500">
-                            <th class="px-3 py-2 font-semibold">Usuário</th>
-                            <th class="px-3 py-2 font-semibold">Palpite</th>
-                            <th class="px-3 py-2 font-semibold text-right">Pontos</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-zinc-200/40 dark:divide-zinc-800/30">
-                        {{range .Bets}}
-                        <tr class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20 transition-colors">
-                            <td class="px-3 py-2 font-medium text-zinc-700 dark:text-zinc-300">{{.UserName}}</td>
-                            <td class="px-3 py-2 text-zinc-600 dark:text-zinc-400">{{.Value}}</td>
-                            <td class="px-3 py-2 text-right">
-                                {{if gt .Points 0}}
-                                <span class="text-green-600 dark:text-green-400 font-bold text-xs">+{{.Points}}</span>
-                                {{else}}
-                                <span class="text-zinc-400 dark:text-zinc-600 text-xs">0</span>
-                                {{end}}
-                            </td>
-                        </tr>
-                        {{end}}
-                    </tbody>
-                </table>
-            </div>
+            <form method="POST" action="/admin/special/resolve">
+                <input type="hidden" name="bet_type" value="{{.Key}}">
+                <div class="overflow-x-auto mb-4">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="bg-zinc-100/30 dark:bg-zinc-800/20 text-left text-xs text-zinc-500 dark:text-zinc-500">
+                                <th class="px-3 py-2 font-semibold w-10">OK</th>
+                                <th class="px-3 py-2 font-semibold">Usuário</th>
+                                <th class="px-3 py-2 font-semibold">Palpite</th>
+                                <th class="px-3 py-2 font-semibold text-right">Pontos</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-zinc-200/40 dark:divide-zinc-800/30">
+                            {{range .Bets}}
+                            <tr class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20 transition-colors {{if gt .Points 0}}bg-green-50/30 dark:bg-green-950/15{{end}}">
+                                <td class="px-3 py-2 text-center">
+                                    <input type="checkbox" name="user_ids" value="{{.UserID}}"
+                                        class="w-4 h-4 rounded border-zinc-300 dark:border-zinc-700 text-green-600 focus:ring-green-500/30 cursor-pointer"
+                                        {{if gt .Points 0}}checked{{end}}>
+                                </td>
+                                <td class="px-3 py-2 font-medium text-zinc-700 dark:text-zinc-300">{{.UserName}}</td>
+                                <td class="px-3 py-2 text-zinc-600 dark:text-zinc-400">{{.Value}}</td>
+                                <td class="px-3 py-2 text-right">
+                                    {{if gt .Points 0}}
+                                    <span class="text-green-600 dark:text-green-400 font-bold text-xs">+{{.Points}}</span>
+                                    {{else}}
+                                    <span class="text-zinc-400 dark:text-zinc-600 text-xs">0</span>
+                                    {{end}}
+                                </td>
+                            </tr>
+                            {{end}}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <label class="flex items-center space-x-2 text-xs text-zinc-500 dark:text-zinc-500 cursor-pointer">
+                            <input type="checkbox" onclick="toggleAll(this, '{{.Key}}')"
+                                class="w-4 h-4 rounded border-zinc-300 dark:border-zinc-700 text-green-600 focus:ring-green-500/30 cursor-pointer">
+                            <span>Marcar/Desmarcar todos</span>
+                        </label>
+                    </div>
+                    <button type="submit"
+                        class="bg-green-500 hover:bg-green-600 text-white dark:text-zinc-900 font-semibold px-5 py-2 rounded-xl text-sm transition-colors">
+                        Resolver {{.Label}}
+                    </button>
+                </div>
+            </form>
             {{else}}
             <p class="text-zinc-400 dark:text-zinc-600 text-sm text-center py-4">Nenhum palpite cadastrado para esta categoria</p>
             {{end}}
@@ -70,4 +74,12 @@
     </div>
     {{end}}
 </div>
+
+<script>
+function toggleAll(source, prefix) {
+    document.querySelectorAll(`input[name="user_ids"]`).forEach(cb => {
+        cb.checked = source.checked;
+    });
+}
+</script>
 {{end}}

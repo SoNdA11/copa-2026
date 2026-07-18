@@ -456,6 +456,7 @@ type adminSpecialBetTypeView struct {
 }
 
 type adminSpecialUserBet struct {
+	UserID   int64
 	UserName string
 	Value    string
 	Points   int
@@ -481,7 +482,7 @@ func (h *AdminHandler) SpecialPage(w http.ResponseWriter, r *http.Request) {
 	for i := range betTypes {
 		bt := &betTypes[i]
 		rows, err := h.db.Query(`
-			SELECT u.name, s.value, s.points
+			SELECT s.user_id, u.name, s.value, s.points
 			FROM special_bets s
 			JOIN users u ON u.id = s.user_id
 			WHERE s.bet_type = $1 AND u.group_id = $2
@@ -492,7 +493,7 @@ func (h *AdminHandler) SpecialPage(w http.ResponseWriter, r *http.Request) {
 		}
 		for rows.Next() {
 			var ub adminSpecialUserBet
-			if err := rows.Scan(&ub.UserName, &ub.Value, &ub.Points); err == nil {
+			if err := rows.Scan(&ub.UserID, &ub.UserName, &ub.Value, &ub.Points); err == nil {
 				bt.Bets = append(bt.Bets, ub)
 				if ub.Points > 0 {
 					bt.CorrectValue = ub.Value
@@ -538,14 +539,21 @@ func (h *AdminHandler) ResolveSpecial(w http.ResponseWriter, r *http.Request) {
 	}
 
 	betType := r.FormValue("bet_type")
-	correctValue := r.FormValue("correct_value")
-
-	if betType == "" || correctValue == "" {
-		http.Redirect(w, r, "/admin/special?flash=preencha+todos+os+campos", http.StatusSeeOther)
+	if betType == "" {
+		http.Redirect(w, r, "/admin/special?flash=tipo+de+aposta+invalido", http.StatusSeeOther)
 		return
 	}
 
-	if err := h.betSvc.ResolveSpecialBet(betType, correctValue); err != nil {
+	userIDStrs := r.Form["user_ids"]
+	var correctUserIDs []int64
+	for _, idStr := range userIDStrs {
+		id, err := strconv.ParseInt(idStr, 10, 64)
+		if err == nil {
+			correctUserIDs = append(correctUserIDs, id)
+		}
+	}
+
+	if err := h.betSvc.ResolveSpecialBet(betType, correctUserIDs); err != nil {
 		log.Printf("Error resolving special bet %s: %v", betType, err)
 		http.Redirect(w, r, "/admin/special?flash=erro+ao+resolver", http.StatusSeeOther)
 		return
