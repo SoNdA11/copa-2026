@@ -177,6 +177,8 @@ func main() {
 		r.Get("/admin/match-bets", adminHandler.MatchBetsPage)
 		r.Post("/admin/sync", adminHandler.ForceSync)
 		r.Post("/admin/reset-password", adminHandler.ResetPassword)
+		r.Get("/admin/special", adminHandler.SpecialPage)
+		r.Post("/admin/special/resolve", adminHandler.ResolveSpecial)
 	})
 
 	// Stats API

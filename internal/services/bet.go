@@ -218,6 +218,28 @@ func (s *BetService) RecalculateAllFinishedMatches() {
 	}
 }
 
+func (s *BetService) ResolveSpecialBet(betType string, correctValue string) error {
+	points, ok := models.SpecialBetPoints[betType]
+	if !ok {
+		return fmt.Errorf("tipo de aposta inválido: %s", betType)
+	}
+
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if _, err := tx.Exec("UPDATE special_bets SET points = 0 WHERE bet_type = $1", betType); err != nil {
+		return err
+	}
+	if _, err := tx.Exec("UPDATE special_bets SET points = $1 WHERE bet_type = $2 AND value = $3", points, betType, correctValue); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
 func (s *BetService) GetMatchByID(matchID int64) (*models.Match, error) {
 	m := &models.Match{}
 	m.HomeTeam = &models.Team{}

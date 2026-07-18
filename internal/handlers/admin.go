@@ -445,3 +445,133 @@ func (h *AdminHandler) MatchBetsPage(w http.ResponseWriter, r *http.Request) {
 
 	h.renderer.Render(w, "cmd/web/templates/pages/admin_match_bets.html", data)
 }
+
+type adminSpecialBetTypeView struct {
+	Key         string
+	Label       string
+	MaxPoints   int
+	Description string
+	CorrectValue string
+	Bets        []adminSpecialUserBet
+}
+
+type adminSpecialUserBet struct {
+	UserName string
+	Value    string
+	Points   int
+}
+
+func (h *AdminHandler) SpecialPage(w http.ResponseWriter, r *http.Request) {
+	user := GetUserFromSession(r)
+	if user == nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	teams, _ := h.getTeams()
+
+	betTypes := []adminSpecialBetTypeView{
+		{Key: "champion", Label: "Campeão da Copa", MaxPoints: 10, Description: "Quem vai levantar a taça?"},
+		{Key: "best_player", Label: "Melhor Jogador", MaxPoints: 5, Description: "Quem será eleito o melhor da Copa?"},
+		{Key: "top_scorer", Label: "Artilheiro", MaxPoints: 5, Description: "Quem vai fazer mais gols?"},
+		{Key: "best_goalkeeper", Label: "Melhor Goleiro", MaxPoints: 5, Description: "Quem será o melhor goleiro da Copa?"},
+		{Key: "best_young_player", Label: "Melhor Jovem", MaxPoints: 5, Description: "Quem será o melhor jogador jovem da Copa?"},
+	}
+
+	for i := range betTypes {
+		bt := &betTypes[i]
+		rows, err := h.db.Query(`
+			SELECT u.name, s.value, s.points
+			FROM special_bets s
+			JOIN users u ON u.id = s.user_id
+			WHERE s.bet_type = $1 AND u.group_id = $2
+			ORDER BY u.name
+		`, bt.Key, user.GroupID)
+		if err != nil {
+			continue
+		}
+		for rows.Next() {
+			var ub adminSpecialUserBet
+			if err := rows.Scan(&ub.UserName, &ub.Value, &ub.Points); err == nil {
+				bt.Bets = append(bt.Bets, ub)
+				if ub.Points > 0 {
+					bt.CorrectValue = ub.Value
+				}
+			}
+		}
+		rows.Close()
+	}
+
+	type pageData struct {
+		Types   []adminSpecialBetTypeView
+		Teams   []models.Team
+		Flash   string
+	}
+
+	data := PageData{
+		Title: "Admin - Palpites Especiais",
+		User:  user,
+		Data: pageData{
+			Types: betTypes,
+			Teams: teams,
+			Flash: r.URL.Query().Get("flash"),
+		},
+	}
+	h.renderer.Render(w, "cmd/web/templates/pages/admin_special.html", data)
+}
+
+func (h *AdminHandler) ResolveSpecial(w http.ResponseWriter, r *http.Request) {
+	user := GetUserFromSession(r)
+	if user == nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	if r.Method != "POST" {
+		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Erro no formulário", http.StatusBadRequest)
+		return
+	}
+
+	betType := r.FormValue("bet_type")
+	correctValue := r.FormValue("correct_value")
+
+	if betType == "" || correctValue == "" {
+		http.Redirect(w, r, "/admin/special?flash=preencha+todos+os+campos", http.StatusSeeOther)
+		return
+	}
+
+	if err := h.betSvc.ResolveSpecialBet(betType, correctValue); err != nil {
+		log.Printf("Error resolving special bet %s: %v", betType, err)
+		http.Redirect(w, r, "/admin/special?flash=erro+ao+resolver", http.StatusSeeOther)
+		return
+	}
+
+	http.Redirect(w, r, "/admin/special?flash=palpites+resolvidos+com+sucesso", http.StatusSeeOther)
+}
+
+func (h *AdminHandler) getTeams() ([]models.Team, error) {
+	rows, err := h.db.Query("SELECT id, name, fifa_code, group_name, flag_url FROM teams WHERE id > 0 ORDER BY name")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var teams []models.Team
+	for rows.Next() {
+		var t models.Team
+		var flagURL sql.NullString
+		if err := rows.Scan(&t.ID, &t.Name, &t.FifaCode, &t.GroupName, &flagURL); err != nil {
+			continue
+		}
+		if flagURL.Valid {
+			t.FlagURL = flagURL.String
+		}
+		teams = append(teams, t)
+	}
+	return teams, rows.Err()
+}

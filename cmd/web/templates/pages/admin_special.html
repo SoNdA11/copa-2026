@@ -1,0 +1,73 @@
+{{define "page_content"}}
+<div class="max-w-6xl mx-auto animate-fade-in">
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-zinc-800 dark:text-zinc-100">Admin - Palpites Especiais</h1>
+        <p class="text-zinc-500 dark:text-zinc-500 mt-1 text-sm">Gerenciar e resolver palpites especiais dos usuários</p>
+    </div>
+
+    {{if .Data.Flash}}
+    <div class="bg-green-50/60 dark:bg-green-950/30 border border-green-200/60 dark:border-green-800/30 text-green-700 dark:text-green-300 px-4 py-3 mb-4 text-sm rounded-2xl animate-fade-in">
+        {{.Data.Flash}}
+    </div>
+    {{end}}
+
+    {{range .Data.Types}}
+    <div class="card rounded-2xl overflow-hidden mb-6 animate-fade-in">
+        <div class="px-5 py-3 border-b border-zinc-200/50 dark:border-zinc-800/30 bg-zinc-100/30 dark:bg-zinc-800/20 flex items-center justify-between">
+            <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">{{.Label}}</h2>
+            <span class="text-xs font-medium text-zinc-400 dark:text-zinc-600">Máx: {{.MaxPoints}} pts</span>
+        </div>
+        <div class="p-5">
+            <form method="POST" action="/admin/special/resolve" class="flex items-center space-x-3 mb-4">
+                <input type="hidden" name="bet_type" value="{{.Key}}">
+                {{if eq .Key "champion"}}
+                <select name="correct_value" class="bg-zinc-100/70 dark:bg-zinc-800/50 border border-zinc-200/60 dark:border-zinc-700/50 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 dark:focus:border-green-600 text-zinc-700 dark:text-zinc-300 min-w-[200px]">
+                    <option value="">Selecione o campeão</option>
+                    {{range $.Data.Teams}}
+                    <option value="{{.Name}}">{{.Name}}</option>
+                    {{end}}
+                </select>
+                {{else}}
+                <input type="text" name="correct_value" placeholder="Nome do jogador..."
+                    class="bg-zinc-100/70 dark:bg-zinc-800/50 border border-zinc-200/60 dark:border-zinc-700/50 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-400 dark:focus:border-green-600 text-zinc-700 dark:text-zinc-300 min-w-[250px]">
+                {{end}}
+                <button type="submit" class="bg-green-500 hover:bg-green-600 text-white dark:text-zinc-900 font-semibold px-4 py-2 rounded-xl text-sm transition-colors">
+                    Resolver
+                </button>
+            </form>
+
+            {{if .Bets}}
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-zinc-100/30 dark:bg-zinc-800/20 text-left text-xs text-zinc-500 dark:text-zinc-500">
+                            <th class="px-3 py-2 font-semibold">Usuário</th>
+                            <th class="px-3 py-2 font-semibold">Palpite</th>
+                            <th class="px-3 py-2 font-semibold text-right">Pontos</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-zinc-200/40 dark:divide-zinc-800/30">
+                        {{range .Bets}}
+                        <tr class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20 transition-colors">
+                            <td class="px-3 py-2 font-medium text-zinc-700 dark:text-zinc-300">{{.UserName}}</td>
+                            <td class="px-3 py-2 text-zinc-600 dark:text-zinc-400">{{.Value}}</td>
+                            <td class="px-3 py-2 text-right">
+                                {{if gt .Points 0}}
+                                <span class="text-green-600 dark:text-green-400 font-bold text-xs">+{{.Points}}</span>
+                                {{else}}
+                                <span class="text-zinc-400 dark:text-zinc-600 text-xs">0</span>
+                                {{end}}
+                            </td>
+                        </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+            {{else}}
+            <p class="text-zinc-400 dark:text-zinc-600 text-sm text-center py-4">Nenhum palpite cadastrado para esta categoria</p>
+            {{end}}
+        </div>
+    </div>
+    {{end}}
+</div>
+{{end}}
